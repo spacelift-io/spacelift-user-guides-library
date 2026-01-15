@@ -1,6 +1,7 @@
 package userguides_test
 
 import (
+	"strings"
 	"testing"
 
 	userguides "github.com/spacelift-io/spacelift-user-guides-library"
@@ -139,5 +140,133 @@ func TestOrdering(t *testing.T) {
 				t.Logf("    Guide %s has ordering: %d", guide.Metadata.Title, guide.Ordering)
 			}
 		}
+	}
+}
+
+func TestValidationRules(t *testing.T) {
+	tests := []struct {
+		name      string
+		guide     userguides.Guide
+		expectErr bool
+		errMsg    string
+	}{
+		{
+			name: "valid guide",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					Description:       "A test guide",
+					Labels:            []string{"test"},
+					Difficulty:        "easy",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+					{Order: 2, Title: "Step 2", Instruction: "Do that"},
+				},
+				Completion: userguides.GuideCompletion{
+					SuccessMessage:      "Done",
+					RecommendedGuideIDs: []string{},
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "invalid difficulty",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					Difficulty:        "super-hard",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "invalid difficulty",
+		},
+		{
+			name: "empty label",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					Labels:            []string{"valid", ""},
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "label at index 1 is empty",
+		},
+		{
+			name: "non-sequential steps",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+					{Order: 3, Title: "Step 3", Instruction: "Skip step 2"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "steps must be sequentially ordered",
+		},
+		{
+			name: "invalid URL scheme",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{
+						Order:       1,
+						Title:       "Step 1",
+						Instruction: "Do this",
+						Docs: []userguides.GuideDoc{
+							{Title: "Docs", URL: "ftp://example.com"},
+						},
+					},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "must use http or https scheme",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.guide.Validate()
+			if tt.expectErr {
+				if err == nil {
+					t.Errorf("Expected error containing %q but got no error", tt.errMsg)
+				} else if !strings.Contains(err.Error(), tt.errMsg) {
+					t.Errorf("Expected error containing %q but got: %v", tt.errMsg, err)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error but got: %v", err)
+				}
+			}
+		})
 	}
 }
