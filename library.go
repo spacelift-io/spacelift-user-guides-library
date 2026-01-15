@@ -108,9 +108,6 @@ func parse(f fs.FS) (*Library, error) {
 	return lib, nil
 }
 
-// validateLibrary performs library-wide validation checks including:
-// - Duplicate slug detection across groups, chapters, and guides
-// - Referential integrity for recommendedGuideIds
 func validateLibrary(lib *Library) error {
 	groupSlugs := make(map[string]bool)
 	allGuidePaths := make(map[string]bool)
@@ -299,9 +296,6 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	return guide, nil
 }
 
-// Validate performs validation on a Group including:
-// - Required fields presence (name, skill level)
-// - Skill level enum validation (BEGINNER, ENABLER, COMMANDER, GUARDIAN)
 func (g Group) Validate() error {
 	if g.Name == "" {
 		return fmt.Errorf("group %s: name cannot be empty", g.Slug)
@@ -321,8 +315,6 @@ func (g Group) Validate() error {
 	return nil
 }
 
-// Validate performs validation on a Chapter including:
-// - Required fields presence (name)
 func (c Chapter) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("chapter %s: name cannot be empty", c.Slug)
@@ -330,13 +322,6 @@ func (c Chapter) Validate() error {
 	return nil
 }
 
-// Validate performs validation on a Guide including:
-// - Required fields presence
-// - Step ordering (positive, unique, sequential)
-// - URL format validation for documentation links
-// - Difficulty enum validation
-// - Label validation (non-empty strings)
-// - MinutesToComplete validation (non-negative)
 func (g Guide) Validate() error {
 	if g.Metadata.Title == "" {
 		return fmt.Errorf("guide %s: title cannot be empty", g.Slug)
@@ -356,14 +341,12 @@ func (g Guide) Validate() error {
 		}
 	}
 
-	// Validate labels are non-empty
 	for i, label := range g.Metadata.Labels {
 		if strings.TrimSpace(label) == "" {
 			return fmt.Errorf("guide %s: label at index %d is empty", g.Slug, i)
 		}
 	}
 
-	// Collect and validate step orders
 	var orders []int
 	stepOrders := make(map[int]bool)
 	for _, step := range g.Steps {
@@ -382,7 +365,6 @@ func (g Guide) Validate() error {
 		stepOrders[step.Order] = true
 		orders = append(orders, step.Order)
 
-		// Validate documentation URLs
 		for _, doc := range step.Docs {
 			if doc.Title == "" {
 				return fmt.Errorf("guide %s: step %d doc title cannot be empty", g.Slug, step.Order)
@@ -390,11 +372,9 @@ func (g Guide) Validate() error {
 			if doc.URL == "" {
 				return fmt.Errorf("guide %s: step %d doc URL cannot be empty", g.Slug, step.Order)
 			}
-			// Validate URL format
 			if _, err := url.Parse(doc.URL); err != nil {
 				return fmt.Errorf("guide %s: step %d doc URL %q is malformed: %w", g.Slug, step.Order, doc.URL, err)
 			}
-			// Ensure URL has scheme (http or https)
 			parsedURL, _ := url.Parse(doc.URL)
 			if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
 				return fmt.Errorf("guide %s: step %d doc URL %q must use http or https scheme", g.Slug, step.Order, doc.URL)
@@ -402,7 +382,6 @@ func (g Guide) Validate() error {
 		}
 	}
 
-	// Validate step ordering is sequential (1, 2, 3, ...)
 	sort.Ints(orders)
 	for i, order := range orders {
 		expectedOrder := i + 1
