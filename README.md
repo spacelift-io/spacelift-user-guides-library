@@ -271,6 +271,47 @@ go test -v -run TestGuidesLoad
 go test -v -cover
 ```
 
+## CI/CD Pipeline
+
+### Automated Validation
+
+The repository uses GitHub Actions to automatically validate all content changes. The CI pipeline runs on:
+- Every push to the `main` branch
+- Every pull request targeting `main`
+
+### Workflow Steps
+
+The validation workflow (`.github/workflows/validate.yml`) performs the following checks:
+
+1. **Checkout Code**: Retrieves the repository code
+2. **Setup Go**: Installs Go using the version specified in `go.mod`
+3. **Download Dependencies**: Fetches all required Go modules
+4. **Run Tests**: Executes all tests with `go test -v ./...`
+   - Triggers `Guides()` which validates all content
+   - Runs comprehensive validation tests
+   - Panics on any validation errors
+5. **Verify go.mod**: Ensures dependencies are correctly tracked
+6. **Build Library**: Compiles the library to catch any build errors
+
+### What Gets Validated
+
+Every commit automatically checks:
+- ✅ YAML syntax correctness
+- ✅ Required fields presence
+- ✅ Unique slugs (no duplicates)
+- ✅ Valid enums (skill levels, difficulty)
+- ✅ Sequential step ordering
+- ✅ URL format validation
+- ✅ Referential integrity (recommendedGuideIds)
+- ✅ Label and field constraints
+
+### Pull Request Requirements
+
+- All CI checks must pass before merging
+- Any validation failure will block the PR
+- Review the CI output for specific error messages
+- Fix validation errors and push again to re-trigger CI
+
 ## Integration with Backend
 
 The Spacelift backend imports this library as a Go module:
