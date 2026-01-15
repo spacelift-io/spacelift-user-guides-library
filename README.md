@@ -203,12 +203,16 @@ go test -v
 ```
 
 The library will validate:
-- YAML syntax
-- Required fields presence
-- Skill level values
-- Step ordering and uniqueness
-- URL formats in documentation links
-- Referenced guide IDs (if applicable)
+- **YAML syntax**: All YAML files must be valid
+- **Required fields**: All mandatory fields must be present
+- **Unique slugs**: No duplicate slugs within groups, chapters, or guides
+- **Skill level enum**: Must be BEGINNER, ENABLER, COMMANDER, or GUARDIAN
+- **Difficulty enum**: Must be easy, medium, or hard (if specified)
+- **Step ordering**: Steps must be sequentially ordered (1, 2, 3...) with no gaps
+- **URL validation**: Documentation URLs must use http or https schemes
+- **Label validation**: Labels must be non-empty strings
+- **Referential integrity**: RecommendedGuideIds must reference existing guides
+- **Non-negative values**: MinutesToComplete must be >= 0
 
 ### 5. Submit a Pull Request
 
@@ -232,11 +236,27 @@ func Guides() (*Library, error) {
 
 ### Validation Rules
 
-- **Groups**: Must have name and valid skill level
-- **Chapters**: Must have name
-- **Guides**: Must have title, at least one step, and valid step ordering
-- **Steps**: Must have positive order, unique within guide, and non-empty title/instruction
-- **References**: Guide IDs in `recommendedGuideIds` should reference existing guides
+**Structural Validation:**
+- Required YAML files must exist (group.yaml, chapter.yaml)
+- All required fields must be present
+- No duplicate slugs within groups, chapters, or guides
+- Steps must be sequentially ordered (1, 2, 3...) with no gaps or duplicates
+
+**Type Validation:**
+- **SkillLevel**: Must be one of `BEGINNER`, `ENABLER`, `COMMANDER`, `GUARDIAN`
+- **Difficulty**: Must be one of `easy`, `medium`, `hard` (if specified)
+- **MinutesToComplete**: Must be >= 0
+- **Labels**: Must be non-empty strings (no whitespace-only labels)
+- **URLs**: Must use `http` or `https` scheme and be well-formed
+
+**Referential Integrity:**
+- RecommendedGuideIds must reference existing guides
+- Full guide paths are validated (group/chapter/guide)
+
+**Error Handling:**
+- Validation failures cause a panic at build time (not runtime)
+- Error messages include file paths and specific validation failures
+- This ensures invalid content breaks the build, not production
 
 ### Running Tests
 
