@@ -4,7 +4,9 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"net/url"
 	"path"
+	"sort"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -48,6 +50,7 @@ type GuideMetadata struct {
 	Labels            []string `yaml:"labels"`
 	Difficulty        string   `yaml:"difficulty"`
 	MinutesToComplete int      `yaml:"minutesToComplete"`
+	Prerequisites     []string `yaml:"prerequisites"`
 }
 
 type GuideStep struct {
@@ -55,6 +58,7 @@ type GuideStep struct {
 	Title       string     `yaml:"title"`
 	Instruction string     `yaml:"instruction"`
 	Hint        string     `yaml:"hint"`
+	Validation  string     `yaml:"validation"`
 	Docs        []GuideDoc `yaml:"docs"`
 }
 
@@ -278,6 +282,25 @@ func (g Guide) Validate() error {
 		return fmt.Errorf("guide %s: must have at least one step", g.Slug)
 	}
 
+	if g.Metadata.Difficulty != "" {
+		normalizedDifficulty := strings.ToLower(g.Metadata.Difficulty)
+		validDifficulties := map[string]bool{
+			"easy":   true,
+			"medium": true,
+			"hard":   true,
+		}
+		if !validDifficulties[normalizedDifficulty] {
+			return fmt.Errorf("guide %s: invalid difficulty %q (must be easy, medium, or hard)", g.Slug, g.Metadata.Difficulty)
+		}
+	}
+
+	for i, label := range g.Metadata.Labels {
+		if strings.TrimSpace(label) == "" {
+			return fmt.Errorf("guide %s: label at index %d is empty", g.Slug, i)
+		}
+	}
+
+	var orderValues []int
 	stepOrders := make(map[int]bool)
 	for _, step := range g.Steps {
 		if step.Order <= 0 {
@@ -293,6 +316,7 @@ func (g Guide) Validate() error {
 			return fmt.Errorf("guide %s: duplicate step order %d", g.Slug, step.Order)
 		}
 		stepOrders[step.Order] = true
+		orderValues = append(orderValues, step.Order)
 
 		for _, doc := range step.Docs {
 			if doc.Title == "" {
@@ -301,6 +325,21 @@ func (g Guide) Validate() error {
 			if doc.URL == "" {
 				return fmt.Errorf("guide %s: step %d doc URL cannot be empty", g.Slug, step.Order)
 			}
+			if _, err := url.Parse(doc.URL); err != nil {
+				return fmt.Errorf("guide %s: step %d doc URL %q is malformed: %w", g.Slug, step.Order, doc.URL, err)
+			}
+			parsedURL, _ := url.Parse(doc.URL)
+			if parsedURL.Scheme != "http" && parsedURL.Scheme != "https" {
+				return fmt.Errorf("guide %s: step %d doc URL %q must use http or https scheme", g.Slug, step.Order, doc.URL)
+			}
+		}
+	}
+
+	sort.Ints(orderValues)
+	for i, order := range orderValues {
+		expectedOrder := i + 1
+		if order != expectedOrder {
+			return fmt.Errorf("guide %s: steps must be sequentially ordered starting at 1, found order %d at position %d", g.Slug, order, expectedOrder)
 		}
 	}
 
