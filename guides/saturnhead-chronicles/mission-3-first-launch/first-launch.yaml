@@ -1,0 +1,57 @@
+ordering: 1
+metadata:
+  title: "First Launch - Deploy Real Infrastructure"
+  description: "Create your first real AWS resource and understand the difference between proposed runs and automatic deployments"
+  labels: ["deployment", "s3", "autodeploy", "runs", "workflow"]
+  difficulty: "easy"
+  minutesToComplete: 20
+  prerequisites:
+    - "Your stack should have AWS integration configured"
+    - "Your repository should have AWS provider configured in main.tf"
+
+steps:
+  - order: 1
+    title: "Add S3 Bucket to Your Terraform Code"
+    instruction: "In your repository (spacelift-demo), edit main.tf to add an S3 bucket resource. Add this code: 'resource \"aws_s3_bucket\" \"orbit_storage\" { bucket = \"orbit-labs-demo-${data.aws_caller_identity.current.account_id}\" tags = { Name = \"Orbit Labs Storage\", ManagedBy = \"Spacelift\", Mission = \"First Launch\" } }'. Commit this change but don't push yet."
+    hint: "We're using your AWS account ID in the bucket name to make it globally unique (S3 bucket names must be unique across all of AWS). The bucket won't cost anything unless you store data in it."
+    validation: "User confirms they have added the S3 bucket resource to their code"
+
+  - order: 2
+    title: "Verify Autodeploy is Disabled"
+    instruction: "In Spacelift, navigate to your stack (orbit-labs-demo) and go to Settings > Behavior. Check the 'Autodeploy' setting - it should be disabled. This is the default for new stacks. Leave it disabled for now. This means changes to your tracked branch will require manual confirmation."
+    hint: "With autodeploy disabled, every change you push creates a run that waits for your approval. This is safer when you're learning or working with production infrastructure. You get to review the plan before anything is actually created or modified."
+    validation: "Stack has autodeploy disabled"
+
+  - order: 3
+    title: "Push Change and Observe Proposed Run"
+    instruction: "Push your commit to the main/master branch of your repository. Return to Spacelift and navigate to your stack's Runs tab. You should see a new TRACKED run automatically triggered by your VCS push. Watch as it progresses through INITIALIZING → PLANNING phases."
+    hint: "Spacelift watches your repository for changes. When you push to the tracked branch, it automatically starts a run. Since autodeploy is off, this run will stop at UNCONFIRMED, waiting for you to review and approve."
+    validation: "A new tracked run has been triggered"
+
+  - order: 4
+    title: "Review Plan and Deploy Your First Real Infrastructure"
+    instruction: "Once the run reaches UNCONFIRMED state, carefully review the plan output. You should see that Terraform wants to CREATE 1 resource: the aws_s3_bucket.orbit_storage. Expand the details to see all attributes (bucket name, tags, etc.). After confirming everything looks correct, click the 'Confirm' button. Watch the run transition to APPLYING phase and wait for it to complete with FINISHED status."
+    hint: "This is your safety checkpoint! Always read the plan: (1) Are the right resources being changed? (2) Are you creating/modifying/deleting what you expect? (3) Do the attribute values look correct? Once confirmed, Spacelift executes the Terraform apply, creating your real S3 bucket in AWS."
+    validation: "Run completed successfully with at least one UNCONFIRMED run in history"
+
+  - order: 5
+    title: "Verify Your Infrastructure"
+    instruction: "In your stack, navigate to the 'Resources' tab. You should see your aws_s3_bucket.orbit_storage resource listed with its details. Optionally, you can also check your AWS Console under S3 to see the bucket was actually created. The bucket name should be 'orbit-labs-demo-[your-account-id]'."
+    hint: "The Resources tab gives you a complete inventory of what infrastructure this stack manages. This is incredibly useful as your infrastructure grows - you can always see exactly what resources exist and their current state."
+    validation: "User confirms they can see the S3 bucket in Spacelift Resources tab"
+
+  - order: 6
+    title: "Enable Autodeploy"
+    instruction: "Navigate to Settings > Behavior in your stack. Find the 'Autodeploy' toggle and turn it on. Click 'Save' to apply the change. This changes the workflow: from now on, changes to your tracked branch will automatically apply after planning (if the plan succeeds)."
+    hint: "Autodeploy is great for development environments and when you trust your code review process. It speeds up deployments significantly. However, many teams keep autodeploy OFF for production stacks to maintain that extra approval gate."
+    validation: "Stack has autodeploy enabled"
+
+  - order: 7
+    title: "Test Autodeploy with Automatic Deployment"
+    instruction: "Edit your main.tf file and add a new tag to your S3 bucket. Change the tags block to: 'tags = { Name = \"Orbit Labs Storage\", ManagedBy = \"Spacelift\", Mission = \"First Launch\", Environment = \"demo\" }'. Commit and push this change. Return to your stack's Runs tab and watch the new run: INITIALIZING → PLANNING → APPLYING → FINISHED. Notice it skipped the UNCONFIRMED state completely and deployed automatically!"
+    hint: "This is autodeploy in action! The run went straight from planning to applying because: (1) autodeploy is enabled, (2) the plan succeeded, and (3) no policy rules flagged it for review. Review your run history - you now have runs that required confirmation and runs that deployed automatically. This illustrates the two deployment modes: manual approval (safer, slower) vs. autodeploy (faster, requires trust). Orbit Labs is now ready for rapid iteration! 🚀"
+    validation: "At least one run completed automatically without manual confirmation"
+
+completion:
+  successMessage: "Outstanding! You've deployed real AWS infrastructure and mastered both manual approval and autodeploy workflows. Orbit Labs is gaining momentum!"
+  recommendedGuideIds: []
