@@ -50,6 +50,7 @@ type GuideMetadata struct {
 	Labels            []string `yaml:"labels"`
 	Difficulty        string   `yaml:"difficulty"`
 	MinutesToComplete int      `yaml:"minutesToComplete"`
+	Prerequisites     []string `yaml:"prerequisites"`
 }
 
 type GuideStep struct {
@@ -57,6 +58,7 @@ type GuideStep struct {
 	Title       string     `yaml:"title"`
 	Instruction string     `yaml:"instruction"`
 	Hint        string     `yaml:"hint"`
+	Validation  string     `yaml:"validation"`
 	Docs        []GuideDoc `yaml:"docs"`
 }
 

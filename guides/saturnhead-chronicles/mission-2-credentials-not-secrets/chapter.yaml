@@ -1,0 +1,3 @@
+name: "Mission 2: Credentials, Not Secrets"
+description: "Connect to AWS securely using role assumption instead of static credentials"
+ordering: 2
