@@ -24,6 +24,6 @@ steps:
 
 completion:
   successMessage: "Congratulations! You've created your first stack. Next, learn how to connect it to your VCS."
-  recommendedGuideIds:
-    - "getting-started/first-stack/configure-vcs"
-    - "getting-started/first-stack/add-policy"
+  recommendedGuideIds: []
+  # - "getting-started/first-stack/configure-vcs"
+  # - "getting-started/first-stack/add-policy"

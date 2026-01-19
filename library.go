@@ -103,7 +103,57 @@ func parse(f fs.FS) (*Library, error) {
 		lib.Groups = append(lib.Groups, group)
 	}
 
+	if err := validateLibrary(lib); err != nil {
+		return nil, err
+	}
+
 	return lib, nil
+}
+
+func validateLibrary(lib *Library) error {
+	groupSlugs := make(map[string]bool)
+	allGuidePaths := make(map[string]bool)
+
+	for _, group := range lib.Groups {
+		if groupSlugs[group.Slug] {
+			return fmt.Errorf("duplicate group slug: %s", group.Slug)
+		}
+		groupSlugs[group.Slug] = true
+
+		chapterSlugs := make(map[string]bool)
+		for _, chapter := range group.Chapters {
+			if chapterSlugs[chapter.Slug] {
+				return fmt.Errorf("duplicate chapter slug %s in group %s", chapter.Slug, group.Slug)
+			}
+			chapterSlugs[chapter.Slug] = true
+
+			guideSlugs := make(map[string]bool)
+			for _, guide := range chapter.Guides {
+				if guideSlugs[guide.Slug] {
+					return fmt.Errorf("duplicate guide slug %s in chapter %s/%s", guide.Slug, group.Slug, chapter.Slug)
+				}
+				guideSlugs[guide.Slug] = true
+
+				guidePath := group.Slug + "/" + chapter.Slug + "/" + guide.Slug
+				allGuidePaths[guidePath] = true
+			}
+		}
+	}
+
+	for _, group := range lib.Groups {
+		for _, chapter := range group.Chapters {
+			for _, guide := range chapter.Guides {
+				for _, recommendedID := range guide.Completion.RecommendedGuideIDs {
+					if !allGuidePaths[recommendedID] {
+						guidePath := group.Slug + "/" + chapter.Slug + "/" + guide.Slug
+						return fmt.Errorf("guide %s references non-existent guide in recommendedGuideIds: %s", guidePath, recommendedID)
+					}
+				}
+			}
+		}
+	}
+
+	return nil
 }
 
 func parseGroup(f fs.FS, groupSlug string) (Group, error) {
@@ -283,13 +333,12 @@ func (g Guide) Validate() error {
 	}
 
 	if g.Metadata.Difficulty != "" {
-		normalizedDifficulty := strings.ToLower(g.Metadata.Difficulty)
 		validDifficulties := map[string]bool{
 			"easy":   true,
 			"medium": true,
 			"hard":   true,
 		}
-		if !validDifficulties[normalizedDifficulty] {
+		if !validDifficulties[g.Metadata.Difficulty] {
 			return fmt.Errorf("guide %s: invalid difficulty %q (must be easy, medium, or hard)", g.Slug, g.Metadata.Difficulty)
 		}
 	}
@@ -300,7 +349,7 @@ func (g Guide) Validate() error {
 		}
 	}
 
-	var orderValues []int
+	var orders []int
 	stepOrders := make(map[int]bool)
 	for _, step := range g.Steps {
 		if step.Order <= 0 {
@@ -316,7 +365,7 @@ func (g Guide) Validate() error {
 			return fmt.Errorf("guide %s: duplicate step order %d", g.Slug, step.Order)
 		}
 		stepOrders[step.Order] = true
-		orderValues = append(orderValues, step.Order)
+		orders = append(orders, step.Order)
 
 		for _, doc := range step.Docs {
 			if doc.Title == "" {
@@ -335,8 +384,8 @@ func (g Guide) Validate() error {
 		}
 	}
 
-	sort.Ints(orderValues)
-	for i, order := range orderValues {
+	sort.Ints(orders)
+	for i, order := range orders {
 		expectedOrder := i + 1
 		if order != expectedOrder {
 			return fmt.Errorf("guide %s: steps must be sequentially ordered starting at 1, found order %d at position %d", g.Slug, order, expectedOrder)
