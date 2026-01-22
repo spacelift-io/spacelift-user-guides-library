@@ -29,5 +29,5 @@ jobs:
         with:
           tag: ${{ steps.tag.outputs.new_tag }}
           name: ${{ steps.tag.outputs.new_tag }}
-          body: ${{ steps.tag.outputs.changelog }}
+          generateReleaseNotes: true
           token: ${{ secrets.GITHUB_TOKEN }}
