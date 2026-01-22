@@ -8,7 +8,7 @@ on:
 
 jobs:
   validate:
-    name: Validate User Guides
+    name: 🧐 Validate User Guides
     runs-on: ubuntu-latest
 
     steps:
