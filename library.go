@@ -37,11 +37,12 @@ type Chapter struct {
 }
 
 type Guide struct {
-	Slug       string
-	Ordering   int
-	Metadata   GuideMetadata
-	Steps      []GuideStep
-	Completion GuideCompletion
+	Slug                   string
+	Ordering               int
+	PrerequisiteGuideSlugs []string
+	Metadata               GuideMetadata
+	Steps                  []GuideStep
+	Completion             GuideCompletion
 }
 
 type GuideMetadata struct {
@@ -271,10 +272,11 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	}
 
 	var guideMeta struct {
-		Ordering   int             `yaml:"ordering"`
-		Metadata   GuideMetadata   `yaml:"metadata"`
-		Steps      []GuideStep     `yaml:"steps"`
-		Completion GuideCompletion `yaml:"completion"`
+		Ordering               int             `yaml:"ordering"`
+		PrerequisiteGuideSlugs []string        `yaml:"prerequisiteGuideSlugs"`
+		Metadata               GuideMetadata   `yaml:"metadata"`
+		Steps                  []GuideStep     `yaml:"steps"`
+		Completion             GuideCompletion `yaml:"completion"`
 	}
 
 	if err := yaml.Unmarshal(data, &guideMeta); err != nil {
@@ -284,11 +286,12 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	guideSlug := strings.TrimSuffix(guideFile, ".yaml")
 
 	guide := Guide{
-		Slug:       guideSlug,
-		Ordering:   guideMeta.Ordering,
-		Metadata:   guideMeta.Metadata,
-		Steps:      guideMeta.Steps,
-		Completion: guideMeta.Completion,
+		Slug:                   guideSlug,
+		Ordering:               guideMeta.Ordering,
+		PrerequisiteGuideSlugs: guideMeta.PrerequisiteGuideSlugs,
+		Metadata:               guideMeta.Metadata,
+		Steps:                  guideMeta.Steps,
+		Completion:             guideMeta.Completion,
 	}
 
 	if err := guide.Validate(); err != nil {

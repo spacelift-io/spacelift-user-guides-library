@@ -1,4 +1,6 @@
 ordering: 1
+prerequisiteGuideSlugs:
+  - "guardrails"
 metadata:
   title: "Orbital Mechanics - Stack Dependencies"
   description: "Coordinate multiple infrastructure stacks by creating dependencies that pass data and control execution order"
