@@ -1,4 +1,6 @@
 ordering: 1
+prerequisiteGuideSlugs:
+  - "first-launch"
 metadata:
   title: "Guardrails - Enforce Policy Rules"
   description: "Implement governance by creating and enforcing plan policies that check your infrastructure before deployment"

@@ -1,4 +1,6 @@
 ordering: 1
+prerequisiteGuideSlugs:
+  - "credentials-not-secrets"
 metadata:
   title: "First Launch - Deploy Real Infrastructure"
   description: "Create your first real AWS resource and understand the difference between proposed runs and automatic deployments"
