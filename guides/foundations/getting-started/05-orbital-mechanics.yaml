@@ -1,0 +1,140 @@
+ordering: 5
+prerequisiteGuideSlugs:
+  - "guardrails"
+metadata:
+  title: "Orbital Mechanics - Stack Dependencies"
+  description: "Coordinate multiple infrastructure stacks by creating dependencies that pass data and control execution order"
+  labels: ["stack-dependencies", "orchestration", "outputs", "multi-stack"]
+  difficulty: "medium"
+  minutesToComplete: 25
+  prerequisites:
+    - "You should have a working stack (orbit-labs-demo) with S3 bucket"
+    - "Basic understanding of Terraform outputs and variables"
+
+steps:
+  - order: 1
+    title: "Create Networking Repository"
+    instruction: |
+      In your VCS provider, create a new repository called 'orbit-labs-networking'. Create a main.tf file with this code:
+      ```language-terraform
+      provider "aws" {
+        region = "us-east-1"
+      }
+
+      resource "aws_vpc" "main" {
+        cidr_block = "10.0.0.0/16"
+        tags = {
+          Name    = "Orbit Labs VPC"
+          project = "orbit-labs"
+        }
+      }
+
+      resource "aws_subnet" "main" {
+        vpc_id            = aws_vpc.main.id
+        cidr_block        = "10.0.1.0/24"
+        availability_zone = "us-east-1a"
+        tags = {
+          Name    = "Orbit Labs Subnet"
+          project = "orbit-labs"
+        }
+      }
+
+      output "subnet_id" {
+        value       = aws_subnet.main.id
+        description = "ID of the main subnet"
+      }
+      ```
+
+      Commit and push this code.
+    validation: "User confirms they created the networking repository with VPC, subnet, and output"
+
+  - order: 2
+    title: "Create Networking Stack in Spacelift"
+    instruction: |
+      1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
+      2. Name: 'orbit-labs-networking', Space: 'root', Description: 'Network infrastructure for Orbit Labs', Labels: 'network,infrastructure'. Click **Continue**.
+      3. Select your VCS integration and the 'orbit-labs-networking' repository, branch 'main'. Click **Continue**.
+      4. Select **Opentofu**, Choose the latest version from the list. Click **Create & Continue**.
+      5. Attach your AWS integration with **Read** and **Write** access.
+    hint: "This networking stack will be the parent - it runs first and provides outputs to dependent stacks. We're setting it up just like your first stack, but with different code."
+    validation: "Networking stack exists"
+
+  - order: 3
+    title: "Deploy Networking Stack"
+    instruction: |
+      1. Navigate to your networking stack and click **Trigger**.
+      2. Start a tracked run.
+      3. Review the plan - it should show creating 1 VPC and 1 subnet.
+      4. Click **Confirm** to apply.
+      5. Wait for the run to complete successfully.
+      6. Once finished, check the **Outputs** section - you should see 'subnet_id' with a value like 'subnet-abc123'.
+    hint: "The subnet_id output is now available for other stacks to use. This is the foundation that the app stack will depend on. Copy this subnet ID if you want to verify it later."
+    validation: "Networking stack has completed at least one successful run with outputs"
+
+  - order: 4
+    title: "Configure App Stack to Accept Input"
+    instruction: |
+      In your original repository (orbit-labs-demo), edit main.tf to add a variable at the top:
+      ```language-terraform
+      variable "subnet_id" {
+        type        = string
+        description = "ID of the subnet from networking stack"
+      }
+      ```
+      Then add resources that use this variable:
+      ```language-terraform
+      data "aws_subnet" "selected" {
+        id = var.subnet_id
+      }
+
+      data "aws_vpc" "selected" {
+        id = data.aws_subnet.selected.vpc_id
+      }
+
+      resource "aws_security_group" "app" {
+        name        = "orbit-labs-app-sg"
+        description = "Security group for Orbit Labs app"
+        vpc_id      = data.aws_vpc.selected.id
+
+        tags = {
+          Name    = "Orbit Labs App SG"
+          project = "orbit-labs"
+        }
+      }
+      ```
+      Commit and push.
+    hint: "We're adding a variable that will receive the subnet_id from the networking stack. The security group resource will be created in the VPC that the subnet belongs to, creating a real dependency between the stacks."
+    validation: "User confirms they added variable and resources that depend on subnet_id"
+
+  - order: 5
+    title: "Create Stack Dependency with Output Reference"
+    instruction: |
+      1. Navigate to your networking stack (orbit-labs-networking) and go to the **Dependencies** tab.
+      2. Click **Add dependencies** under the **Depended on by** section.
+      3. Select your app stack (orbit-labs-demo) from the dropdown.
+      4. Click **Add**.
+      5. Then on the dependency you just created, click **Add output reference**.
+      6. In **Output name**, enter 'subnet_id'.
+      7. In **Input name**, enter 'TF_VAR_subnet_id'.
+      8. Click **Add**.
+    hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. The subnet_id output will automatically pass as the subnet_id variable to the app stack. No manual copying needed - Spacelift handles it!"
+    validation: "Dependency relationship exists with output reference configured"
+
+  - order: 6
+    title: "Test Dependency Chain and Observe Cascading Execution"
+    instruction: |
+      In your networking repository (orbit-labs-networking), edit main.tf and add a tag to the VPC:
+      ```language-terraform
+      tags = {
+        Name    = "Orbit Labs VPC"
+        project = "orbit-labs"
+        Owner   = "Saturnhead"
+      }
+      ```
+      Commit and push this change.
+    hint: "This is stack orchestration in action! The networking stack completed → Spacelift automatically triggered the app stack → the subnet_id was passed automatically → the app stack used it to create resources in the right network. With autodeploy off, the app stack still waits in UNCONFIRMED until you review and confirm. This is how you coordinate complex, multi-stack infrastructure. The network team and app team can now work independently without stepping on each other. Orbit Labs has proper separation of concerns!"
+    validation: "App stack was automatically triggered and received subnet_id from networking stack"
+
+completion:
+  successMessage: "Outstanding! You've mastered stack dependencies and orchestration. You now understand how to coordinate multiple infrastructure stacks, pass data between them, and control execution order. You're ready to manage complex, multi-stack infrastructure deployments!"
+  recommendedGuideIds: []
