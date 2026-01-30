@@ -68,34 +68,34 @@ func TestGuidesLoad(t *testing.T) {
 	}
 }
 
-func TestGettingStartedGroup(t *testing.T) {
+func TestFoundationsGroup(t *testing.T) {
 	lib, err := userguides.Guides()
 	if err != nil {
 		t.Fatalf("Guides() returned error: %v", err)
 	}
 
-	var gettingStarted *userguides.Group
+	var foundations *userguides.Group
 	for i := range lib.Groups {
-		if lib.Groups[i].Slug == "getting-started" {
-			gettingStarted = &lib.Groups[i]
+		if lib.Groups[i].Slug == "foundations" {
+			foundations = &lib.Groups[i]
 			break
 		}
 	}
 
-	if gettingStarted == nil {
-		t.Fatal("Expected 'getting-started' group to exist")
+	if foundations == nil {
+		t.Fatal("Expected 'foundations' group to exist")
 	}
 
-	if gettingStarted.Name != "Getting Started" {
-		t.Errorf("Expected name 'Getting Started', got %q", gettingStarted.Name)
+	if foundations.Name != "Foundations" {
+		t.Errorf("Expected name 'Foundations', got %q", foundations.Name)
 	}
 
-	if gettingStarted.SkillLevel != "BEGINNER" {
-		t.Errorf("Expected skill level 'BEGINNER', got %q", gettingStarted.SkillLevel)
+	if foundations.SkillLevel != "BEGINNER" {
+		t.Errorf("Expected skill level 'BEGINNER', got %q", foundations.SkillLevel)
 	}
 
-	if len(gettingStarted.Chapters) == 0 {
-		t.Fatal("Expected at least one chapter in 'getting-started' group")
+	if len(foundations.Chapters) == 0 {
+		t.Fatal("Expected at least one chapter in 'foundations' group")
 	}
 }
 

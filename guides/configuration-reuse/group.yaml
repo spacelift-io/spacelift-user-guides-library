@@ -1,0 +1,4 @@
+name: "Configuration Reuse"
+description: "Create reusable config, automate setup tasks, and templatize your workflows to support teams and promote consistency."
+skillLevel: ENABLER
+ordering: 3
