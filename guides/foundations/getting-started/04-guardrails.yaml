@@ -1,0 +1,102 @@
+ordering: 4
+prerequisiteGuideSlugs:
+  - "first-launch"
+metadata:
+  title: "Guardrails - Enforce Policy Rules"
+  description: "Implement governance by creating and enforcing plan policies that check your infrastructure before deployment"
+  labels: ["policies", "governance", "plan-policy", "opa", "compliance"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Your stack should have an S3 bucket resource defined"
+    - "Autodeploy should be enabled on your stack"
+
+steps:
+  - order: 1
+    title: "Create Plan Policy with Tag Requirement"
+    instruction: |
+      1. Navigate to [Enforce Guardrails > Policies](/policies) and click **Create policy**.
+      2. Select **Plan policy** as the type.
+      3. Name it **Require Project Tag on S3 Buckets**.
+      4. Select **Space**: root.
+      5. Add description: 'All S3 buckets must have a project tag'.
+      6. Click **Continue**.
+      7. In the policy body editor, add this OPA/Rego rule:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      deny contains msg if {
+        rc := input.terraform.resource_changes[_]
+        rc.type == "aws_s3_bucket"
+        project := object.get(object.get(rc.change.after, "tags", {}), "project", null)
+        project == null
+        msg := sprintf("S3 bucket %s is missing required 'project' tag", [rc.address])
+      }
+      ```
+      8. Click **Create policy** to save.
+    hint: "Plan policies evaluate your infrastructure changes during the planning phase using OPA/Rego language. This rule checks every S3 bucket in your plan - if any bucket is missing the 'project' tag, it blocks the run with a clear error message. The 'deny' rule means the run will fail before reaching the apply phase."
+
+  - order: 2
+    title: "Attach Policy to Your Stack"
+    instruction: |
+      1. Navigate to your [stack list](/stacks), select your stack (orbit-labs-demo), and go to the **Policies** tab.
+      2. Click **Attach policy** and select your **Require Project Tag on S3 Buckets** policy from the dropdown.
+      3. Confirm the attachment.
+    hint: "Policies are reusable - you can attach the same policy to multiple stacks. This is great for ensuring consistent standards across all your infrastructure. Once attached, every run on this stack will be evaluated by this policy."
+
+  - order: 3
+    title: "Test Policy by Violating It"
+    instruction: |
+      1. In your repository, edit main.tf and remove the 'project' tag from your S3 bucket tags. Your tags should now look like:
+      ```language-terraform
+      tags = {
+        name        = "Orbit Labs Storage"
+        managedBy   = "Spacelift"
+        mission     = "First Launch"
+        environment = "demo"
+      }
+      ```
+      (Notice no 'project' tag).
+      2. Commit and push this change.
+      3. Watch what happens to the triggered run.
+    hint: "This simulates what happens when someone (maybe a new team member) tries to deploy non-compliant infrastructure. The policy should catch this before any changes reach AWS."
+
+  - order: 4
+    title: "Observe Policy Enforcement"
+    instruction: |
+      1. Go to your stack's **Runs** tab and open the newly triggered run.
+      2. Watch it progress through INITIALIZING → PLANNING.
+      3. After planning completes, the run should transition to FAILED state (not UNCONFIRMED).
+      4. Click into the run details and look for the **Policy** section - you should see your policy evaluation with status DENY and the error message about the missing 'project' tag.
+    hint: "The run failed during policy evaluation - it never even got to the apply phase! This is policy enforcement working. The clear error message tells you exactly what's wrong: which resource is non-compliant and what needs to be fixed. No manual review needed - the policy automatically blocked it."
+
+  - order: 5
+    title: "Fix the Violation"
+    instruction: |
+      1. Return to your repository and edit main.tf again.
+      2. Add the required 'project' tag to your S3 bucket:
+      ```language-terraform
+      tags = {
+        name        = "Orbit Labs Storage"
+        managedBy   = "Spacelift"
+        mission     = "First Launch"
+        project     = "Orbit-labs"
+        environment = "demo"
+      }
+      ```
+      3. Commit and push this fix.
+    hint: "Now your infrastructure is compliant with the policy. The 'project' tag is present, so the policy check should pass. This is the feedback loop in action: policy catches the issue → you fix it → policy approves it."
+
+  - order: 6
+    title: "Verify Policy Passes and Deployment Succeeds"
+    instruction: |
+      1. Watch the new run triggered by your fix.
+      2. This time, after planning completes, check the Policy section - it should show your policy evaluation with status PASS (green checkmark).
+      3. Since autodeploy is enabled and the policy passed, the run should continue automatically to APPLYING and then FINISHED.
+      4. Your compliant infrastructure change is deployed!
+    hint: "Success! The policy passed, proving your infrastructure now meets the required standards. The run deployed automatically because: (1) policy check passed, (2) plan succeeded, (3) autodeploy is enabled. This is 'Govern Velocity' - fast deployments with automated guardrails. You've now established rules for Orbit Labs!"
+
+completion:
+  successMessage: "Fantastic! You've implemented governance with plan policies that automatically enforce compliance rules. You now understand how to use OPA/Rego policies to create guardrails that prevent non-compliant infrastructure from being deployed."
+  recommendedGuideIds: []
