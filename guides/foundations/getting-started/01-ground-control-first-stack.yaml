@@ -16,7 +16,6 @@ steps:
       2. Filter by your version control system (GitHub, GitLab, Bitbucket, or Azure DevOps) and click **View**.
       3. Click **Set up [your vcs type]** and follow the authorization prompts to connect your account to Spacelift.
     hint: "Spacelift needs access to your repositories to track infrastructure changes. Don't worry - you can control which repositories Spacelift can see during the authorization process."
-    validation: "VCS integration exists"
 
   - order: 2
     title: "Create a Test Repository"
@@ -30,7 +29,6 @@ steps:
       ```
       3. Commit and push this file to the main/master branch.
     hint: "This simple Terraform configuration creates a random pet name - perfect for testing! The random_pet resource doesn't require any cloud credentials, making it ideal for your first run."
-    validation: "User confirms they have created a repository with a main.tf file containing the random_pet resource"
 
   - order: 3
     title: "Create Your First Stack"
@@ -38,11 +36,10 @@ steps:
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Fill in the stack creation wizard: Name: 'orbit-labs-demo', Space: 'root', Description: 'My first Spacelift stack', Label: 'demo'. Click **Continue**.
       3. Select your VCS integration, choose your repository (orbit-labs-demo), Branch: 'main' or 'master'. Click **Continue**.
-      4. Workflow tool: **Opentofu**, choose the latest version from the list. Click **Create & Continue**.
+      4. Workflow tool: **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Click **Skip to summary**.
       6. Review the summary and click **Confirm**. You will be automatically redirected to your new stack.
     hint: "The stack creation wizard guides you through three main sections: Basic info, VCS connection, and Backend configuration. Take your time to fill in each section - you can always edit these settings later. Spacelift managing your state is much safer than storing it locally!"
-    validation: "Confirm stack was created"
 
   - order: 4
     title: "Trigger Your First Run"
@@ -53,19 +50,16 @@ steps:
       4. Optionally add a note like 'First mission launch!' and click **Trigger**.
       5. Watch as Spacelift initializes your workspace and begins the planning phase.
     hint: "A run goes through several phases: INITIALIZING → PLANNING → UNCONFIRMED (waiting for your approval) → APPLYING → FINISHED. Don't worry, you'll have a chance to review everything before any changes are made!"
-    validation: "Confirm stack has at least one run initiated"
 
   - order: 5
     title: "Review and Confirm the Plan"
     instruction: "After the planning phase completes, the run will enter UNCONFIRMED state. Review the plan output carefully - you should see that Terraform wants to create 1 resource (the random_pet.orbit_mascot). The plan shows exactly what will be created with a green '+' symbol. Since everything looks good, click the **Confirm** button to proceed with applying the changes."
     hint: "Always review the plan carefully before confirming! This is your safety checkpoint. In this case, we're just creating a harmless random pet name (no real infrastructure or costs), so it's completely safe. The green '+' means 'create', '~' means 'modify', and '-' means 'delete'."
-    validation: "User has reviewed the plan and confirmed the run to proceed to apply phase"
 
   - order: 6
     title: "Watch Your First Deployment Complete"
     instruction: "Observe the APPLYING phase as Spacelift executes your Terraform code. You'll see real-time logs showing Terraform creating your random_pet resource. When it completes successfully, the run state will change to 'FINISHED' with a green checkmark. Click on the **Outputs** section or the run details to see your randomly generated pet name!"
     hint: "Congratulations! You've just completed your first Spacelift deployment. This is 'mission control' in action - your code went from repository to deployed infrastructure with full visibility, audit trail, and control. The random pet name you see (something like 'happy-dolphin' or 'brave-tiger') is your first resource managed by Spacelift!"
-    validation: "Confirm stack has successfully completed at least one run with FINISHED state"
 
 completion:
   successMessage: "Congratulations! You've created your first stack, triggered a run, and completed your first deployment. You now understand the basics of how Spacelift manages infrastructure deployments from code to deployed resources."
