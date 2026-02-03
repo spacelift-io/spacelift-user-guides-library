@@ -17,7 +17,7 @@ steps:
     title: "Create Networking Repository"
     instruction: |
       In your VCS provider, create a new repository called 'orbit-labs-networking'. Create a main.tf file with this code:
-      ```language-terraform
+      ```language-hcl
       terraform {
         required_providers {
           aws = {
@@ -82,14 +82,14 @@ steps:
     title: "Configure App Stack to Accept Input"
     instruction: |
       In your original repository (orbit-labs-demo), edit main.tf to add a variable at the top:
-      ```language-terraform
+      ```language-hcl
       variable "subnet_id" {
         type        = string
         description = "ID of the subnet from networking stack"
       }
       ```
       Then add resources that use this variable:
-      ```language-terraform
+      ```language-hcl
       data "aws_subnet" "selected" {
         id = var.subnet_id
       }
@@ -129,7 +129,7 @@ steps:
     title: "Test Dependency Chain and Observe Cascading Execution"
     instruction: |
       In your networking repository (orbit-labs-networking), edit main.tf and add a tag to the VPC:
-      ```language-terraform
+      ```language-hcl
       tags = {
         name    = "Orbit Labs VPC"
         project = "Orbit-labs"

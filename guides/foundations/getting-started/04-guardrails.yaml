@@ -50,7 +50,7 @@ steps:
     title: "Test Policy by Violating It"
     instruction: |
       1. In your repository, edit main.tf and remove the 'project' tag from your S3 bucket tags. Your tags should now look like:
-      ```language-terraform
+      ```language-hcl
       tags = {
         name        = "Orbit Labs Storage"
         managedBy   = "Spacelift"
@@ -77,7 +77,7 @@ steps:
     instruction: |
       1. Return to your repository and edit main.tf again.
       2. Add the required 'project' tag to your S3 bucket:
-      ```language-terraform
+      ```language-hcl
       tags = {
         name        = "Orbit Labs Storage"
         managedBy   = "Spacelift"
@@ -100,4 +100,4 @@ steps:
 
 completion:
   successMessage: "Fantastic! You've implemented governance with plan policies that automatically enforce compliance rules. You now understand how to use OPA/Rego policies to create guardrails that prevent non-compliant infrastructure from being deployed."
-  recommendedGuideIds: []
+  recommendedGuideIds: ["orbital-mechanics"]
