@@ -272,6 +272,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	}
 
 	var guideMeta struct {
+		Slug                   string          `yaml:"slug"`
 		Ordering               int             `yaml:"ordering"`
 		PrerequisiteGuideSlugs []string        `yaml:"prerequisiteGuideSlugs"`
 		Metadata               GuideMetadata   `yaml:"metadata"`
@@ -283,10 +284,12 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 		return Guide{}, fmt.Errorf("parse guide YAML: %w", err)
 	}
 
-	guideSlug := strings.TrimSuffix(guideFile, ".yaml")
+	if guideMeta.Slug == "" {
+		return Guide{}, fmt.Errorf("guide %s: slug cannot be empty", guideFile)
+	}
 
 	guide := Guide{
-		Slug:                   guideSlug,
+		Slug:                   guideMeta.Slug,
 		Ordering:               guideMeta.Ordering,
 		PrerequisiteGuideSlugs: guideMeta.PrerequisiteGuideSlugs,
 		Metadata:               guideMeta.Metadata,
