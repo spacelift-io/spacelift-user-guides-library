@@ -1,3 +1,4 @@
+slug: first-launch
 ordering: 3
 prerequisiteGuideSlugs:
   - "credentials-not-secrets"

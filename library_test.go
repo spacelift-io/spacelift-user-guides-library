@@ -270,3 +270,32 @@ func TestValidationRules(t *testing.T) {
 		})
 	}
 }
+
+func TestPrerequisiteGuideSlugsExist(t *testing.T) {
+	lib, err := userguides.Guides()
+	if err != nil {
+		t.Fatalf("Guides() returned error: %v", err)
+	}
+
+	allGuideSlugs := make(map[string]bool)
+	for _, group := range lib.Groups {
+		for _, chapter := range group.Chapters {
+			for _, guide := range chapter.Guides {
+				allGuideSlugs[guide.Slug] = true
+			}
+		}
+	}
+
+	for _, group := range lib.Groups {
+		for _, chapter := range group.Chapters {
+			for _, guide := range chapter.Guides {
+				guidePath := group.Slug + "/" + chapter.Slug + "/" + guide.Slug
+				for _, prereq := range guide.PrerequisiteGuideSlugs {
+					if !allGuideSlugs[prereq] {
+						t.Errorf("Guide %s references non-existent prerequisite guide: %s", guidePath, prereq)
+					}
+				}
+			}
+		}
+	}
+}
