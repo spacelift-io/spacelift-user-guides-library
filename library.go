@@ -113,7 +113,7 @@ func parse(f fs.FS) (*Library, error) {
 
 func validateLibrary(lib *Library) error {
 	groupSlugs := make(map[string]bool)
-	allGuidePaths := make(map[string]bool)
+	guideSlugs := make(map[string]bool)
 
 	for _, group := range lib.Groups {
 		if groupSlugs[group.Slug] {
@@ -128,15 +128,11 @@ func validateLibrary(lib *Library) error {
 			}
 			chapterSlugs[chapter.Slug] = true
 
-			guideSlugs := make(map[string]bool)
 			for _, guide := range chapter.Guides {
 				if guideSlugs[guide.Slug] {
 					return fmt.Errorf("duplicate guide slug %s in chapter %s/%s", guide.Slug, group.Slug, chapter.Slug)
 				}
 				guideSlugs[guide.Slug] = true
-
-				guidePath := group.Slug + "/" + chapter.Slug + "/" + guide.Slug
-				allGuidePaths[guidePath] = true
 			}
 		}
 	}
@@ -145,7 +141,7 @@ func validateLibrary(lib *Library) error {
 		for _, chapter := range group.Chapters {
 			for _, guide := range chapter.Guides {
 				for _, recommendedID := range guide.Completion.RecommendedGuideIDs {
-					if !allGuidePaths[recommendedID] {
+					if !guideSlugs[recommendedID] {
 						guidePath := group.Slug + "/" + chapter.Slug + "/" + guide.Slug
 						return fmt.Errorf("guide %s references non-existent guide in recommendedGuideIds: %s", guidePath, recommendedID)
 					}

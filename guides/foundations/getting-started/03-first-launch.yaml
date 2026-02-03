@@ -17,7 +17,7 @@ steps:
     title: "Add S3 Bucket to Your Terraform Code"
     instruction: |
       In your repository (orbit-labs-demo), edit main.tf to add an S3 bucket resource. Add this code:
-      ```language-terraform
+      ```language-hcl
       resource "aws_s3_bucket" "orbit_storage" {
         bucket = "orbit-labs-demo-${data.aws_caller_identity.current.account_id}"
 
@@ -77,7 +77,7 @@ steps:
     title: "Test Autodeploy with Automatic Deployment"
     instruction: |
       1. Edit your main.tf file and add a new tag to your S3 bucket. Change the tags block to:
-      ```language-terraform
+      ```language-hcl
       tags = {
         name        = "Orbit Labs Storage"
         managedBy   = "Spacelift"
@@ -93,4 +93,4 @@ steps:
 
 completion:
   successMessage: "Well done! You've deployed your first real AWS infrastructure (an S3 bucket) and learned about both manual approval workflows and autodeploy. You now understand how Spacelift handles infrastructure changes and the difference between tracked runs and automatic deployments."
-  recommendedGuideIds: []
+  recommendedGuideIds: ["guardrails"]

@@ -23,7 +23,7 @@ steps:
     instruction: |
       1. In your connected VCS provider, create a new repository called 'orbit-labs-demo'.
       2. Create a file named **main.tf** in the root with this simple Terraform code:
-      ```language-terraform
+      ```language-hcl
       resource "random_pet" "orbit_mascot" {
         length = 2
       }
@@ -47,9 +47,8 @@ steps:
     instruction: |
       1. Navigate to your newly created stack (orbit-labs-demo).
       2. Click the **Trigger** button in the top right corner.
-      3. Select **Tracked run** as the run type.
-      4. Optionally add a note like 'First mission launch!' and click **Trigger**.
-      5. Watch as Spacelift initializes your workspace and begins the planning phase.
+      3. Optionally add a note like 'First mission launch!' and click **Trigger**.
+      4. Watch as Spacelift initializes your workspace and begins the planning phase.
     hint: "A run goes through several phases: INITIALIZING → PLANNING → UNCONFIRMED (waiting for your approval) → APPLYING → FINISHED. Don't worry, you'll have a chance to review everything before any changes are made!"
 
   - order: 5
@@ -59,9 +58,9 @@ steps:
 
   - order: 6
     title: "Watch Your First Deployment Complete"
-    instruction: "Observe the APPLYING phase as Spacelift executes your Terraform code. You'll see real-time logs showing Terraform creating your random_pet resource. When it completes successfully, the run state will change to 'FINISHED' with a green checkmark. Click on the **Outputs** section or the run details to see your randomly generated pet name!"
+    instruction: "Observe the APPLYING phase as Spacelift executes your Terraform code. You'll see real-time logs showing Terraform creating your random_pet resource. When it completes successfully, the run state will change to 'FINISHED' with a green checkmark. Click on the **Changes** section of the run details to see your randomly generated pet name!"
     hint: "Congratulations! You've just completed your first Spacelift deployment. This is 'mission control' in action - your code went from repository to deployed infrastructure with full visibility, audit trail, and control. The random pet name you see (something like 'happy-dolphin' or 'brave-tiger') is your first resource managed by Spacelift!"
 
 completion:
   successMessage: "Congratulations! You've created your first stack, triggered a run, and completed your first deployment. You now understand the basics of how Spacelift manages infrastructure deployments from code to deployed resources."
-  recommendedGuideIds: []
+  recommendedGuideIds: ["credentials-not-secrets"]
