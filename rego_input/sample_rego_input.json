@@ -1,0 +1,90 @@
+{
+    "expectations": {
+        "main_stack_name": "Kind cat",
+        "dependency_stack_name": "Dependency stack",
+        "aws_attachment_name": "AWS attachment for kind cat",
+        "policy_name": "Plan policy for kind cat"
+    },
+    "stacks": [
+        {
+            "id": "stack-irrelevant-1",
+            "name": "Stack irrelevant 1",
+            "autodeploy": true,
+            "dependencies": []
+        },
+        {
+            "id": "kind-cat",
+            "name": "Kind cat",
+            "autodeploy": false,
+            "dependencies": [
+                "dep-stack"
+            ]
+        },
+        {
+            "id": "dep-stack",
+            "name": "Dependency stack",
+            "autodeploy": false,
+            "dependencies": []
+        },
+        {
+            "id": "stack-irrelevant-2",
+            "name": "Stack irrelevant 2",
+            "autodeploy": true,
+            "dependencies": []
+        }
+    ],
+    "runs": [
+        {
+            "id": "01KGFW8Z2KB1T9N035P1JZ6FSE",
+            "created_at": 1770288021000000000,
+            "stack_id": "kind-cat",
+            "type": "TRACKED",
+            "status": "FINISHED"
+        },
+        {
+            "id": "01KGFW8Z2KB1T9N035P1JZ6FSK",
+            "created_at": 1780288021000000000,
+            "stack_id": "stack-irrelevant-1",
+            "type": "PROPOSED",
+            "status": "CONFIRMED"
+        }
+    ],
+    "aws_integrations": [
+        {
+            "name": "aws integration for kind cat"
+        },
+        {
+            "name": "aws integration for irrelvant"
+        }
+    ],
+    "aws_attachments": [
+        {
+            "name": "aws attachment for kind cat",
+            "attached_to": "kind-cat"
+        },
+        {
+            "name": "aws attachment for irrelvant",
+            "attached_to": "stack-irrelevant-2"
+        }
+    ],
+    "policies": [
+        {
+            "name": "policy for kind cat",
+            "type": "PLAN"
+        },
+        {
+            "name": "policy for irrelvant",
+            "type": "PUSH"
+        }
+    ],
+    "policy_attachments": [
+        {
+            "name": "policy for kind cat",
+            "stack_id": "kind-cat"
+        },
+        {
+            "name": "policy for irrelvant",
+            "stack_id": "stack-irrelevant-1"
+        }
+    ]
+}

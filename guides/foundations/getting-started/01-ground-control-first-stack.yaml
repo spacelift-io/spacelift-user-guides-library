@@ -21,7 +21,7 @@ steps:
   - order: 2
     title: "Create a Test Repository"
     instruction: |
-      1. In your connected VCS provider, create a new repository called 'orbit-labs-demo'.
+      1. In your connected VCS provider, create a new repository called '${main_stack_name}'.
       2. Create a file named **main.tf** in the root with this simple Terraform code:
       ```language-hcl
       resource "random_pet" "orbit_mascot" {
@@ -35,21 +35,51 @@ steps:
     title: "Create Your First Stack"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Fill in the stack creation wizard: Name: 'orbit-labs-demo', Space: 'root', Description: 'My first Spacelift stack', Label: 'demo'. Click **Continue**.
-      3. Select your VCS integration, choose your repository (orbit-labs-demo), Branch: 'main' or 'master'. Click **Continue**.
+      2. Fill in the stack creation wizard: Name: '${main_stack_name}', Space: 'root', Description: 'My first Spacelift stack', Label: 'demo'. Click **Continue**.
+      3. Select your VCS integration, choose your repository (${main_stack_name}), Branch: 'main' or 'master'. Click **Continue**.
       4. Workflow tool: **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Click **Skip to summary**.
       6. Review the summary and click **Confirm**. You will be automatically redirected to your new stack.
     hint: "The stack creation wizard guides you through three main sections: Basic info, VCS connection, and Backend configuration. Take your time to fill in each section - you can always edit these settings later. Spacelift managing your state is much safer than storing it locally!"
+    validationHint: "You can proceed to the next step once your stack is created and visible in Spacelift."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack
+      }
 
   - order: 4
     title: "Trigger Your First Run"
     instruction: |
-      1. Navigate to your newly created stack (orbit-labs-demo).
+      1. Navigate to your newly created stack (${main_stack_name}).
       2. Click the **Trigger** button in the top right corner.
       3. Optionally add a note like 'First mission launch!' and click **Trigger**.
       4. Watch as Spacelift initializes your workspace and begins the planning phase.
     hint: "A run goes through several phases: INITIALIZING → PLANNING → UNCONFIRMED (waiting for your approval) → APPLYING → FINISHED. Don't worry, you'll have a chance to review everything before any changes are made!"
+    validationHint: "Before moving on, make sure you've triggered a run on your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      valid if {
+        count(tracked_runs) > 0
+      }
 
   - order: 5
     title: "Review and Confirm the Plan"

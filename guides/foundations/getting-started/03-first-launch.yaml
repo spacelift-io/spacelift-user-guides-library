@@ -16,10 +16,10 @@ steps:
   - order: 1
     title: "Add S3 Bucket to Your Terraform Code"
     instruction: |
-      In your repository (orbit-labs-demo), edit main.tf to add an S3 bucket resource. Add this code:
+      In your repository (${main_stack_name}), edit main.tf to add an S3 bucket resource. Add this code:
       ```language-hcl
       resource "aws_s3_bucket" "orbit_storage" {
-        bucket = "orbit-labs-demo-${data.aws_caller_identity.current.account_id}"
+        bucket = "${main_stack_name}-${data.aws_caller_identity.current.account_id}"
 
         tags = {
           name      = "Orbit Labs Storage"
@@ -35,19 +35,49 @@ steps:
   - order: 2
     title: "Verify Autodeploy is Disabled"
     instruction: |
-      1. Navigate to your stack (orbit-labs-demo) and go to **Settings** > **Behavior**.
+      1. Navigate to your stack (${main_stack_name}) and go to **Settings** > **Behavior**.
       2. Check the **Autodeploy** setting - it should be disabled. This is the default for new stacks.
       3. Leave it disabled for now. This means changes to your tracked branch will require manual confirmation.
     hint: "With autodeploy disabled, every change you push creates a run that waits for your approval. This is safer when you're learning or working with production infrastructure. You get to review the plan before anything is actually created or modified."
+    validationHint: "Before moving on, verify that autodeploy is disabled on your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.autodeploy == false
+      }
 
   - order: 3
-    title: "Push Change and Observe Proposed Run"
+    title: "Push Change and Observe Planned Changes"
     instruction: |
       1. Push your commit to the main/master branch of your repository.
       2. Return to Spacelift and navigate to your stack's **Runs** tab.
       3. You should see a new TRACKED run automatically triggered by your VCS push.
       4. Watch as it progresses through INITIALIZING → PLANNING phases.
     hint: "Spacelift watches your repository for changes. When you push to the tracked branch, it automatically starts a run. Since autodeploy is off, this run will stop at UNCONFIRMED, waiting for you to review and approve."
+    validationHint: "Wait for the run to reach unconfirmed state before moving on."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      unconfirmed_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.status == "UNCONFIRMED"
+      }
+
+      valid if {
+        count(unconfirmed_runs) > 0
+      }
 
   - order: 4
     title: "Review Plan and Deploy Your First Real Infrastructure"
@@ -57,12 +87,30 @@ steps:
       3. After confirming everything looks correct, click the **Confirm** button.
       4. Watch the run transition to APPLYING phase and wait for it to complete with FINISHED status.
     hint: "This is your safety checkpoint! Always read the plan: (1) Are the right resources being changed? (2) Are you creating/modifying/deleting what you expect? (3) Do the attribute values look correct? Once confirmed, Spacelift executes the Terraform apply, creating your real S3 bucket in AWS."
+    validationHint: "Confirm and apply the run before moving on."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      unconfirmed_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.status == "UNCONFIRMED"
+      }
+
+      valid if {
+        count(unconfirmed_runs) == 0
+      }
 
   - order: 5
     title: "Verify Your Infrastructure"
     instruction: |
       1. In your stack, navigate to the **Resources** tab. You should see your aws_s3_bucket.orbit_storage resource listed with its details.
-      2. Optionally, you can also check your AWS Console under S3 to see the bucket was actually created. The bucket name should be 'orbit-labs-demo-[your-account-id]'.
+      2. Optionally, you can also check your AWS Console under S3 to see the bucket was actually created. The bucket name should be '${main_stack_name}-[your-account-id]'.
     hint: "The Resources tab gives you a complete inventory of what infrastructure this stack manages. This is incredibly useful as your infrastructure grows - you can always see exactly what resources exist and their current state."
 
   - order: 6
@@ -72,6 +120,18 @@ steps:
       2. Find the **Autodeploy** toggle and turn it on.
       3. Click **Save** to apply the change. This changes the workflow: from now on, changes to your tracked branch will automatically apply after planning (if the plan succeeds).
     hint: "Autodeploy is great for development environments and when you trust your code review process. It speeds up deployments significantly. However, many teams keep autodeploy OFF for production stacks to maintain that extra approval gate."
+    validationHint: "Before moving on, make sure autodeploy is enabled on your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.autodeploy == true
+      }
 
   - order: 7
     title: "Test Autodeploy with Automatic Deployment"
