@@ -37,14 +37,36 @@ steps:
       ```
       8. Click **Create policy** to save.
     hint: "Plan policies evaluate your infrastructure changes during the planning phase using OPA/Rego language. This rule checks every S3 bucket in your plan - if any bucket is missing the 'project' tag, it blocks the run with a clear error message. The 'deny' rule means the run will fail before reaching the apply phase."
+    validationHint: "You can proceed to the next step once your policy is created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some policy in input.policies
+        policy.name == input.expectations.policy_name
+      }
 
   - order: 2
     title: "Attach Policy to Your Stack"
     instruction: |
-      1. Navigate to your [stack list](/stacks), select your stack (orbit-labs-demo), and go to the **Policies** tab.
+      1. Navigate to your [stack list](/stacks), select your stack (${main_stack_name}), and go to the **Policies** tab.
       2. Click **Attach policy** and select your **Require Project Tag on S3 Buckets** policy from the dropdown.
       3. Confirm the attachment.
     hint: "Policies are reusable - you can attach the same policy to multiple stacks. This is great for ensuring consistent standards across all your infrastructure. Once attached, every run on this stack will be evaluated by this policy."
+    validationHint: "Before moving on, make sure the policy is attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.policy_attachments
+        attachment.name == input.expectations.policy_name
+        attachment.stack_id == main_stack.id
+      }
 
   - order: 3
     title: "Test Policy by Violating It"
@@ -71,6 +93,29 @@ steps:
       3. After planning completes, the run should transition to FAILED state (not UNCONFIRMED).
       4. Click into the run details and look for the **Policy** section - you should see your policy evaluation with status DENY and the error message about the missing 'project' tag.
     hint: "The run failed during policy evaluation - it never even got to the apply phase! This is policy enforcement working. The clear error message tells you exactly what's wrong: which resource is non-compliant and what needs to be fixed. No manual review needed - the policy automatically blocked it."
+    validationHint: "Wait for the latest run to fail due to the policy violation before moving on."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FAILED"
+      }
 
   - order: 5
     title: "Fix the Violation"
@@ -97,6 +142,29 @@ steps:
       3. Since autodeploy is enabled and the policy passed, the run should continue automatically to APPLYING and then FINISHED.
       4. Your compliant infrastructure change is deployed!
     hint: "Success! The policy passed, proving your infrastructure now meets the required standards. The run deployed automatically because: (1) policy check passed, (2) plan succeeded, (3) autodeploy is enabled. This is 'Govern Velocity' - fast deployments with automated guardrails. You've now established rules for Orbit Labs!"
+    validationHint: "Wait for the run to finish successfully before moving on."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "Fantastic! You've implemented governance with plan policies that automatically enforce compliance rules. You now understand how to use OPA/Rego policies to create guardrails that prevent non-compliant infrastructure from being deployed."

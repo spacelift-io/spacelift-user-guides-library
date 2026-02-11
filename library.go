@@ -33,6 +33,7 @@ type Chapter struct {
 	Name        string
 	Description string
 	Ordering    int
+	Variables   []GuideVariable
 	Guides      []Guide
 }
 
@@ -54,13 +55,28 @@ type GuideMetadata struct {
 	Prerequisites     []string `yaml:"prerequisites"`
 }
 
+type VariableResourceType string
+
+const (
+	VariableResourceTypeStack          VariableResourceType = "stack"
+	VariableResourceTypePolicy         VariableResourceType = "policy"
+	VariableResourceTypeAWSIntegration VariableResourceType = "aws_integration"
+)
+
+type GuideVariable struct {
+	Name         string               `yaml:"name"`
+	Description  string               `yaml:"description"`
+	ResourceType VariableResourceType `yaml:"resourceType"`
+}
+
 type GuideStep struct {
-	Order       int        `yaml:"order"`
-	Title       string     `yaml:"title"`
-	Instruction string     `yaml:"instruction"`
-	Hint        string     `yaml:"hint"`
-	Validation  string     `yaml:"validation"`
-	Docs        []GuideDoc `yaml:"docs"`
+	Order          int        `yaml:"order"`
+	Title          string     `yaml:"title"`
+	Instruction    string     `yaml:"instruction"`
+	Hint           string     `yaml:"hint"`
+	ValidationHint string     `yaml:"validationHint"`
+	Validation     string     `yaml:"validation"`
+	Docs           []GuideDoc `yaml:"docs"`
 }
 
 type GuideDoc struct {
@@ -217,9 +233,10 @@ func parseChapter(f fs.FS, groupSlug, chapterSlug string) (Chapter, error) {
 	}
 
 	var chapterMeta struct {
-		Name        string `yaml:"name"`
-		Description string `yaml:"description"`
-		Ordering    int    `yaml:"ordering"`
+		Name        string          `yaml:"name"`
+		Description string          `yaml:"description"`
+		Ordering    int             `yaml:"ordering"`
+		Variables   []GuideVariable `yaml:"variables"`
 	}
 
 	if err := yaml.Unmarshal(data, &chapterMeta); err != nil {
@@ -231,6 +248,7 @@ func parseChapter(f fs.FS, groupSlug, chapterSlug string) (Chapter, error) {
 		Name:        chapterMeta.Name,
 		Description: chapterMeta.Description,
 		Ordering:    chapterMeta.Ordering,
+		Variables:   chapterMeta.Variables,
 		Guides:      []Guide{},
 	}
 
@@ -322,6 +340,19 @@ func (g Group) Validate() error {
 func (c Chapter) Validate() error {
 	if c.Name == "" {
 		return fmt.Errorf("chapter %s: name cannot be empty", c.Slug)
+	}
+	validResourceTypes := map[VariableResourceType]bool{
+		VariableResourceTypeStack:          true,
+		VariableResourceTypePolicy:         true,
+		VariableResourceTypeAWSIntegration: true,
+	}
+	for _, v := range c.Variables {
+		if v.ResourceType == "" {
+			return fmt.Errorf("chapter %s: variable %q is missing resourceType", c.Slug, v.Name)
+		}
+		if !validResourceTypes[v.ResourceType] {
+			return fmt.Errorf("chapter %s: variable %q has invalid resourceType %q", c.Slug, v.Name, v.ResourceType)
+		}
 	}
 	return nil
 }

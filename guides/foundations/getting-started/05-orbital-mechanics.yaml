@@ -9,14 +9,14 @@ metadata:
   difficulty: "medium"
   minutesToComplete: 25
   prerequisites:
-    - "You should have a working stack (orbit-labs-demo) with S3 bucket"
+    - "You should have a working stack (${main_stack_name}) with S3 bucket"
     - "Basic understanding of Terraform outputs and variables"
 
 steps:
   - order: 1
     title: "Create Networking Repository"
     instruction: |
-      In your VCS provider, create a new repository called 'orbit-labs-networking'. Create a main.tf file with this code:
+      In your VCS provider, create a new repository called '${dependency_stack_name}'. Create a main.tf file with this code:
       ```language-hcl
       terraform {
         required_providers {
@@ -61,11 +61,29 @@ steps:
     title: "Create Networking Stack in Spacelift"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Name: 'orbit-labs-networking', Space: 'root', Description: 'Network infrastructure for Orbit Labs', Labels: 'network,infrastructure'. Click **Continue**.
-      3. Select your VCS integration and the 'orbit-labs-networking' repository, branch 'main'. Click **Continue**.
+      2. Name: '${dependency_stack_name}', Space: 'root', Description: 'Network infrastructure for Orbit Labs', Labels: 'network,infrastructure'. Click **Continue**.
+      3. Select your VCS integration and the '${dependency_stack_name}' repository, branch 'main'. Click **Continue**.
       4. Select **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Attach your AWS integration with **Read** and **Write** access.
     hint: "This networking stack will be the parent - it runs first and provides outputs to dependent stacks. We're setting it up just like your first stack, but with different code."
+    validationHint: "Before moving on, make sure the networking stack is created with an AWS integration attached."
+    validation: |
+      package spacelift
+
+      dependency_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.dependency_stack_name
+      }
+
+      dependency_aws_attachment if {
+        some attachment in input.aws_attachments
+        attachment.attached_to == dependency_stack.id
+      }
+
+      valid if {
+        dependency_stack
+        dependency_aws_attachment
+      }
 
   - order: 3
     title: "Deploy Networking Stack"
@@ -77,11 +95,34 @@ steps:
       5. Wait for the run to complete successfully.
       6. Once finished, check the **Outputs** section - you should see 'subnet_id' with a value like 'subnet-abc123'.
     hint: "The subnet_id output is now available for other stacks to use. This is the foundation that the app stack will depend on. Copy this subnet ID if you want to verify it later."
+    validationHint: "Wait for the run to finish successfully before moving on."
+    validation: |
+      package spacelift
+
+      dependency_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.dependency_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == dependency_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
   - order: 4
     title: "Configure App Stack to Accept Input"
     instruction: |
-      In your original repository (orbit-labs-demo), edit main.tf to add a variable at the top:
+      In your original repository (${main_stack_name}), edit main.tf to add a variable at the top:
       ```language-hcl
       variable "subnet_id" {
         type        = string
@@ -115,20 +156,37 @@ steps:
   - order: 5
     title: "Create Stack Dependency with Output Reference"
     instruction: |
-      1. Navigate to your networking stack (orbit-labs-networking) and go to the **Dependencies** tab.
+      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
       2. Click **Add dependencies** under the **Depended on by** section.
-      3. Select your app stack (orbit-labs-demo) from the dropdown.
+      3. Select your app stack (${main_stack_name}) from the dropdown.
       4. Click **Add**.
       5. Then on the dependency you just created, click **Add output reference**.
       6. In **Output name**, enter 'subnet_id'.
       7. In **Input name**, enter 'TF_VAR_subnet_id'.
       8. Click **Add**.
     hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. The subnet_id output will automatically pass as the subnet_id variable to the app stack. No manual copying needed - Spacelift handles it!"
+    validationHint: "Before moving on, make sure the dependency between your stacks is configured."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      dependency_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.dependency_stack_name
+      }
+
+      valid if {
+        dependency_stack.id in main_stack.dependencies
+      }
 
   - order: 6
     title: "Test Dependency Chain and Observe Cascading Execution"
     instruction: |
-      In your networking repository (orbit-labs-networking), edit main.tf and add a tag to the VPC:
+      In your networking repository (${dependency_stack_name}), edit main.tf and add a tag to the VPC:
       ```language-hcl
       tags = {
         name    = "Orbit Labs VPC"
