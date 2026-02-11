@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "guide_schema.json",
+  "title": "Spacelift User Guide",
+  "description": "Schema for Spacelift user guide YAML files",
+  "type": "object",
+  "required": ["slug", "ordering", "metadata", "steps", "completion"],
+  "additionalProperties": false,
+  "properties": {
+    "slug": {
+      "type": "string",
+      "description": "Unique identifier for the guide, used in URLs and cross-references",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "ordering": {
+      "type": "integer",
+      "description": "Display order of the guide within its chapter",
+      "minimum": 1
+    },
+    "prerequisiteGuideSlugs": {
+      "type": "array",
+      "description": "Slugs of guides that should be completed before this one",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Descriptive metadata about the guide",
+      "required": ["title", "description", "labels", "difficulty", "minutesToComplete", "prerequisites"],
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Display title of the guide"
+        },
+        "description": {
+          "type": "string",
+          "description": "Short summary of what the guide covers"
+        },
+        "labels": {
+          "type": "array",
+          "description": "Tags for categorization and search",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1
+        },
+        "difficulty": {
+          "type": "string",
+          "description": "Difficulty level of the guide",
+          "enum": ["easy", "medium", "hard"]
+        },
+        "minutesToComplete": {
+          "type": "integer",
+          "description": "Estimated time to complete the guide in minutes",
+          "minimum": 1
+        },
+        "prerequisites": {
+          "type": "array",
+          "description": "Human-readable descriptions of what the user needs before starting",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of steps the user follows to complete the guide",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["order", "title", "instruction"],
+        "additionalProperties": false,
+        "dependentRequired": {
+          "validation": ["validationHint"]
+        },
+        "properties": {
+          "order": {
+            "type": "integer",
+            "description": "Step sequence number",
+            "minimum": 1
+          },
+          "title": {
+            "type": "string",
+            "description": "Short title for the step"
+          },
+          "instruction": {
+            "type": "string",
+            "description": "Detailed instructions for the user. Supports markdown and template variables (${variable_name})."
+          },
+          "hint": {
+            "type": "string",
+            "description": "Additional context or tips to help the user understand the step"
+          },
+          "validationHint": {
+            "type": "string",
+            "description": "Guidance shown to the user about what must be true before proceeding"
+          },
+          "validation": {
+            "type": "string",
+            "description": "OPA/Rego policy that validates the step was completed correctly. Must define a 'valid' rule in the 'spacelift' package."
+          },
+          "docs": {
+            "type": "array",
+            "description": "Links to relevant documentation",
+            "items": {
+              "type": "object",
+              "required": ["title", "url"],
+              "additionalProperties": false,
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "description": "Display title for the documentation link"
+                },
+                "url": {
+                  "type": "string",
+                  "description": "URL to the documentation page",
+                  "format": "uri",
+                  "pattern": "^https?://"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "completion": {
+      "type": "object",
+      "description": "Information displayed when the guide is completed",
+      "required": ["successMessage", "recommendedGuideIds"],
+      "additionalProperties": false,
+      "properties": {
+        "successMessage": {
+          "type": "string",
+          "description": "Message shown to the user upon completing the guide"
+        },
+        "recommendedGuideIds": {
+          "type": "array",
+          "description": "Slugs of guides recommended as next steps",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

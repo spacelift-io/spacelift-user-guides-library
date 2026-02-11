@@ -1,8 +1,15 @@
 package userguides_test
 
 import (
+	"encoding/json"
+	"io/fs"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/santhosh-tekuri/jsonschema/v6"
+	"gopkg.in/yaml.v3"
 
 	userguides "github.com/spacelift-io/spacelift-user-guides-library"
 )
@@ -267,6 +274,124 @@ func TestValidationRules(t *testing.T) {
 					t.Errorf("Expected no error but got: %v", err)
 				}
 			}
+		})
+	}
+}
+
+func compileSchema(t *testing.T, schemaPath string) *jsonschema.Schema {
+	t.Helper()
+
+	data, err := os.ReadFile(schemaPath)
+	if err != nil {
+		t.Fatalf("Failed to read schema %s: %v", schemaPath, err)
+	}
+
+	var schemaDoc any
+	if err := json.Unmarshal(data, &schemaDoc); err != nil {
+		t.Fatalf("Failed to parse schema JSON %s: %v", schemaPath, err)
+	}
+
+	c := jsonschema.NewCompiler()
+	if err := c.AddResource(schemaPath, schemaDoc); err != nil {
+		t.Fatalf("Failed to add schema resource: %v", err)
+	}
+
+	schema, err := c.Compile(schemaPath)
+	if err != nil {
+		t.Fatalf("Failed to compile schema %s: %v", schemaPath, err)
+	}
+
+	return schema
+}
+
+func validateYAMLFile(t *testing.T, schema *jsonschema.Schema, filePath string) {
+	t.Helper()
+
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("Failed to read %s: %v", filePath, err)
+	}
+
+	var yamlDoc any
+	if err := yaml.Unmarshal(data, &yamlDoc); err != nil {
+		t.Fatalf("Failed to parse YAML %s: %v", filePath, err)
+	}
+
+	jsonBytes, err := json.Marshal(yamlDoc)
+	if err != nil {
+		t.Fatalf("Failed to convert to JSON %s: %v", filePath, err)
+	}
+
+	var doc any
+	if err := json.Unmarshal(jsonBytes, &doc); err != nil {
+		t.Fatalf("Failed to parse JSON %s: %v", filePath, err)
+	}
+
+	if err := schema.Validate(doc); err != nil {
+		t.Errorf("Schema validation failed for %s:\n%v", filePath, err)
+	}
+}
+
+func TestSchemaValidation_Guides(t *testing.T) {
+	schema := compileSchema(t, "schema/guide_schema.json")
+
+	err := filepath.WalkDir("guides", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() || d.Name() == "chapter.yaml" || d.Name() == "group.yaml" || !strings.HasSuffix(d.Name(), ".yaml") {
+			return nil
+		}
+
+		t.Run(path, func(t *testing.T) {
+			validateYAMLFile(t, schema, path)
+		})
+
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("Failed to walk guides directory: %v", err)
+	}
+}
+
+func TestSchemaValidation_Chapters(t *testing.T) {
+	schema := compileSchema(t, "schema/chapter_schema.json")
+
+	matches, err := filepath.Glob("guides/**/chapter.yaml")
+	if err != nil {
+		t.Fatalf("Failed to glob chapter files: %v", err)
+	}
+
+	// filepath.Glob doesn't support ** recursion, walk instead
+	matches = nil
+	filepath.WalkDir("guides", func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.Name() == "chapter.yaml" {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+
+	for _, path := range matches {
+		t.Run(path, func(t *testing.T) {
+			validateYAMLFile(t, schema, path)
+		})
+	}
+}
+
+func TestSchemaValidation_Groups(t *testing.T) {
+	schema := compileSchema(t, "schema/group_schema.json")
+
+	var matches []string
+	filepath.WalkDir("guides", func(path string, d fs.DirEntry, err error) error {
+		if err == nil && d.Name() == "group.yaml" {
+			matches = append(matches, path)
+		}
+		return nil
+	})
+
+	for _, path := range matches {
+		t.Run(path, func(t *testing.T) {
+			validateYAMLFile(t, schema, path)
 		})
 	}
 }

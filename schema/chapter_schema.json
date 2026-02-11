@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "chapter_schema.json",
+  "title": "Spacelift Guide Chapter",
+  "description": "Schema for chapter.yaml files that define a chapter containing guides",
+  "type": "object",
+  "required": ["name", "description", "ordering"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name of the chapter"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short summary of what the chapter covers"
+    },
+    "ordering": {
+      "type": "integer",
+      "description": "Display order of the chapter within its group",
+      "minimum": 1
+    },
+    "variables": {
+      "type": "array",
+      "description": "Template variables available to all guides in this chapter",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "resourceType"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Variable name, referenced in guides as ${name}"
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description of the variable"
+          },
+          "resourceType": {
+            "type": "string",
+            "description": "The Spacelift resource type this variable represents",
+            "enum": ["stack", "policy", "aws_integration"]
+          }
+        }
+      }
+    }
+  }
+}
