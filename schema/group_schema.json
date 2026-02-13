@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "group_schema.json",
+  "title": "Spacelift Guide Group",
+  "description": "Schema for group.yaml files that define a top-level group of chapters",
+  "type": "object",
+  "required": ["name", "description", "skillLevel", "ordering"],
+  "additionalProperties": false,
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Display name of the group"
+    },
+    "description": {
+      "type": "string",
+      "description": "Short summary of what the group covers"
+    },
+    "skillLevel": {
+      "type": "string",
+      "description": "Target skill level for this group",
+      "enum": ["BEGINNER", "ENABLER", "COMMANDER", "GUARDIAN"]
+    },
+    "ordering": {
+      "type": "integer",
+      "description": "Display order of the group",
+      "minimum": 1
+    }
+  }
+}
