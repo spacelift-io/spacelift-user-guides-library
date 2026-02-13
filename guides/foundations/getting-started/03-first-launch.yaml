@@ -19,7 +19,7 @@ steps:
       In your repository, edit main.tf to add an S3 bucket resource. Add this code:
       ```language-hcl
       resource "aws_s3_bucket" "orbit_storage" {
-        bucket = "${main_stack_name}-${data.aws_caller_identity.current.account_id}"
+        bucket_prefix = "orbit-storage-"
 
         tags = {
           name      = "Orbit Labs Storage"
@@ -30,7 +30,7 @@ steps:
       }
       ```
       Commit this change but don't push yet.
-    hint: "We're using your AWS account ID in the bucket name to make it globally unique (S3 bucket names must be unique across all of AWS). The bucket won't cost anything unless you store data in it."
+    hint: "Using bucket_prefix lets AWS append a unique suffix automatically, so you don't need to worry about global name uniqueness. The bucket won't cost anything unless you store data in it."
 
   - order: 2
     title: "Verify Autodeploy is Disabled"
@@ -110,7 +110,7 @@ steps:
     title: "Verify Your Infrastructure"
     instruction: |
       1. In your stack, navigate to the **Resources** tab. You should see your aws_s3_bucket.orbit_storage resource listed with its details.
-      2. Optionally, you can also check your AWS Console under S3 to see the bucket was actually created. The bucket name should be '${main_stack_name}-[your-account-id]'.
+      2. Optionally, you can also check your AWS Console under S3 to see the bucket was actually created. The bucket name should start with 'orbit-storage-' followed by a unique suffix.
     hint: "The Resources tab gives you a complete inventory of what infrastructure this stack manages. This is incredibly useful as your infrastructure grows - you can always see exactly what resources exist and their current state."
 
   - order: 6
