@@ -16,7 +16,7 @@ steps:
   - order: 1
     title: "Create Networking Repository"
     instruction: |
-      In your VCS provider, create a new repository called '${dependency_stack_name}'. Create a main.tf file with this code:
+      In your VCS provider, create a new repository for your networking infrastructure. Add a **main.tf** file containing:
       ```language-hcl
       terraform {
         required_providers {
@@ -62,7 +62,7 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Name: '${dependency_stack_name}', Space: 'root', Description: 'Network infrastructure for Orbit Labs', Labels: 'network,infrastructure'. Click **Continue**.
-      3. Select your VCS integration and the '${dependency_stack_name}' repository, branch 'main'. Click **Continue**.
+      3. Select your VCS integration and your networking repository, branch 'main'. Click **Continue**.
       4. Select **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Attach your AWS integration with **Read** and **Write** access.
     hint: "This networking stack will be the parent - it runs first and provides outputs to dependent stacks. We're setting it up just like your first stack, but with different code."
@@ -122,7 +122,7 @@ steps:
   - order: 4
     title: "Configure App Stack to Accept Input"
     instruction: |
-      In your original repository (${main_stack_name}), edit main.tf to add a variable at the top:
+      In your original repository, edit main.tf to add a variable at the top:
       ```language-hcl
       variable "subnet_id" {
         type        = string
@@ -186,7 +186,7 @@ steps:
   - order: 6
     title: "Test Dependency Chain and Observe Cascading Execution"
     instruction: |
-      In your networking repository (${dependency_stack_name}), edit main.tf and add a tag to the VPC:
+      In your networking repository, edit main.tf and add a tag to the VPC:
       ```language-hcl
       tags = {
         name    = "Orbit Labs VPC"
@@ -194,8 +194,8 @@ steps:
         owner   = "Saturnhead"
       }
       ```
-      Commit and push this change.
-    hint: "This is stack orchestration in action! The networking stack completed → Spacelift automatically triggered the app stack → the subnet_id was passed automatically → the app stack used it to create resources in the right network. With autodeploy off, the app stack still waits in UNCONFIRMED until you review and confirm. This is how you coordinate complex, multi-stack infrastructure. The network team and app team can now work independently without stepping on each other. Orbit Labs has proper separation of concerns!"
+      Commit and push this change. With autodeploy off, the networking stack run will sit in unconfirmed until you approve it. After it finishes, Spacelift will trigger your app stack (${main_stack_name}) automatically, passing along the subnet_id output.
+    hint: "This is stack orchestration in action! The dependency chain handles both execution order and data flow between stacks, so teams can work independently."
 
 completion:
   successMessage: "Outstanding! You've mastered stack dependencies and orchestration. You now understand how to coordinate multiple infrastructure stacks, pass data between them, and control execution order. You're ready to manage complex, multi-stack infrastructure deployments!"

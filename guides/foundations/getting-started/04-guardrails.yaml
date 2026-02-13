@@ -18,7 +18,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies) and click **Create policy**.
       2. Select **Plan policy** as the type.
-      3. Name it **Require Project Tag on S3 Buckets**.
+      3. Name it **${policy_name}**.
       4. Select **Space**: root.
       5. Add description: 'All S3 buckets must have a project tag'.
       6. Click **Continue**.
@@ -50,7 +50,7 @@ steps:
     title: "Attach Policy to Your Stack"
     instruction: |
       1. Navigate to your [stack list](/stacks), select your stack (${main_stack_name}), and go to the **Policies** tab.
-      2. Click **Attach policy** and select your **Require Project Tag on S3 Buckets** policy from the dropdown.
+      2. Click **Attach policy** and select your **${policy_name}** policy from the dropdown.
       3. Confirm the attachment.
     hint: "Policies are reusable - you can attach the same policy to multiple stacks. This is great for ensuring consistent standards across all your infrastructure. Once attached, every run on this stack will be evaluated by this policy."
     validationHint: "Before moving on, make sure the policy is attached to your stack."
