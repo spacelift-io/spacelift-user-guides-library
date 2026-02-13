@@ -21,14 +21,13 @@ steps:
   - order: 2
     title: "Create a Test Repository"
     instruction: |
-      1. In your connected VCS provider, create a new repository called '${main_stack_name}'.
-      2. Create a file named **main.tf** in the root with this simple Terraform code:
+      1. In your VCS provider, create a new repository with a **main.tf** file containing:
       ```language-hcl
       resource "random_pet" "orbit_mascot" {
         length = 2
       }
       ```
-      3. Commit and push this file to the main/master branch.
+      2. Commit and push this file to the main/master branch.
     hint: "This simple Terraform configuration creates a random pet name - perfect for testing! The random_pet resource doesn't require any cloud credentials, making it ideal for your first run."
 
   - order: 3
@@ -36,7 +35,7 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Fill in the stack creation wizard: Name: '${main_stack_name}', Space: 'root', Description: 'My first Spacelift stack', Label: 'demo'. Click **Continue**.
-      3. Select your VCS integration, choose your repository (${main_stack_name}), Branch: 'main' or 'master'. Click **Continue**.
+      3. Select your VCS integration, choose your repository, Branch: 'main' or 'master'. Click **Continue**.
       4. Workflow tool: **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Click **Skip to summary**.
       6. Review the summary and click **Confirm**. You will be automatically redirected to your new stack.

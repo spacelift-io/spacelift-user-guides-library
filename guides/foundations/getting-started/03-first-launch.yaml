@@ -16,7 +16,7 @@ steps:
   - order: 1
     title: "Add S3 Bucket to Your Terraform Code"
     instruction: |
-      In your repository (${main_stack_name}), edit main.tf to add an S3 bucket resource. Add this code:
+      In your repository, edit main.tf to add an S3 bucket resource. Add this code:
       ```language-hcl
       resource "aws_s3_bucket" "orbit_storage" {
         bucket = "${main_stack_name}-${data.aws_caller_identity.current.account_id}"
@@ -82,7 +82,7 @@ steps:
   - order: 4
     title: "Review Plan and Deploy Your First Real Infrastructure"
     instruction: |
-      1. Once the run reaches UNCONFIRMED state, carefully review the plan output. You should see that Terraform wants to CREATE 1 resource: the aws_s3_bucket.orbit_storage.
+      1. Once the run reaches unconfirmed state, carefully review the plan output. You should see that Terraform wants to CREATE 1 resource: the aws_s3_bucket.orbit_storage.
       2. Expand the details to see all attributes (bucket name, tags, etc.).
       3. After confirming everything looks correct, click the **Confirm** button.
       4. Watch the run transition to APPLYING phase and wait for it to complete with FINISHED status.
