@@ -1,0 +1,113 @@
+slug: config-reuse-autoattach
+ordering: 4
+prerequisiteGuideSlugs:
+  - "config-reuse-extract-context"
+metadata:
+  title: "Labels and Autoattachment"
+  description: "Stop manually attaching contexts - use labels to automatically attach configuration to any stack that matches"
+  labels: ["labels", "autoattachment", "automation", "contexts"]
+  difficulty: "medium"
+  minutesToComplete: 15
+  prerequisites:
+    - "Completed the Extract and Reuse guide with a working context attached to your stack"
+
+steps:
+  - order: 1
+    title: "Verify Stack Label"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to **Settings** > **Behavior**.
+      3. Confirm you have the label **env:production** (we added this in Launchpad).
+      4. If not, add it now and save.
+    hint: "Labels are key-value pairs that describe your stack. They become contracts: 'If you're production, you get production config.'"
+    validationHint: "Your stack should have the env:production label."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        "env:production" in main_stack.labels
+      }
+
+  - order: 2
+    title: "Configure Autoattachment on Context"
+    instruction: |
+      1. Navigate to [Reuse config > Contexts](/contexts).
+      2. Open your context **${context_name}**.
+      3. Go to the **Attached stacks** tab.
+      4. Click **Add autoattach label**.
+      5. Enter **env:production**.
+      6. Save the autoattach configuration.
+    hint: "Autoattachment rules say: 'any stack with this label gets this context'. No manual wiring required."
+    validationHint: "The context should have an autoattach label for env:production."
+    validation: |
+      package spacelift
+
+      context_with_autoattach := ctx if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.context_name
+        "autoattach:env:production" in ctx.labels
+      }
+
+      valid if {
+        context_with_autoattach
+      }
+
+  - order: 3
+    title: "Detach Manual Attachment"
+    instruction: |
+      1. Go to your stack **${main_stack_name}**.
+      2. Go to the **Contexts** tab.
+      3. Find the manual attachment of **${context_name}**.
+      4. Click **Detach** to remove the manual attachment.
+      5. Notice the context is still attached - but now via autoattachment!
+    hint: "The context stays attached because your stack has the matching label. Autoattachment took over."
+
+  - order: 4
+    title: "Create a Second Stack"
+    instruction: |
+      1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
+      2. Name it **${second_stack_name}**.
+      3. Add label **env:production**.
+      4. Use the same VCS repo and settings as your first stack.
+      5. Complete the wizard.
+    hint: "This new stack has the env:production label - it should automatically get the context without any manual attachment."
+    validationHint: "Your second stack should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some stack in input.stacks
+        stack.name == input.expectations.second_stack_name
+      }
+
+  - order: 5
+    title: "Verify Automatic Context Attachment"
+    instruction: |
+      1. Open your new stack **${second_stack_name}**.
+      2. Go to the **Contexts** tab.
+      3. You should see **${context_name}** already attached via autoattachment.
+      4. Trigger a run and verify the hook output appears.
+    hint: "Magic! The new stack automatically inherited the context because it has the matching label. No manual setup needed."
+    validationHint: "The context should be automatically attached to your second stack."
+    validation: |
+      package spacelift
+
+      second_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.second_stack_name
+      }
+
+      valid if {
+        some attachment in input.context_attachments
+        attachment.context_name == input.expectations.context_name
+        attachment.stack_slug == second_stack.id
+      }
+
+completion:
+  successMessage: "Labels become contracts. 'If you're production, you get production config.' Any new stack with the right label automatically gets the right configuration. Next, let's explore space inheritance!"
+  recommendedGuideIds: ["config-reuse-space-inheritance"]
