@@ -1,0 +1,147 @@
+slug: safety-plan-policy
+ordering: 2
+prerequisiteGuideSlugs:
+  - "safety-launchpad"
+metadata:
+  title: "No Untagged Buckets - Plan Policies"
+  description: "Create a plan policy that inspects what Terraform is about to do and blocks deployments that violate your rules"
+  labels: ["plan-policy", "opa", "rego", "compliance", "tagging"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Launchpad guide with a working stack"
+
+steps:
+  - order: 1
+    title: "Create a Plan Policy"
+    instruction: |
+      1. Navigate to [Enforce Guardrails > Policies](/policies).
+      2. Click **Create policy**.
+      3. Name: **${plan_policy_name}**, Type: **Plan**, Space: **root**.
+      4. Add this OPA/Rego rule that requires a cost-center tag:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      deny contains msg if {
+        rc := input.terraform.resource_changes[_]
+        rc.type == "aws_s3_bucket"
+        rc.change.actions[_] == "create"
+
+        tags := object.get(rc.change.after, "tags", {})
+        cost_center := object.get(tags, "cost-center", null)
+        cost_center == null
+
+        msg := sprintf("S3 bucket %s is missing required 'cost-center' tag", [rc.address])
+      }
+      ```
+      5. Click **Create policy**.
+    hint: "The finance team wants to know what's costing money. Every resource must have a cost-center tag."
+    validationHint: "Your plan policy should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some policy in input.policies
+        policy.name == input.expectations.plan_policy_name
+        policy.type == "PLAN"
+      }
+
+  - order: 2
+    title: "Attach Policy to Stack"
+    instruction: |
+      1. Open your policy **${plan_policy_name}**.
+      2. Go to the **Attached stacks** tab.
+      3. Click **Attach stack**.
+      4. Select **${main_stack_name}**.
+      5. Save the attachment.
+    hint: "Now every run on this stack will be evaluated against your policy."
+    validationHint: "The policy should be attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.policy_attachments
+        attachment.name == input.expectations.plan_policy_name
+        attachment.stack_id == main_stack.id
+      }
+
+  - order: 3
+    title: "Trigger a Violating Run"
+    instruction: |
+      1. Your current Terraform doesn't have a cost-center tag - it will violate the policy.
+      2. Go to your stack **${main_stack_name}**.
+      3. Click **Trigger** to start a run.
+      4. Watch the run - it should **FAIL** with a policy denial.
+      5. Check the **Policy evaluation** section to see the violation message.
+    hint: "Intentional violation. The policy blocks it. This is the guardrail in action."
+
+  - order: 4
+    title: "Fix the Violation"
+    instruction: |
+      1. Update your **main.tf** to add the cost-center tag:
+      ```language-hcl
+      variable "environment" {
+        default = "demo"
+      }
+
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          cost-center = "engineering"
+        }
+      }
+
+      output "bucket_name" {
+        value = aws_s3_bucket.data.id
+      }
+      ```
+      2. Commit and push this change.
+      3. A run will trigger automatically.
+      4. Watch it pass the policy check and complete successfully.
+    hint: "Now you're compliant. The policy passes, the run proceeds."
+
+  - order: 5
+    title: "Verify Policy Pass"
+    instruction: |
+      1. Wait for the run to complete.
+      2. Check the **Policy evaluation** section.
+      3. The plan policy should show **PASS** (no deny messages).
+      4. The run should reach **FINISHED** state.
+    hint: "Plan policies enforce rules at deploy time. No untagged buckets can slip through."
+    validationHint: "Your stack should have a successful run with the policy passing."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "You've created a guardrail! Plan policies inspect what Terraform is about to do and block violations. Next, let's require human approval for sensitive changes."
+  recommendedGuideIds: ["safety-approval-policy"]

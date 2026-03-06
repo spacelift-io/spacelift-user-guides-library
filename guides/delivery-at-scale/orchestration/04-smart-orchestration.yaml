@@ -1,0 +1,74 @@
+slug: delivery-smart-orchestration
+ordering: 4
+prerequisiteGuideSlugs:
+  - "delivery-outputs"
+metadata:
+  title: "Wait, Skip, Proceed - Smart Orchestration"
+  description: "Learn how Spacelift skips downstream stacks when there are no changes, and waits when changes are in progress"
+  labels: ["orchestration", "skip", "pending", "no-changes"]
+  difficulty: "medium"
+  minutesToComplete: 15
+  prerequisites:
+    - "Completed the Pass the Data guide with output-to-input wiring"
+
+steps:
+  - order: 1
+    title: "Trigger a No-Changes Run"
+    instruction: |
+      1. Go to the **${database_stack_name}** stack.
+      2. Click **Trigger** to start a run.
+      3. Since nothing changed in the code, the plan should show **No changes**.
+      4. The run will complete quickly with no resources modified.
+    hint: "Not every push changes everything. When there are no changes, Spacelift is smart about it."
+
+  - order: 2
+    title: "Observe the App Stack is Skipped"
+    instruction: |
+      1. After the database run completes with no changes, check the **${main_stack_name}** stack.
+      2. Notice that no new run was triggered.
+      3. Check the **Runs** tab - the app stack was **skipped** because the dependency produced no changes.
+    hint: "Smart orchestration. Don't run what doesn't need to run."
+
+  - order: 3
+    title: "Make a Real Change"
+    instruction: |
+      1. Update your **database/main.tf** to add a tag:
+      ```language-hcl
+      resource "aws_s3_bucket" "data_store" {
+        bucket_prefix = "orbit-labs-db-"
+
+        tags = {
+          name      = "Orbit Labs Data Store"
+          managedBy = "Spacelift"
+          type      = "database"
+          version   = "v2"
+        }
+      }
+
+      output "data_store_bucket" {
+        value = aws_s3_bucket.data_store.id
+      }
+      ```
+      2. Commit and push the change.
+    hint: "This change will trigger database, which will then trigger app."
+
+  - order: 4
+    title: "Observe Pending and Proceed"
+    instruction: |
+      1. The database stack will start running automatically (autodeploy).
+      2. While database is running, check the app stack - it should be in **PENDING** state.
+      3. The app stack is waiting for the dependency to complete.
+      4. After database finishes, observe the app stack proceeds to run.
+    hint: "Don't run out of order. The app waits until database is done."
+
+  - order: 5
+    title: "Verify Both Complete Successfully"
+    instruction: |
+      1. Wait for both runs to complete.
+      2. The database run should be **FINISHED**.
+      3. The app run should be **FINISHED**.
+    hint: "The orchestration handled everything: detected changes, ran in order, and completed the chain."
+
+completion:
+  successMessage: "Smart orchestration in action! Spacelift skips when there's nothing to do, waits when dependencies are running, and proceeds when ready. Next, let's build a promotion gate!"
+  recommendedGuideIds: ["delivery-promotion"]

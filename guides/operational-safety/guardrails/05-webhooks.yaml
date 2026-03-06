@@ -1,0 +1,93 @@
+slug: safety-webhooks
+ordering: 5
+prerequisiteGuideSlugs:
+  - "safety-notifications"
+metadata:
+  title: "Phone Home - Webhooks"
+  description: "Send notifications to external systems like Slack, PagerDuty, or your own HTTP endpoints"
+  labels: ["webhooks", "integrations", "slack", "notifications"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Notifications guide"
+
+steps:
+  - order: 1
+    title: "Set Up a Webhook Receiver"
+    instruction: |
+      1. For testing, go to [webhook.site](https://webhook.site) and copy your unique URL.
+      2. Alternatively, use ngrok to expose a local endpoint.
+      3. Keep this URL handy - you'll need it for the notification policy.
+    hint: "Webhooks let Spacelift talk to anything with an HTTP endpoint. We'll use a test receiver to see the payload."
+
+  - order: 2
+    title: "Create a Webhook Endpoint"
+    instruction: |
+      1. Navigate to [Integrate services > Integrations](/integrations).
+      2. Filter by **Webhook** and click **Set up**.
+      3. Name it something like **test-webhook**.
+      4. Enter your webhook.site URL (or ngrok URL).
+      5. Save the endpoint.
+    hint: "This creates a reusable webhook endpoint that notification policies can target."
+
+  - order: 3
+    title: "Update Notification Policy for Webhook"
+    instruction: |
+      1. Navigate to [Enforce Guardrails > Policies](/policies).
+      2. Open your notification policy **${notification_policy_name}**.
+      3. Update the policy to also send to webhook:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      inbox contains msg if {
+        input.run_updated.state == "UNCONFIRMED"
+        msg := {
+          "title": sprintf("Run needs approval: %s", [input.run_updated.stack.name]),
+          "body": sprintf("Run %s on stack %s is waiting for approval.",
+                          [input.run_updated.ulid, input.run_updated.stack.name]),
+          "severity": "INFO"
+        }
+      }
+
+      webhook["test-webhook"] := payload if {
+        input.run_updated.state == "UNCONFIRMED"
+        payload := {
+          "stack": input.run_updated.stack.name,
+          "run_id": input.run_updated.ulid,
+          "state": input.run_updated.state,
+          "message": "Run is waiting for approval"
+        }
+      }
+      ```
+      4. Save the policy.
+    hint: "The webhook rule targets your endpoint by name. You can send different payloads to different webhooks."
+
+  - order: 4
+    title: "Trigger a Run"
+    instruction: |
+      1. Go to your stack **${main_stack_name}**.
+      2. Click **Trigger** to start a run.
+      3. Wait for the run to reach **UNCONFIRMED** state.
+    hint: "This will trigger both the inbox notification and the webhook."
+
+  - order: 5
+    title: "Inspect the Webhook Payload"
+    instruction: |
+      1. Go back to your webhook.site tab (or check ngrok logs).
+      2. You should see an HTTP POST request from Spacelift.
+      3. Inspect the JSON payload - it contains the run details.
+      4. This is what you'd send to Slack, PagerDuty, or your own systems.
+    hint: "The payload structure is what you defined in the policy. You can customize it for each destination."
+
+  - order: 6
+    title: "Complete the Run"
+    instruction: |
+      1. Go back to Spacelift and approve the run.
+      2. Wait for it to complete.
+      3. Check webhook.site again - you may see additional events as the run progresses.
+    hint: "Webhooks can notify on many events: run started, run finished, approval needed, etc."
+
+completion:
+  successMessage: "You're integrated! Webhooks let Spacelift communicate with Slack, PagerDuty, incident.io, or any HTTP endpoint. You've mastered operational safety in Spacelift!"
+  recommendedGuideIds: []
