@@ -1,5 +1,6 @@
 slug: config-reuse-autoattach
 ordering: 4
+releaseState: testing
 prerequisiteGuideSlugs:
   - "config-reuse-extract-context"
 metadata:

@@ -1,5 +1,6 @@
 slug: delivery-promotion
 ordering: 5
+releaseState: testing
 prerequisiteGuideSlugs:
   - "delivery-smart-orchestration"
 metadata:

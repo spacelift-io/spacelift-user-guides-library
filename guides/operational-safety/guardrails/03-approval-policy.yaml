@@ -1,5 +1,6 @@
 slug: safety-approval-policy
 ordering: 3
+releaseState: testing
 prerequisiteGuideSlugs:
   - "safety-plan-policy"
 metadata:

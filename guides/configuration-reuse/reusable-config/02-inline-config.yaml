@@ -1,5 +1,6 @@
 slug: config-reuse-inline-config
 ordering: 2
+releaseState: testing
 prerequisiteGuideSlugs:
   - "config-reuse-launchpad"
 metadata:

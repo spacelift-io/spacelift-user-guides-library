@@ -1,5 +1,6 @@
 slug: safety-plan-policy
 ordering: 2
+releaseState: testing
 prerequisiteGuideSlugs:
   - "safety-launchpad"
 metadata:

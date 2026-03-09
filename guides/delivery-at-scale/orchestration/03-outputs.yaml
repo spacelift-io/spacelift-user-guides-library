@@ -1,5 +1,6 @@
 slug: delivery-outputs
 ordering: 3
+releaseState: testing
 prerequisiteGuideSlugs:
   - "delivery-dependencies"
 metadata:

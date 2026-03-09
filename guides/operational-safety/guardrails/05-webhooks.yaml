@@ -1,5 +1,6 @@
 slug: safety-webhooks
 ordering: 5
+releaseState: testing
 prerequisiteGuideSlugs:
   - "safety-notifications"
 metadata:
