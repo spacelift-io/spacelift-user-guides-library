@@ -15,8 +15,8 @@ steps:
   - order: 1
     title: "Connect Your VCS Provider"
     instruction: |
-      1. Navigate to [Integrate services > Integrations](/integrations).
-      2. Filter by your version control system and click **View**.
+      1. Navigate to [Integrations](/integrations).
+      2. Click on **AWS** to set up a cloud integration, or filter by your version control system and click **View**.
       3. Click **Set up** and follow the authorization prompts.
     hint: "Before you can orchestrate, you need something to orchestrate. This speedrun gets your foundation in place."
 
@@ -71,9 +71,9 @@ steps:
     instruction: |
       1. Open your stack **${main_stack_name}**.
       2. Go to the **Settings** tab, then **Integrations**.
-      3. Under **Cloud**, click **Attach** next to your AWS integration **${aws_integration_name}**.
+      3. Under **Cloud**, click **Attach** next to your AWS integration.
       4. Configure it to read and write.
-    hint: "If you don't have an AWS integration yet, complete the 'Credentials, Not Secrets' guide in Foundations first."
+    hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
     validationHint: "The AWS integration should be attached to your stack."
     validation: |
       package spacelift
