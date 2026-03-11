@@ -9,7 +9,7 @@ metadata:
   minutesToComplete: 15
   prerequisites:
     - "A GitHub, GitLab, Bitbucket, or Azure DevOps account"
-    - "An AWS account with permissions to create IAM roles"
+    - "An existing AWS integration (see the 'Credentials, Not Secrets' guide in Foundations)"
 
 steps:
   - order: 1
@@ -48,24 +48,6 @@ steps:
     hint: "This creates a real S3 bucket that we'll use throughout the Configuration Reuse journey."
 
   - order: 3
-    title: "Create an AWS Integration"
-    instruction: |
-      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
-      2. Click **Set up integration** and select **AWS**.
-      3. Name it **${aws_integration_name}**.
-      4. Follow the guided setup to create a cross-account IAM role in your AWS account.
-      5. Complete the integration setup.
-    hint: "The AWS integration uses secure role assumption - no long-lived credentials stored in Spacelift."
-    validationHint: "Make sure your AWS integration is created before continuing."
-    validation: |
-      package spacelift
-
-      valid if {
-        some integration in input.aws_integrations
-        integration.name == input.expectations.aws_integration_name
-      }
-
-  - order: 4
     title: "Create Your Stack"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
@@ -84,14 +66,14 @@ steps:
         stack.name == input.expectations.main_stack_name
       }
 
-  - order: 5
+  - order: 4
     title: "Attach the AWS Integration"
     instruction: |
       1. Open your stack **${main_stack_name}**.
       2. Go to the **Settings** tab, then **Integrations**.
       3. Under **Cloud**, click **Attach** next to your AWS integration **${aws_integration_name}**.
       4. Configure it to read and write.
-    hint: "This gives your stack AWS credentials via role assumption during runs."
+    hint: "If you don't have an AWS integration yet, complete the 'Credentials, Not Secrets' guide in Foundations first."
     validationHint: "The AWS integration should be attached to your stack."
     validation: |
       package spacelift
@@ -107,7 +89,7 @@ steps:
         attachment.attached_to == main_stack.id
       }
 
-  - order: 6
+  - order: 5
     title: "Trigger and Complete a Run"
     instruction: |
       1. Click **Trigger** on your stack.
