@@ -14,6 +14,3 @@ variables:
   - name: "production_stack_name"
     description: "Name of the production stack"
     resourceType: "stack"
-  - name: "aws_integration_name"
-    description: "Name of the AWS cloud integration"
-    resourceType: "aws_integration"

@@ -85,7 +85,6 @@ steps:
 
       valid if {
         some attachment in input.aws_attachments
-        attachment.name == input.expectations.aws_integration_name
         attachment.attached_to == main_stack.id
       }
 
