@@ -1,0 +1,135 @@
+slug: config-reuse-unified-mechanism
+ordering: 6
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "config-reuse-space-inheritance"
+metadata:
+  title: "One Mechanism, Many Components"
+  description: "Discover that autoattachment and space inheritance work the same way for contexts, policies, and cloud integrations"
+  labels: ["policies", "integrations", "autoattachment", "unified-model"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Space Inheritance guide with a space hierarchy set up"
+
+steps:
+  - order: 1
+    title: "Create a Plan Policy"
+    instruction: |
+      1. Navigate to [Enforce Guardrails > Policies](/policies).
+      2. Click **Create policy**.
+      3. Name: **${policy_name}**, Type: **Plan**, Space: **platform-team**.
+      4. Add this OPA/Rego rule that requires a team tag:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      deny contains msg if {
+        rc := input.terraform.resource_changes[_]
+        rc.type == "aws_s3_bucket"
+        team := object.get(object.get(rc.change.after, "tags", {}), "team", null)
+        team == null
+        msg := sprintf("S3 bucket %s is missing required 'team' tag", [rc.address])
+      }
+      ```
+      5. Click **Create policy**.
+    hint: "Wait - does autoattachment work for policies too? Yes! The same mechanism applies to all attachable resources."
+    validationHint: "Your plan policy should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some policy in input.policies
+        policy.name == input.expectations.policy_name
+        policy.type == "PLAN"
+      }
+
+  - order: 2
+    title: "Autoattach Policy to Space"
+    instruction: |
+      1. Open your policy **${policy_name}**.
+      2. Go to the **Attached stacks** tab.
+      3. Add autoattach label: '*' (asterisk means all).
+      4. Save the configuration.
+    hint: "Just like contexts, policies can autoattach. Any stack in platform-team or below will get this policy."
+    validationHint: "The policy should be attached to your stack via autoattachment."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.policy_attachments
+        attachment.name == input.expectations.policy_name
+        attachment.stack_id == main_stack.id
+      }
+
+  - order: 3
+    title: "Test the Policy"
+    instruction: |
+      1. Trigger a run on your stack **${main_stack_name}**.
+      2. The policy should evaluate during the planning phase.
+      3. If your bucket lacks a 'team' tag, the run will fail with a DENY.
+      4. Check the Policy evaluation section in the run details.
+    hint: "The policy automatically applies because your stack inherited it through space hierarchy + autoattachment."
+
+  - order: 4
+    title: "Fix the Violation"
+    instruction: |
+      1. Update your **main.tf** to add the team tag:
+      ```language-hcl
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          team        = "platform"
+        }
+      }
+      ```
+      2. Commit and push this change.
+      3. Wait for the run to complete successfully.
+    hint: "Now your infrastructure is compliant with the team policy. All stacks in this space hierarchy will be held to the same standard."
+    validationHint: "Wait for the run to complete successfully with no policy denials."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+  - order: 5
+    title: "Autoattach AWS Integration"
+    instruction: |
+      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
+      2. Open your AWS integration.
+      3. Go to the **Attached stacks** tab.
+      4. Add autoattach label: '*' (asterisk means all).
+      5. Set the space scope to **platform-team**.
+    hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
+    validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
+
+completion:
+  successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
+  recommendedGuideIds: []

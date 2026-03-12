@@ -1,0 +1,16 @@
+name: "Stack Orchestration"
+description: "Learn to coordinate multi-stack systems with dependencies, output-to-input wiring, and promotion patterns."
+ordering: 1
+variables:
+  - name: "main_stack_name"
+    description: "Name of the primary stack (renamed to app)"
+    resourceType: "stack"
+  - name: "database_stack_name"
+    description: "Name of the database stack"
+    resourceType: "stack"
+  - name: "staging_stack_name"
+    description: "Name of the staging stack"
+    resourceType: "stack"
+  - name: "production_stack_name"
+    description: "Name of the production stack"
+    resourceType: "stack"

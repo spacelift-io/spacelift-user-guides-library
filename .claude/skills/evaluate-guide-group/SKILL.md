@@ -59,6 +59,7 @@ For each Rego block:
 
 After evaluating individual guides:
 - Every `${variable}` used in step instructions is defined in the chapter's `chapter.yaml`
+- Every `${variable}` is **introduced to the user** at the point where they first interact with that resource — e.g. if `${aws_integration_name}` appears in guide 06, the user must have been told to name or identify that resource using `${aws_integration_name}` in an earlier guide. A variable that first appears in guide 6 step 5 but was never referenced when the resource was created/attached is a content gap.
 - State assumed in later guides (e.g. "autodeploy is enabled", "S3 bucket exists") was actually guaranteed by an earlier guide's validation — not just mentioned in instructions
 - `prerequisiteGuideSlugs` covers all implicit dependencies, not just the immediate one
 
@@ -94,5 +95,6 @@ If findings include Critical or Improvement issues, tell the user:
 - `validationHint` missing when `validation` is present
 - Step says "verify X" but Rego checks something different
 - `${variable}` used in instruction but not defined in `chapter.yaml`
+- `${variable}` appears in a later guide but was never used when the resource was first created or attached — user has no way to know the variable refers to their resource
 - Later guide assumes state set up only in instructions (not validated) of an earlier guide
 - `prerequisiteGuideSlugs` uses bare slug correctly but the slug doesn't match any guide's `slug:` field

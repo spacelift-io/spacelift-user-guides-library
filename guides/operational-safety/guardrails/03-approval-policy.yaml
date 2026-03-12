@@ -1,0 +1,125 @@
+slug: safety-approval-policy
+ordering: 3
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "safety-plan-policy"
+metadata:
+  title: "Four Eyes - Approval Policies"
+  description: "Require human approval before changes apply - because some decisions shouldn't be automated"
+  labels: ["approval-policy", "opa", "rego", "governance", "sign-off"]
+  difficulty: "medium"
+  minutesToComplete: 15
+  prerequisites:
+    - "Completed the Plan Policy guide"
+
+steps:
+  - order: 1
+    title: "Disable Autodeploy"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to **Settings** > **Behavior**.
+      3. Disable **Autodeploy** (uncheck it).
+      4. Save the change.
+    hint: "We want runs to wait for approval. Autodeploy would bypass our approval policy."
+
+  - order: 2
+    title: "Create an Approval Policy"
+    instruction: |
+      1. Navigate to [Enforce Guardrails > Policies](/policies).
+      2. Click **Create policy**.
+      3. Name: **${approval_policy_name}**, Type: **Approval**, Space: **root**.
+      4. Add this OPA/Rego rule requiring one approval:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      approve if {
+        count(input.reviews.current.approvals) > 0
+      }
+
+      reject if {
+        count(input.reviews.current.rejections) > 0
+      }
+      ```
+      5. Click **Create policy**.
+    hint: "Production changes need a second pair of eyes. This policy requires at least one approval."
+    validationHint: "Your approval policy should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some policy in input.policies
+        policy.name == input.expectations.approval_policy_name
+        policy.type == "APPROVAL"
+      }
+
+  - order: 3
+    title: "Attach Policy to Stack"
+    instruction: |
+      1. Open your policy **${approval_policy_name}**.
+      2. Go to the **Attached stacks** tab.
+      3. Click **Attach stack**.
+      4. Select **${main_stack_name}**.
+      5. Save the attachment.
+    hint: "Now every run on this stack will require approval before applying."
+    validationHint: "The policy should be attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.policy_attachments
+        attachment.name == input.expectations.approval_policy_name
+        attachment.stack_id == main_stack.id
+      }
+
+  - order: 4
+    title: "Trigger a Run Requiring Approval"
+    instruction: |
+      1. Go to your stack **${main_stack_name}**.
+      2. Click **Trigger** to start a run.
+      3. Watch the run progress through PLANNING.
+      4. After planning, the run should enter **UNCONFIRMED** state.
+      5. It's waiting for approval - the policy is working!
+    hint: "The run waits. That's the point. No one can push to production without approval."
+
+  - order: 5
+    title: "Approve the Run"
+    instruction: |
+      1. Open the unconfirmed run on **${main_stack_name}**.
+      2. Review the plan to see what will change.
+      3. Click **Approve** to give your approval.
+      4. The run should now proceed to APPLYING.
+      5. Wait for it to reach **FINISHED** state.
+    hint: "You approved it. In a real scenario, this would be a teammate reviewing your change."
+    validationHint: "The run should complete successfully after approval."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "Four eyes principle in action! Approval policies require human sign-off before changes apply. Next, let's set up notifications so the team knows when approvals are needed."
+  recommendedGuideIds: ["safety-notifications"]

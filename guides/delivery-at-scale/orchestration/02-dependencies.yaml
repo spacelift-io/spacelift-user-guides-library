@@ -1,0 +1,183 @@
+slug: delivery-dependencies
+ordering: 2
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "delivery-launchpad"
+metadata:
+  title: "One Leads, One Follows - Stack Dependencies"
+  description: "Create a dependency chain where the app stack waits for the database stack to complete before running"
+  labels: ["dependencies", "orchestration", "stack-graph"]
+  difficulty: "medium"
+  minutesToComplete: 15
+  prerequisites:
+    - "Completed the Launchpad guide with a working stack"
+
+steps:
+  - order: 1
+    title: "Create a Database Stack"
+    instruction: |
+      1. In your VCS repository, create a new folder called **database**.
+      2. Add a **main.tf** file:
+      ```language-hcl
+      resource "aws_s3_bucket" "data_store" {
+        bucket_prefix = "orbit-labs-db-"
+
+        tags = {
+          name      = "Orbit Labs Data Store"
+          managedBy = "Spacelift"
+          type      = "database"
+        }
+      }
+
+      output "data_store_bucket" {
+        value = aws_s3_bucket.data_store.id
+      }
+      ```
+      3. Commit and push.
+      4. In Spacelift, create a new stack named **${database_stack_name}**.
+      5. Point it to your repository with **Project root**: **database**.
+      6. Enable **Autodeploy** and attach the AWS integration.
+    hint: "The database has to exist before the app can connect to it. We're modeling this dependency explicitly."
+    validationHint: "The database stack should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+  - order: 2
+    title: "Create the App Folder"
+    instruction: |
+      1. Create a folder called **app** in your repository.
+      2. Add a **main.tf** file:
+      ```language-hcl
+      variable "data_bucket" {
+        description = "The bucket created by the database stack"
+        default     = "not-configured"
+      }
+
+      resource "aws_s3_bucket" "app_storage" {
+        bucket_prefix = "orbit-labs-app-"
+
+        tags = {
+          name        = "Orbit Labs App Storage"
+          managedBy   = "Spacelift"
+          type        = "application"
+          data_bucket = var.data_bucket
+        }
+      }
+
+      output "app_bucket" {
+        value = aws_s3_bucket.app_storage.id
+      }
+
+      output "data_bucket_reference" {
+        value = var.data_bucket
+      }
+      ```
+      3. Commit and push.
+    hint: "The app will consume the database bucket name. For now, we're just setting up the structure."
+
+  - order: 3
+    title: "Update the Main Stack to Use App Folder"
+    instruction: |
+      1. Open your stack **${main_stack_name}** in Spacelift.
+      2. Go to **Settings** > **Source code**.
+      3. Set **Project root** to **app**.
+      4. Save the change.
+    hint: "Now your main stack points to the app folder, and the database stack points to the database folder."
+
+  - order: 4
+    title: "Create the Dependency"
+    instruction: |
+      1. Open your stack **${main_stack_name}** (the app stack).
+      2. Go to the **Dependencies** tab.
+      3. Click **Add dependency**.
+      4. Select **${database_stack_name}** as the dependency.
+      5. Save the dependency.
+    hint: "This tells Spacelift: 'Don't run the app stack until the database stack has finished successfully.'"
+    validationHint: "The app stack should depend on the database stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      valid if {
+        database_stack.id in main_stack.dependencies
+      }
+
+  - order: 5
+    title: "Trigger the Database Stack"
+    instruction: |
+      1. Go to the **${database_stack_name}** stack.
+      2. Click **Trigger** to start a run.
+      3. Watch it progress through to **FINISHED**.
+    hint: "The database stack runs first because it has no dependencies."
+    validationHint: "The database stack should have a completed run."
+    validation: |
+      package spacelift
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+  - order: 6
+    title: "Observe Automatic Triggering"
+    instruction: |
+      1. After the database run finishes, check the **${main_stack_name}** stack.
+      2. You should see a run was automatically triggered.
+      3. Wait for it to complete.
+    hint: "Dependencies are explicit. No guessing, no race conditions. When database finishes, app runs automatically."
+    validationHint: "The app stack should have a completed run triggered after the database."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "You've created a dependency chain! The app stack automatically runs after the database stack completes. Next, let's pass data between them."
+  recommendedGuideIds: ["delivery-outputs"]
