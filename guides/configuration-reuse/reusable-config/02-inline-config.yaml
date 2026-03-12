@@ -66,7 +66,7 @@ steps:
       1. Click **Trigger** on your stack.
       2. Watch the run logs during the INITIALIZING phase.
       3. You should see your hook output: "Initializing for environment: production"
-    hint: "This works great for one stack. But what happens when you have 10 stacks that all need the same setup? Copy-paste is not a strategy."
+    hint: "You should see 'Initializing for environment: production' in the logs. It works! But what happens when you have 10 stacks that all need the same setup? Copy-paste is not a strategy."
 
   - order: 4
     title: "Verify the Environment Variable in Terraform"

@@ -17,6 +17,3 @@ variables:
   - name: "policy_name"
     description: "Name of the plan policy"
     resourceType: "policy"
-  - name: "aws_integration_name"
-    description: "Name of the AWS integration"
-    resourceType: "aws_integration"
