@@ -118,6 +118,29 @@ steps:
       3. After staging succeeds, check the **${production_stack_name}** stack.
       4. You should see a run in **UNCONFIRMED** state, waiting for manual approval.
     hint: "Staging passed. Production is ready but waiting for you to approve."
+    validationHint: "Staging should have completed successfully and production should be waiting for approval."
+    validation: |
+      package spacelift
+
+      staging_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.staging_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == staging_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
   - order: 6
     title: "Approve Production"
@@ -127,6 +150,29 @@ steps:
       3. Click **Confirm** to approve the deployment.
       4. Watch production deploy successfully.
     hint: "The dependency isn't just about order - it's about safety. You control when production goes."
+    validationHint: "Production should have a completed run after you approved the deployment."
+    validation: |
+      package spacelift
+
+      production_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.production_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == production_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "You've built a promotion gate! Staging deploys automatically, production waits for approval, and a failed staging blocks production entirely. This is enterprise-grade deployment orchestration."
