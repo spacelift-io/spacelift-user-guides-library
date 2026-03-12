@@ -103,6 +103,29 @@ steps:
       3. A run will trigger automatically (autodeploy is on).
       4. Check the outputs after the run completes.
     hint: "The TF_VAR_environment variable (or direct env var access) passes your configuration into Terraform. Now you can control behavior without changing code."
+    validationHint: "Wait for the autodeploy run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "You've added inline configuration to your stack. This works, but doesn't scale. Next, we'll extract this configuration into a reusable Context."
