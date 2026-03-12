@@ -19,11 +19,11 @@ steps:
       1. Open your stack **${main_stack_name}**.
       2. Go to the **Environment** tab.
       3. Click **Add variable**.
-      4. Set Name: **DEPLOY_ENV**, Value: **production**.
+      4. Set Name: **TF_VAR_environment**, Value: **production**.
       5. Leave it as plaintext (not secret) for now.
       6. Click **Save**.
-    hint: "It works. But it's getting messy. Environment variables let you pass configuration to your Terraform code without hardcoding values."
-    validationHint: "The DEPLOY_ENV variable should be visible in your stack's environment."
+    hint: "It works. But it's getting messy. Environment variables prefixed with TF_VAR_ automatically populate the matching Terraform variable — so TF_VAR_environment sets var.environment."
+    validationHint: "The TF_VAR_environment variable should be visible in your stack's environment."
     validation: |
       package spacelift
 
@@ -33,7 +33,7 @@ steps:
       }
 
       valid if {
-        "DEPLOY_ENV" in main_stack.environment_variables
+        "TF_VAR_environment" in main_stack.environment_variables
       }
 
   - order: 2
@@ -43,7 +43,7 @@ steps:
       2. Scroll down to **Hooks** section.
       3. In **Before init**, add this script:
       ```language-bash
-      echo "Initializing for environment: $DEPLOY_ENV"
+      echo "Initializing for environment: $TF_VAR_environment"
       ```
       4. Click **Save**.
     hint: "Hooks run at specific points in the run lifecycle. Before-init hooks execute before Terraform/OpenTofu initializes - perfect for setup scripts."
@@ -66,7 +66,7 @@ steps:
       1. Click **Trigger** on your stack.
       2. Watch the run logs during the INITIALIZING phase.
       3. You should see your hook output: "Initializing for environment: production"
-    hint: "This works great for one stack. But what happens when you have 10 stacks that all need the same setup? Copy-paste is not a strategy."
+    hint: "You should see 'Initializing for environment: production' in the logs. It works! But what happens when you have 10 stacks that all need the same setup? Copy-paste is not a strategy."
 
   - order: 4
     title: "Verify the Environment Variable in Terraform"
@@ -102,7 +102,30 @@ steps:
       2. Commit and push this change.
       3. A run will trigger automatically (autodeploy is on).
       4. Check the outputs after the run completes.
-    hint: "The TF_VAR_environment variable (or direct env var access) passes your configuration into Terraform. Now you can control behavior without changing code."
+    hint: "TF_VAR_environment=production sets var.environment to 'production' inside Terraform. The deploy_env output now shows the value injected from Spacelift."
+    validationHint: "Wait for the autodeploy run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "You've added inline configuration to your stack. This works, but doesn't scale. Next, we'll extract this configuration into a reusable Context."

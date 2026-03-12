@@ -77,13 +77,14 @@ steps:
       4. Use the same VCS repo and settings as your first stack.
       5. Complete the wizard.
     hint: "This new stack has the env:production label - it should automatically get the context without any manual attachment."
-    validationHint: "Your second stack should be created."
+    validationHint: "Your second stack should be created with the env:production label."
     validation: |
       package spacelift
 
       valid if {
         some stack in input.stacks
         stack.name == input.expectations.second_stack_name
+        "env:production" in stack.labels
       }
 
   - order: 5

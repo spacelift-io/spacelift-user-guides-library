@@ -82,7 +82,7 @@ steps:
       5. Add an environment variable: **COMPANY=orbit-labs**.
       6. Go to **Attached stacks** and add autoattach label: '*' (asterisk means all).
     hint: "The autoattach:* label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
-    validationHint: "The company context should exist with the autoattach:* label."
+    validationHint: "The company context should exist with the autoattach:* label and the COMPANY environment variable."
     validation: |
       package spacelift
 
@@ -90,6 +90,7 @@ steps:
         some ctx in input.contexts
         ctx.name == input.expectations.company_context_name
         "autoattach:*" in ctx.labels
+        "COMPANY" in ctx.environment_variables
       }
 
       valid if {

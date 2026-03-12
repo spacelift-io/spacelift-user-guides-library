@@ -37,17 +37,17 @@ steps:
       1. Open your new context **${context_name}**.
       2. Go to the **Environment** tab.
       3. Click **Add variable**.
-      4. Set Name: **DEPLOY_ENV**, Value: **production**.
+      4. Set Name: **TF_VAR_environment**, Value: **production**.
       5. Click **Save**.
     hint: "Now this variable lives in the context, not the stack. Any stack that attaches this context will get this variable."
-    validationHint: "The context should have the DEPLOY_ENV variable."
+    validationHint: "The context should have the TF_VAR_environment variable."
     validation: |
       package spacelift
 
       context_with_env := ctx if {
         some ctx in input.contexts
         ctx.name == input.expectations.context_name
-        "DEPLOY_ENV" in ctx.environment_variables
+        "TF_VAR_environment" in ctx.environment_variables
       }
 
       valid if {
@@ -60,7 +60,7 @@ steps:
       1. Still in your context **${context_name}**, go to the **Hooks** tab.
       2. In **Before init**, add:
       ```language-bash
-      echo "Initializing for environment: $DEPLOY_ENV"
+      echo "Initializing for environment: $TF_VAR_environment"
       ```
       3. Click **Save**.
     hint: "Hooks in contexts work just like hooks on stacks. When attached, they merge with stack hooks (context hooks run first)."
@@ -82,11 +82,11 @@ steps:
     title: "Remove Inline Config from Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Environment** tab and delete the **DEPLOY_ENV** variable.
+      2. Go to **Environment** tab and delete the **TF_VAR_environment** variable.
       3. Go to **Settings** > **Hooks** and remove the before-init script.
       4. Save your changes.
     hint: "We're moving the config, not duplicating it. The stack should be clean of inline configuration."
-    validationHint: "Your stack should no longer have the inline DEPLOY_ENV variable."
+    validationHint: "Your stack should no longer have the inline TF_VAR_environment variable or the before-init hook."
     validation: |
       package spacelift
 
@@ -96,7 +96,8 @@ steps:
       }
 
       valid if {
-        not "DEPLOY_ENV" in main_stack.environment_variables
+        not "TF_VAR_environment" in main_stack.environment_variables
+        not main_stack.has_before_init_hooks
       }
 
   - order: 5

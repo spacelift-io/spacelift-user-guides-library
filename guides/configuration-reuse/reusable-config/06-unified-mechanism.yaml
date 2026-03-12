@@ -95,17 +95,7 @@ steps:
       2. Commit and push this change.
       3. Wait for the run to complete successfully.
     hint: "Now your infrastructure is compliant with the team policy. All stacks in this space hierarchy will be held to the same standard."
-
-  - order: 5
-    title: "Autoattach AWS Integration"
-    instruction: |
-      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
-      2. Open your AWS integration **${aws_integration_name}**.
-      3. Go to the **Attached stacks** tab.
-      4. Add autoattach label: '*' (asterisk means all).
-      5. Set the space scope to **platform-team**.
-    hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
-    validationHint: "The AWS integration should be attached via autoattachment."
+    validationHint: "Wait for the run to complete successfully with no policy denials."
     validation: |
       package spacelift
 
@@ -114,11 +104,31 @@ steps:
         stack.name == input.expectations.main_stack_name
       }
 
-      valid if {
-        some attachment in input.aws_attachments
-        attachment.name == input.expectations.aws_integration_name
-        attachment.attached_to == main_stack.id
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
       }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+  - order: 5
+    title: "Autoattach AWS Integration"
+    instruction: |
+      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
+      2. Open your AWS integration.
+      3. Go to the **Attached stacks** tab.
+      4. Add autoattach label: '*' (asterisk means all).
+      5. Set the space scope to **platform-team**.
+    hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
+    validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
 
 completion:
   successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
