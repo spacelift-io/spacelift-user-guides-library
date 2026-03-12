@@ -140,11 +140,23 @@ func TestOrdering(t *testing.T) {
 	for _, group := range lib.Groups {
 		t.Logf("Group %s has ordering: %d", group.Name, group.Ordering)
 
+		chapterOrderings := make(map[int]string)
 		for _, chapter := range group.Chapters {
 			t.Logf("  Chapter %s has ordering: %d", chapter.Name, chapter.Ordering)
 
+			if prev, ok := chapterOrderings[chapter.Ordering]; ok {
+				t.Errorf("Group %s: chapters %q and %q share ordering %d", group.Name, prev, chapter.Name, chapter.Ordering)
+			}
+			chapterOrderings[chapter.Ordering] = chapter.Name
+
+			guideOrderings := make(map[int]string)
 			for _, guide := range chapter.Guides {
 				t.Logf("    Guide %s has ordering: %d", guide.Metadata.Title, guide.Ordering)
+
+				if prev, ok := guideOrderings[guide.Ordering]; ok {
+					t.Errorf("Chapter %s/%s: guides %q and %q share ordering %d", group.Name, chapter.Name, prev, guide.Metadata.Title, guide.Ordering)
+				}
+				guideOrderings[guide.Ordering] = guide.Metadata.Title
 			}
 		}
 	}

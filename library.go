@@ -138,17 +138,29 @@ func validateLibrary(lib *Library) error {
 		groupSlugs[group.Slug] = true
 
 		chapterSlugs := make(map[string]bool)
+		chapterOrderings := make(map[int]bool)
 		for _, chapter := range group.Chapters {
 			if chapterSlugs[chapter.Slug] {
 				return fmt.Errorf("duplicate chapter slug %s in group %s", chapter.Slug, group.Slug)
 			}
 			chapterSlugs[chapter.Slug] = true
 
+			if chapterOrderings[chapter.Ordering] {
+				return fmt.Errorf("duplicate chapter ordering %d in group %s", chapter.Ordering, group.Slug)
+			}
+			chapterOrderings[chapter.Ordering] = true
+
+			guideOrderings := make(map[int]bool)
 			for _, guide := range chapter.Guides {
 				if guideSlugs[guide.Slug] {
 					return fmt.Errorf("duplicate guide slug %s in chapter %s/%s", guide.Slug, group.Slug, chapter.Slug)
 				}
 				guideSlugs[guide.Slug] = true
+
+				if guideOrderings[guide.Ordering] {
+					return fmt.Errorf("duplicate guide ordering %d in chapter %s/%s", guide.Ordering, group.Slug, chapter.Slug)
+				}
+				guideOrderings[guide.Ordering] = true
 			}
 		}
 	}
