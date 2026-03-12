@@ -8,7 +8,7 @@ metadata:
   description: "Learn how Spacelift skips downstream stacks when there are no changes, and waits when changes are in progress"
   labels: ["orchestration", "skip", "pending", "no-changes"]
   difficulty: "medium"
-  minutesToComplete: 15
+  minutesToComplete: 20
   prerequisites:
     - "Completed the Pass the Data guide with output-to-input wiring"
 
@@ -21,6 +21,29 @@ steps:
       3. Since nothing changed in the code, the plan should show **No changes**.
       4. The run will complete quickly with no resources modified.
     hint: "Not every push changes everything. When there are no changes, Spacelift is smart about it."
+    validationHint: "The database stack should have completed the no-changes run."
+    validation: |
+      package spacelift
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
   - order: 2
     title: "Observe the App Stack is Skipped"
@@ -69,6 +92,46 @@ steps:
       2. The database run should be **FINISHED**.
       3. The app run should be **FINISHED**.
     hint: "The orchestration handled everything: detected changes, ran in order, and completed the chain."
+    validationHint: "Both the database and app stacks should have completed runs."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      main_tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      database_tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_main_run := run if {
+        some run in main_tracked_runs
+        run.created_at == max([r.created_at | some r in main_tracked_runs])
+      }
+
+      latest_database_run := run if {
+        some run in database_tracked_runs
+        run.created_at == max([r.created_at | some r in database_tracked_runs])
+      }
+
+      valid if {
+        latest_main_run.status == "FINISHED"
+        latest_database_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "Smart orchestration in action! Spacelift skips when there's nothing to do, waits when dependencies are running, and proceeds when ready. Next, let's build a promotion gate!"
