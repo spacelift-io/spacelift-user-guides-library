@@ -57,13 +57,14 @@ steps:
       5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
     hint: "The label 'env:production' will be important later for autoattachment. Autodeploy means tracked runs confirm automatically."
-    validationHint: "Your stack should be created and visible in Spacelift."
+    validationHint: "Your stack should be created with the env:production label visible in Settings > Behavior."
     validation: |
       package spacelift
 
       valid if {
         some stack in input.stacks
         stack.name == input.expectations.main_stack_name
+        "env:production" in stack.labels
       }
 
   - order: 4

@@ -128,20 +128,7 @@ steps:
       4. Add autoattach label: '*' (asterisk means all).
       5. Set the space scope to **platform-team**.
     hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
-    validationHint: "The AWS integration should be attached via autoattachment."
-    validation: |
-      package spacelift
-
-      main_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.main_stack_name
-      }
-
-      valid if {
-        some attachment in input.aws_attachments
-        attachment.name == input.expectations.aws_integration_name
-        attachment.attached_to == main_stack.id
-      }
+    validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
 
 completion:
   successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
