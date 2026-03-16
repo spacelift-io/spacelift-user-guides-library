@@ -3,10 +3,10 @@ ordering: 1
 releaseState: testing
 metadata:
   title: "Launchpad - Quick Start"
-  description: "Get the basics in place fast: VCS connected, AWS wired up, and a stack that deploys real infrastructure"
-  labels: ["getting-started", "vcs", "aws", "stack", "speedrun"]
+  description: "Get the basics in place fast: VCS connected, AWS wired up, a plan policy attached, and a stack that hits its first guardrail"
+  labels: ["getting-started", "vcs", "aws", "stack", "speedrun", "plan-policy"]
   difficulty: "easy"
-  minutesToComplete: 15
+  minutesToComplete: 20
   prerequisites:
     - "A GitHub, GitLab, Bitbucket, or Azure DevOps account"
     - "An existing AWS integration (see the 'Credentials, Not Secrets' guide in Foundations)"
@@ -46,7 +46,7 @@ steps:
       }
       ```
       3. Commit and push to your main branch.
-    hint: "This creates a real S3 bucket. We'll add policies to protect it."
+    hint: "Notice there's no cost-center tag. That will matter soon."
 
   - order: 3
     title: "Create Your Stack"
@@ -90,13 +90,72 @@ steps:
       }
 
   - order: 5
-    title: "Trigger and Complete a Run"
+    title: "Create a Plan Policy"
     instruction: |
-      1. Click **Trigger** on your stack.
-      2. Watch the run progress through INITIALIZING, PLANNING, and (with autodeploy) APPLYING.
-      3. Wait for the run to reach **FINISHED** state.
-    hint: "With autodeploy enabled and no warnings, the run confirms automatically. Now let's add some safety!"
-    validationHint: "Wait for a tracked run to complete successfully."
+      1. Navigate to [Enforce Guardrails > Policies](/policies).
+      2. Click **Create policy**.
+      3. Name: **${plan_policy_name}**, Type: **Plan**, Space: **root**.
+      4. Add this OPA/Rego rule that requires a cost-center tag:
+      ```language-rego
+      package spacelift
+      import rego.v1
+
+      deny contains msg if {
+        rc := input.terraform.resource_changes[_]
+        rc.type == "aws_s3_bucket"
+
+        tags := object.get(rc.change.after, "tags", {})
+        cost_center := object.get(tags, "cost-center", null)
+        cost_center == null
+
+        msg := sprintf("S3 bucket %s is missing required 'cost-center' tag", [rc.address])
+      }
+      ```
+      5. Click **Create policy**.
+    hint: "The finance team wants to know what's costing money. Every resource must have a cost-center tag."
+    validationHint: "Your plan policy should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some policy in input.policies
+        policy.name == input.expectations.plan_policy_name
+        policy.type == "PLAN"
+      }
+
+  - order: 6
+    title: "Attach Policy to Stack"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to the **Policies** tab.
+      3. Click **Attach policy**.
+      4. Select **${plan_policy_name}**.
+      5. Save the attachment.
+    hint: "Now every run on this stack will be evaluated against your policy."
+    validationHint: "The policy should be attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.policy_attachments
+        attachment.name == input.expectations.plan_policy_name
+        attachment.stack_id == main_stack.id
+      }
+
+  - order: 7
+    title: "Trigger a Run and Watch It Fail"
+    instruction: |
+      1. Click **Trigger** on your stack **${main_stack_name}**.
+      2. Watch the run progress through INITIALIZING and PLANNING.
+      3. The run should **FAIL** with a policy denial - your S3 bucket is missing the cost-center tag.
+      4. Check the **Policy evaluation** section to see the violation message.
+    hint: "The guardrail caught it! Your bucket doesn't have a cost-center tag, so the policy blocks the deployment."
+    validationHint: "The run should fail with a policy denial about the missing cost-center tag."
     validation: |
       package spacelift
 
@@ -117,9 +176,9 @@ steps:
       }
 
       valid if {
-        latest_tracked_run.status == "FINISHED"
+        latest_tracked_run.status == "FAILED"
       }
 
 completion:
-  successMessage: "Your launchpad is ready! Now let's add guardrails to protect your infrastructure."
+  successMessage: "Your launchpad is ready - and your first guardrail is already working! The plan policy blocked a non-compliant deployment. Next, let's fix the violation and learn more about plan policies."
   recommendedGuideIds: ["safety-plan-policy"]
