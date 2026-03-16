@@ -140,15 +140,13 @@ steps:
       }
 
   - order: 6
-    title: "Autoattach AWS Integration"
+    title: "Autoattach AWS Integration (Informational)"
     instruction: |
-      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
-      2. Open your AWS integration.
-      3. Go to the **Attached stacks** tab.
-      4. Add autoattach label: '*' (asterisk means all).
-      5. Set the space scope to **${space_name}**.
-    hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
-    validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
+      1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations) and open your AWS integration.
+      2. Notice the **Edit** button — this is where you could add an **autoattach:** label, just like you did for contexts and policies.
+      3. For example, adding **autoattach:*** with space scope **${space_name}** would automatically attach AWS credentials to every stack in the team space.
+      4. **Do not modify your AWS integration** — it's shared across guides. This step is informational only.
+    hint: "AWS integrations support the same autoattachment mechanism as contexts and policies. The pattern is always the same: add an autoattach label, set the space scope, and let Spacelift do the wiring."
 
 completion:
   successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
