@@ -16,9 +16,9 @@ steps:
     title: "Connect Your VCS Provider"
     instruction: |
       1. Navigate to [Integrations](/integrations).
-      2. Click on **AWS** to set up a cloud integration, or filter by your version control system and click **View**.
+      2. Filter by your version control system (GitHub, GitLab, Bitbucket, or Azure DevOps) and click **View**.
       3. Click **Set up** and follow the authorization prompts.
-    hint: "Before you can orchestrate, you need something to orchestrate. This speedrun gets your foundation in place."
+    hint: "You'll need this connection so Spacelift can monitor your repository for changes and pull your Terraform configuration."
 
   - order: 2
     title: "Create a Repository with Terraform"

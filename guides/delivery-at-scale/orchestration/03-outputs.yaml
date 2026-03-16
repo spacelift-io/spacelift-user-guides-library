@@ -8,7 +8,7 @@ metadata:
   description: "Wire stack outputs to inputs so the app stack automatically receives the database bucket name"
   labels: ["outputs", "inputs", "data-flow", "orchestration"]
   difficulty: "medium"
-  minutesToComplete: 15
+  minutesToComplete: 20
   prerequisites:
     - "Completed the Dependencies guide with a working dependency chain"
 
@@ -41,6 +41,29 @@ steps:
       2. Click **Trigger** to start a run.
       3. Wait for it to complete successfully.
     hint: "When database runs, it will produce an output. When app runs, it will receive that output as an input."
+    validationHint: "The database stack should have a completed run."
+    validation: |
+      package spacelift
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
   - order: 4
     title: "Observe the App Receives the Input"
@@ -57,6 +80,29 @@ steps:
       2. Check the **Outputs** tab.
       3. The **data_bucket_reference** output should show the bucket name from the database stack.
     hint: "The value flowed: database Terraform output -> dependency wire -> app Terraform variable -> app Terraform output."
+    validationHint: "The app stack should have completed a run with the wired input in place."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "Data flows through the stack graph! The database bucket name automatically arrives in the app stack without any manual copying. Next, let's see how Spacelift handles smart orchestration."
