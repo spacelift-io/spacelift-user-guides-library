@@ -36,7 +36,7 @@ steps:
       ```
       5. Click **Create policy**.
     hint: "You can't watch the dashboard 24/7. When something needs attention, you want a ping."
-    validationHint: "Your notification policy should be created."
+    validationHint: "Your notification policy should be created in the root space."
     validation: |
       package spacelift
 
@@ -44,33 +44,10 @@ steps:
         some policy in input.policies
         policy.name == input.expectations.notification_policy_name
         policy.type == "NOTIFICATION"
+        policy.space_slug == "root"
       }
 
   - order: 2
-    title: "Attach Policy to Stack"
-    instruction: |
-      1. Open your policy **${notification_policy_name}**.
-      2. Go to the **Attached stacks** tab.
-      3. Click **Attach stack**.
-      4. Select **${main_stack_name}**.
-      5. Save the attachment.
-    hint: "Now the inbox will receive notifications when runs on this stack need approval."
-    validationHint: "The policy should be attached to your stack."
-    validation: |
-      package spacelift
-
-      main_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.main_stack_name
-      }
-
-      valid if {
-        some attachment in input.policy_attachments
-        attachment.name == input.expectations.notification_policy_name
-        attachment.stack_id == main_stack.id
-      }
-
-  - order: 3
     title: "Trigger a Run"
     instruction: |
       1. Go to your stack **${main_stack_name}**.
@@ -101,7 +78,7 @@ steps:
         latest_tracked_run.status == "UNCONFIRMED"
       }
 
-  - order: 4
+  - order: 3
     title: "Check the Inbox"
     instruction: |
       1. Click on the **Inbox** icon in the Spacelift navigation (bell icon).
@@ -109,7 +86,7 @@ steps:
       3. Click the notification to go directly to the run.
     hint: "Mission Control knows. The inbox is your central place for action items."
 
-  - order: 5
+  - order: 4
     title: "Complete the Run"
     instruction: |
       1. Approve the run to let it proceed.
