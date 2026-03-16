@@ -53,11 +53,25 @@ steps:
     hint: "Just like contexts, policies can autoattach. Any stack in your team space or below will get this policy."
 
   - order: 3
+    title: "Make a Code Change"
+    instruction: |
+      1. Add a small resource to your **main.tf** (e.g. an SSM parameter):
+      ```language-hcl
+      resource "aws_ssm_parameter" "env_marker" {
+        name  = "/orbit-labs/environment"
+        type  = "String"
+        value = var.environment
+      }
+      ```
+      2. Commit and push this change.
+    hint: "Plan policies only evaluate resources that have changes. Adding a new resource ensures the plan has something to evaluate, and the bucket will appear in the plan alongside it."
+
+  - order: 4
     title: "Test the Policy"
     instruction: |
-      1. Trigger a run on your stack **${main_stack_name}**.
+      1. A run will trigger automatically on **${main_stack_name}**.
       2. The policy should evaluate during the planning phase.
-      3. If your bucket lacks a 'team' tag, the run will fail with a DENY.
+      3. Your bucket lacks a 'team' tag, so the run will fail with a DENY.
       4. Check the Policy evaluation section in the run details.
     hint: "The policy automatically applies because your stack inherited it through space hierarchy + autoattachment."
     validationHint: "The run should fail with a policy denial about the missing team tag."
@@ -84,7 +98,7 @@ steps:
         latest_tracked_run.status == "FAILED"
       }
 
-  - order: 4
+  - order: 5
     title: "Fix the Violation"
     instruction: |
       1. Update your **main.tf** to add the team tag:
@@ -127,7 +141,7 @@ steps:
         latest_tracked_run.status == "FINISHED"
       }
 
-  - order: 5
+  - order: 6
     title: "Autoattach AWS Integration"
     instruction: |
       1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
