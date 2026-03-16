@@ -18,7 +18,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Name: **${policy_name}**, Type: **Plan**, Space: **platform-team**.
+      3. Name: **${policy_name}**, Type: **Plan**, Space: **${space_name}**.
       4. Add this OPA/Rego rule that requires a team tag:
       ```language-rego
       package spacelift
@@ -51,7 +51,7 @@ steps:
       2. Go to the **Attached stacks** tab.
       3. Add autoattach label: '*' (asterisk means all).
       4. Save the configuration.
-    hint: "Just like contexts, policies can autoattach. Any stack in platform-team or below will get this policy."
+    hint: "Just like contexts, policies can autoattach. Any stack in your team space or below will get this policy."
     validationHint: "The policy should be attached to your stack via autoattachment."
     validation: |
       package spacelift
@@ -149,7 +149,7 @@ steps:
       2. Open your AWS integration.
       3. Go to the **Attached stacks** tab.
       4. Add autoattach label: '*' (asterisk means all).
-      5. Set the space scope to **platform-team**.
+      5. Set the space scope to **${space_name}**.
     hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
     validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
 

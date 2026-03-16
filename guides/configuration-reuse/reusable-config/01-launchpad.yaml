@@ -27,6 +27,10 @@ steps:
       1. In your VCS provider, create a new repository.
       2. Add a **main.tf** file with this S3 bucket configuration:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       variable "environment" {
         default = "demo"
       }

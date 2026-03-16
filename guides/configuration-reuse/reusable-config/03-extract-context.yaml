@@ -35,10 +35,9 @@ steps:
     title: "Add the Environment Variable to Context"
     instruction: |
       1. Open your new context **${context_name}**.
-      2. Go to the **Environment** tab.
-      3. Click **Add variable**.
-      4. Set Name: **TF_VAR_environment**, Value: **production**.
-      5. Click **Save**.
+      2. Click **Add variable**.
+      3. Set Name: **TF_VAR_environment**, Value: **production**.
+      4. Click **Save**.
     hint: "Now this variable lives in the context, not the stack. Any stack that attaches this context will get this variable."
     validationHint: "The context should have the TF_VAR_environment variable."
     validation: |
@@ -83,7 +82,7 @@ steps:
     instruction: |
       1. Open your stack **${main_stack_name}**.
       2. Go to **Environment** tab and delete the **TF_VAR_environment** variable.
-      3. Go to **Settings** > **Hooks** and remove the before-init script.
+      3. Go to the **Hooks** tab and remove the before-init script.
       4. Save your changes.
     hint: "We're moving the config, not duplicating it. The stack should be clean of inline configuration."
     validationHint: "Your stack should no longer have the inline TF_VAR_environment variable or the before-init hook."

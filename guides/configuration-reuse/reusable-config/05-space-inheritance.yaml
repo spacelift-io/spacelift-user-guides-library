@@ -18,17 +18,17 @@ steps:
     instruction: |
       1. Navigate to [Organize > Spaces](/spaces).
       2. Click **Create space**.
-      3. Name: **platform-team**, Parent: **root**.
+      3. Name: **${space_name}**, Parent: **root**.
       4. Enable **Inherit entities** from parent.
       5. Click **Create space**.
     hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
-    validationHint: "The platform-team space should be created."
+    validationHint: "Your team space should be created."
     validation: |
       package spacelift
 
       valid if {
         some space in input.spaces
-        space.slug == "platform-team"
+        space.name == input.expectations.space_name
         space.parent_slug == "root"
       }
 
@@ -36,18 +36,23 @@ steps:
     title: "Create a Production Space"
     instruction: |
       1. Click **Create space** again.
-      2. Name: **production**, Parent: **platform-team**.
+      2. Name: **${child_space_name}**, Parent: **${space_name}**.
       3. Enable **Inherit entities** from parent.
       4. Click **Create space**.
-    hint: "Now you have a hierarchy: root > platform-team > production. Configuration can cascade through these levels."
-    validationHint: "The production space should be a child of platform-team."
+    hint: "Now you have a hierarchy: root > ${space_name} > ${child_space_name}. Configuration can cascade through these levels."
+    validationHint: "The child space should be created under your team space."
     validation: |
       package spacelift
 
+      team_space := space if {
+        some space in input.spaces
+        space.name == input.expectations.space_name
+      }
+
       valid if {
         some space in input.spaces
-        space.slug == "production"
-        space.parent_slug == "platform-team"
+        space.name == input.expectations.child_space_name
+        space.parent_slug == team_space.slug
       }
 
   - order: 3
@@ -56,12 +61,17 @@ steps:
       1. Go to [Ship Infra > Stacks](/stacks).
       2. Open your stack **${main_stack_name}**.
       3. Go to **Settings** > **Behavior**.
-      4. Change **Space** from **root** to **production**.
+      4. Change **Space** from **root** to **${child_space_name}**.
       5. Save the change.
     hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."
-    validationHint: "Your stack should be in the production space."
+    validationHint: "Your stack should be in the child space."
     validation: |
       package spacelift
+
+      child_space := space if {
+        some space in input.spaces
+        space.name == input.expectations.child_space_name
+      }
 
       main_stack := stack if {
         some stack in input.stacks
@@ -69,7 +79,7 @@ steps:
       }
 
       valid if {
-        main_stack.space_slug == "production"
+        main_stack.space_slug == child_space.slug
       }
 
   - order: 4
@@ -77,7 +87,7 @@ steps:
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Click **Create context**.
-      3. Name: **${company_context_name}**, Space: **platform-team**.
+      3. Name: **${company_context_name}**, Space: **${space_name}**.
       4. Create the context.
       5. Add an environment variable: **COMPANY=orbit-labs**.
       6. Go to **Attached stacks** and add autoattach label: '*' (asterisk means all).

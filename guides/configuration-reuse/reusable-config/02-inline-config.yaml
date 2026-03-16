@@ -39,13 +39,12 @@ steps:
   - order: 2
     title: "Add a Before-Init Hook"
     instruction: |
-      1. Still in your stack **${main_stack_name}**, go to the **Settings** tab.
-      2. Scroll down to **Hooks** section.
-      3. In **Before init**, add this script:
+      1. Still in your stack **${main_stack_name}**, go to the **Hooks** tab.
+      2. In **Before init**, add this script:
       ```language-bash
       echo "Initializing for environment: $TF_VAR_environment"
       ```
-      4. Click **Save**.
+      3. Click **Save**.
     hint: "Hooks run at specific points in the run lifecycle. Before-init hooks execute before Terraform/OpenTofu initializes - perfect for setup scripts."
     validationHint: "Your stack should now have a before_init hook configured."
     validation: |
@@ -73,6 +72,10 @@ steps:
     instruction: |
       1. Update your **main.tf** to use the environment variable:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       variable "environment" {
         default = "demo"
       }

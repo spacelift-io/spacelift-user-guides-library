@@ -39,10 +39,9 @@ steps:
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Open your context **${context_name}**.
-      3. Go to the **Attached stacks** tab.
-      4. Click **Add autoattach label**.
-      5. Enter **env:production**.
-      6. Save the autoattach configuration.
+      3. Click **Edit** to open the context settings.
+      4. Add the label **autoattach:env:production**.
+      5. Save the changes.
     hint: "Autoattachment rules say: 'any stack with this label gets this context'. No manual wiring required."
     validationHint: "The context should have an autoattach label for env:production."
     validation: |
