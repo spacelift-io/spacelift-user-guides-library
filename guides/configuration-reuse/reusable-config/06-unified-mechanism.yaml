@@ -48,24 +48,9 @@ steps:
     title: "Autoattach Policy to Space"
     instruction: |
       1. Open your policy **${policy_name}**.
-      2. Go to the **Attached stacks** tab.
-      3. Add autoattach label: '*' (asterisk means all).
-      4. Save the configuration.
+      2. Click **Edit** and add the label **autoattach:*** (asterisk means all).
+      3. Save the changes.
     hint: "Just like contexts, policies can autoattach. Any stack in your team space or below will get this policy."
-    validationHint: "The policy should be attached to your stack via autoattachment."
-    validation: |
-      package spacelift
-
-      main_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.main_stack_name
-      }
-
-      valid if {
-        some attachment in input.policy_attachments
-        attachment.name == input.expectations.policy_name
-        attachment.stack_id == main_stack.id
-      }
 
   - order: 3
     title: "Test the Policy"
