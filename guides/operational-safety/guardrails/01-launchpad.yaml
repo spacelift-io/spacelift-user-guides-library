@@ -18,6 +18,7 @@ steps:
       1. Navigate to [Integrations](/integrations).
       2. Filter by your version control system and click **View**.
       3. Click **Set up** and follow the authorization prompts.
+      4. If you've already connected your VCS provider, you can skip this step and move on.
     hint: "Before you can secure the mission, you need a mission. This speedrun gets your foundation in place."
 
   - order: 2
