@@ -52,8 +52,8 @@ steps:
     instruction: |
       1. Go to your stack **${main_stack_name}**.
       2. Click **Trigger** to start a run.
-      3. Wait for the run to reach **UNCONFIRMED** state (waiting for approval).
-    hint: "The approval policy from the previous guide is still active, so the run will wait for sign-off — triggering the notification."
+      3. The approval policy from the previous guide is still active, so the run will stop at **UNCONFIRMED** state waiting for sign-off — triggering the notification.
+    hint: "The approval policy gates the run, and the notification policy fires when it enters UNCONFIRMED."
     validationHint: "Wait for the run to reach UNCONFIRMED state before checking the inbox."
     validation: |
       package spacelift
@@ -90,7 +90,7 @@ steps:
     title: "Complete the Run"
     instruction: |
       1. Approve the run to let it proceed.
-      2. Wait for it to complete successfully.
+      2. Wait for the run to reach **FINISHED** state.
     hint: "The notification got you here. Now approve and let it finish."
     validationHint: "Wait for the run to complete successfully after approval."
     validation: |

@@ -70,7 +70,8 @@ steps:
       1. Go to your stack **${main_stack_name}**.
       2. Click **Trigger** to start a run.
       3. Wait for the run to reach **UNCONFIRMED** state.
-    hint: "This will trigger both the inbox notification and the webhook."
+      4. This will trigger both the inbox notification and the webhook.
+    hint: "The approval policy gates the run, and the notification policy fires to both inbox and webhook."
 
   - order: 5
     title: "Inspect the Webhook Payload"
@@ -85,7 +86,7 @@ steps:
     title: "Complete the Run"
     instruction: |
       1. Go back to Spacelift and approve the run.
-      2. Wait for it to complete.
+      2. Wait for the run to reach **FINISHED** state.
       3. Check webhook.site again - you may see additional events as the run progresses.
     hint: "Webhooks can notify on many events: run started, run finished, approval needed, etc."
     validationHint: "Wait for the run to complete successfully after approval."
