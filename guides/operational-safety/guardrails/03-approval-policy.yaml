@@ -135,9 +135,8 @@ steps:
     title: "Watch the Run Enter Unconfirmed"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
-      2. The run should stop at **UNCONFIRMED** state — before planning even starts.
-      3. The approval policy evaluated to **UNDECIDED** (neither approved nor rejected), so the run waits for human input.
-    hint: "Approval policies evaluate when a run is created, before planning. The run waits for human input before it even looks at what will change."
+      2. The run should stop at **UNCONFIRMED** state, waiting for your approval.
+    hint: "The approval policy requires sign-off before the run can proceed."
     validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
     validation: |
       package spacelift
