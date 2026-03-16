@@ -19,6 +19,10 @@ steps:
       1. In your VCS repository, create a new folder called **database**.
       2. Add a **main.tf** file:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       resource "aws_s3_bucket" "data_store" {
         bucket_prefix = "orbit-labs-db-"
 
@@ -59,6 +63,10 @@ steps:
       1. Create a folder called **app** in your repository.
       2. Add a **main.tf** file:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       variable "data_bucket" {
         description = "The bucket created by the database stack"
         default     = "not-configured"

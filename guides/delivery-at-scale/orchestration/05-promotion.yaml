@@ -19,6 +19,10 @@ steps:
       1. In your repository, create a folder called **environments**.
       2. Add a **main.tf** file:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       variable "env" {
         description = "Environment name"
       }

@@ -58,6 +58,10 @@ steps:
     instruction: |
       1. Update your **database/main.tf** to add a tag:
       ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
       resource "aws_s3_bucket" "data_store" {
         bucket_prefix = "orbit-labs-db-"
 
