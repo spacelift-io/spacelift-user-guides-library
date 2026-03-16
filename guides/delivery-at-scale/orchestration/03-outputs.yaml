@@ -1,0 +1,109 @@
+slug: delivery-outputs
+ordering: 3
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "delivery-dependencies"
+metadata:
+  title: "Pass the Data - Output to Input Wiring"
+  description: "Wire stack outputs to inputs so the app stack automatically receives the database bucket name"
+  labels: ["outputs", "inputs", "data-flow", "orchestration"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Dependencies guide with a working dependency chain"
+
+steps:
+  - order: 1
+    title: "Verify Database Output"
+    instruction: |
+      1. Open the **${database_stack_name}** stack.
+      2. Go to the **Outputs** tab (or check the latest run's outputs).
+      3. You should see **data_store_bucket** with the S3 bucket name.
+    hint: "The app doesn't just need the database to exist - it needs to know where it is. Outputs expose this information."
+
+  - order: 2
+    title: "Configure Output Reference"
+    instruction: |
+      1. Open your stack **${main_stack_name}** (the app stack).
+      2. Go to the **Dependencies** tab.
+      3. Find the dependency on **${database_stack_name}**.
+      4. Click **Edit** or **Configure outputs**.
+      5. Add an output reference:
+         - **Output name**: data_store_bucket
+         - **Input name**: TF_VAR_data_bucket
+      6. Save the configuration.
+    hint: "This wires the database stack's 'data_store_bucket' output to the app stack's 'data_bucket' Terraform variable."
+
+  - order: 3
+    title: "Trigger the Database Stack"
+    instruction: |
+      1. Go to the **${database_stack_name}** stack.
+      2. Click **Trigger** to start a run.
+      3. Wait for it to complete successfully.
+    hint: "When database runs, it will produce an output. When app runs, it will receive that output as an input."
+    validationHint: "The database stack should have a completed run."
+    validation: |
+      package spacelift
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+  - order: 4
+    title: "Observe the App Receives the Input"
+    instruction: |
+      1. After database completes, the app stack will run automatically.
+      2. Open the app stack's run and check the **Environment** or **Variables** section.
+      3. You should see **TF_VAR_data_bucket** set to the actual bucket name from the database.
+    hint: "No more hardcoded values. No more 'go look at the other stack and copy-paste.' Data flows through the graph."
+
+  - order: 5
+    title: "Verify in Terraform Outputs"
+    instruction: |
+      1. Wait for the app stack run to complete.
+      2. Check the **Outputs** tab.
+      3. The **data_bucket_reference** output should show the bucket name from the database stack.
+    hint: "The value flowed: database Terraform output -> dependency wire -> app Terraform variable -> app Terraform output."
+    validationHint: "The app stack should have completed a run with the wired input in place."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "Data flows through the stack graph! The database bucket name automatically arrives in the app stack without any manual copying. Next, let's see how Spacelift handles smart orchestration."
+  recommendedGuideIds: ["delivery-smart-orchestration"]
