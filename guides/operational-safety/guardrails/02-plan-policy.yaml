@@ -27,8 +27,6 @@ steps:
       deny contains msg if {
         rc := input.terraform.resource_changes[_]
         rc.type == "aws_s3_bucket"
-        some action in rc.change.actions
-        action in {"create", "update"}
 
         tags := object.get(rc.change.after, "tags", {})
         cost_center := object.get(tags, "cost-center", null)
