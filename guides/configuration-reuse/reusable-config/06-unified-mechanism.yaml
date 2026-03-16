@@ -55,12 +55,10 @@ steps:
   - order: 3
     title: "Make a Code Change"
     instruction: |
-      1. Add a small resource to your **main.tf** (e.g. an SSM parameter):
+      1. Add a small resource to your **main.tf**:
       ```language-hcl
-      resource "aws_ssm_parameter" "env_marker" {
-        name  = "/orbit-labs/environment"
-        type  = "String"
-        value = var.environment
+      resource "terraform_data" "trigger" {
+        input = var.environment
       }
       ```
       2. Commit and push this change.
