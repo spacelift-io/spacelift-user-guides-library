@@ -3,24 +3,14 @@
         "main_stack_name": "Kind cat",
         "dependency_stack_name": "Dependency stack",
         "aws_attachment_name": "AWS attachment for kind cat",
-        "policy_name": "Plan policy for kind cat",
-        "context_name": "production-config"
+        "policy_name": "Plan policy for kind cat"
     },
     "stacks": [
         {
             "id": "stack-irrelevant-1",
             "name": "Stack irrelevant 1",
             "autodeploy": true,
-            "dependencies": [],
-            "labels": ["team:platform"],
-            "space_slug": "root",
-            "environment_variables": [],
-            "has_before_init_hooks": false,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
+            "dependencies": []
         },
         {
             "id": "kind-cat",
@@ -28,46 +18,19 @@
             "autodeploy": false,
             "dependencies": [
                 "dep-stack"
-            ],
-            "labels": ["env:production", "team:platform"],
-            "space_slug": "platform-team",
-            "environment_variables": ["DEPLOY_ENV", "AWS_REGION"],
-            "has_before_init_hooks": true,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
+            ]
         },
         {
             "id": "dep-stack",
             "name": "Dependency stack",
             "autodeploy": false,
-            "dependencies": [],
-            "labels": ["env:production"],
-            "space_slug": "platform-team",
-            "environment_variables": [],
-            "has_before_init_hooks": false,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
+            "dependencies": []
         },
         {
             "id": "stack-irrelevant-2",
             "name": "Stack irrelevant 2",
             "autodeploy": true,
-            "dependencies": [],
-            "labels": [],
-            "space_slug": "root",
-            "environment_variables": [],
-            "has_before_init_hooks": false,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
+            "dependencies": []
         }
     ],
     "runs": [
@@ -122,66 +85,6 @@
         {
             "name": "policy for irrelvant",
             "stack_id": "stack-irrelevant-1"
-        }
-    ],
-    "contexts": [
-        {
-            "name": "production-config",
-            "labels": ["autoattach:env:production"],
-            "space_slug": "root",
-            "environment_variables": ["DEPLOY_ENV"],
-            "has_before_init_hooks": true,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
-        },
-        {
-            "name": "company-config",
-            "labels": ["autoattach:*"],
-            "space_slug": "platform-team",
-            "environment_variables": ["COMPANY"],
-            "has_before_init_hooks": false,
-            "has_after_init_hooks": false,
-            "has_before_plan_hooks": false,
-            "has_after_plan_hooks": false,
-            "has_before_apply_hooks": false,
-            "has_after_apply_hooks": false
-        }
-    ],
-    "context_attachments": [
-        {
-            "context_name": "production-config",
-            "stack_slug": "kind-cat"
-        },
-        {
-            "context_name": "company-config",
-            "stack_slug": "kind-cat"
-        },
-        {
-            "context_name": "company-config",
-            "stack_slug": "dep-stack"
-        }
-    ],
-    "spaces": [
-        {
-            "slug": "root",
-            "name": "Root",
-            "parent_slug": "",
-            "labels": []
-        },
-        {
-            "slug": "platform-team",
-            "name": "Platform Team",
-            "parent_slug": "root",
-            "labels": []
-        },
-        {
-            "slug": "platform-team-production",
-            "name": "Production",
-            "parent_slug": "platform-team",
-            "labels": []
         }
     ]
 }
