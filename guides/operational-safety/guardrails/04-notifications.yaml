@@ -73,10 +73,10 @@ steps:
   - order: 3
     title: "Trigger a Run"
     instruction: |
-      1. Make a small change to your Terraform (e.g., change a tag value).
-      2. Commit and push, or manually trigger the run.
+      1. Go to your stack **${main_stack_name}**.
+      2. Click **Trigger** to start a run.
       3. Wait for the run to reach **UNCONFIRMED** state (waiting for approval).
-    hint: "This will trigger the notification policy."
+    hint: "The approval policy from the previous guide is still active, so the run will wait for sign-off — triggering the notification."
 
   - order: 4
     title: "Check the Inbox"
@@ -92,6 +92,29 @@ steps:
       1. Approve the run to let it proceed.
       2. Wait for it to complete successfully.
     hint: "The notification got you here. Now approve and let it finish."
+    validationHint: "Wait for the run to complete successfully after approval."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "Notifications are flowing! The inbox keeps you informed when runs need attention. Next, let's send notifications to external systems like Slack."

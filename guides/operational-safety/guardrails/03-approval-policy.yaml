@@ -21,6 +21,18 @@ steps:
       3. Disable **Autodeploy** (uncheck it).
       4. Save the change.
     hint: "We want runs to wait for approval. Autodeploy would bypass our approval policy."
+    validationHint: "Autodeploy should be disabled on your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.autodeploy == false
+      }
 
   - order: 2
     title: "Create an Approval Policy"
@@ -86,6 +98,29 @@ steps:
       4. After planning, the run should enter **UNCONFIRMED** state.
       5. It's waiting for approval - the policy is working!
     hint: "The run waits. That's the point. No one can push to production without approval."
+    validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "UNCONFIRMED"
+      }
 
   - order: 5
     title: "Approve the Run"

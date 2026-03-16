@@ -82,6 +82,29 @@ steps:
       4. Watch the run - it should **FAIL** with a policy denial.
       5. Check the **Policy evaluation** section to see the violation message.
     hint: "Intentional violation. The policy blocks it. This is the guardrail in action."
+    validationHint: "The run should fail with a policy denial about the missing cost-center tag."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FAILED"
+      }
 
   - order: 4
     title: "Fix the Violation"
