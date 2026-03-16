@@ -26,7 +26,7 @@ steps:
     instruction: |
       1. Navigate to [Integrate services > Integrations](/integrations).
       2. Filter by **Webhook** and click **Set up**.
-      3. Name it something like **test-webhook**.
+      3. Name it **test-webhook** (this exact name is referenced in the policy below).
       4. Enter your webhook.site URL (or ngrok URL).
       5. Save the endpoint.
     hint: "This creates a reusable webhook endpoint that notification policies can target."

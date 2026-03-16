@@ -131,6 +131,29 @@ steps:
       2. Watch the logs - you should see the same hook output as before.
       3. The environment variable is still available to Terraform.
     hint: "Same result. But now you can attach this Context to any stack that needs it. Define once, reuse everywhere."
+    validationHint: "Wait for the run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
 
 completion:
   successMessage: "You've extracted configuration into a reusable Context. Now any stack can get this configuration by simply attaching the context. Next, let's automate this with labels!"

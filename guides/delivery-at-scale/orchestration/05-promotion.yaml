@@ -49,7 +49,7 @@ steps:
       4. Enable **Autodeploy**.
       5. Attach the AWS integration.
     hint: "Staging deploys automatically. Every push goes straight to staging."
-    validationHint: "The staging stack should be created with autodeploy enabled."
+    validationHint: "The staging stack should be created with autodeploy enabled and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -60,6 +60,8 @@ steps:
 
       valid if {
         staging_stack.autodeploy == true
+        some attachment in input.aws_attachments
+        attachment.attached_to == staging_stack.id
       }
 
   - order: 3
@@ -71,7 +73,7 @@ steps:
       4. **Disable** Autodeploy (leave it unchecked).
       5. Attach the AWS integration.
     hint: "Production requires manual approval. Autodeploy is OFF."
-    validationHint: "The production stack should be created with autodeploy disabled."
+    validationHint: "The production stack should be created with autodeploy disabled and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -82,6 +84,8 @@ steps:
 
       valid if {
         production_stack.autodeploy == false
+        some attachment in input.aws_attachments
+        attachment.attached_to == production_stack.id
       }
 
   - order: 4
@@ -127,19 +131,36 @@ steps:
         stack.name == input.expectations.staging_stack_name
       }
 
-      tracked_runs contains run if {
+      production_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.production_stack_name
+      }
+
+      staging_runs contains run if {
         some run in input.runs
         run.stack_id == staging_stack.id
         run.type == "TRACKED"
       }
 
-      latest_tracked_run := run if {
-        some run in tracked_runs
-        run.created_at == max([r.created_at | some r in tracked_runs])
+      latest_staging_run := run if {
+        some run in staging_runs
+        run.created_at == max([r.created_at | some r in staging_runs])
+      }
+
+      production_runs contains run if {
+        some run in input.runs
+        run.stack_id == production_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_production_run := run if {
+        some run in production_runs
+        run.created_at == max([r.created_at | some r in production_runs])
       }
 
       valid if {
-        latest_tracked_run.status == "FINISHED"
+        latest_staging_run.status == "FINISHED"
+        latest_production_run.status == "UNCONFIRMED"
       }
 
   - order: 6

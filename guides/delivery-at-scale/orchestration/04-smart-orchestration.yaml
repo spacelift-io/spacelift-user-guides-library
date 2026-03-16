@@ -50,8 +50,8 @@ steps:
     instruction: |
       1. After the database run completes with no changes, check the **${main_stack_name}** stack.
       2. Notice that no new run was triggered.
-      3. Check the **Runs** tab - the app stack was **skipped** because the dependency produced no changes.
-    hint: "Smart orchestration. Don't run what doesn't need to run."
+      3. Check the **Runs** tab - the app stack was **skipped** because the dependency's referenced output did not change.
+    hint: "Smart orchestration. When the output wired to the downstream stack hasn't changed, Spacelift skips it entirely."
 
   - order: 3
     title: "Make a Real Change"
