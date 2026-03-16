@@ -68,10 +68,10 @@ steps:
   - order: 3
     title: "Attach Policy to Stack"
     instruction: |
-      1. Open your policy **${approval_policy_name}**.
-      2. Go to the **Attached stacks** tab.
-      3. Click **Attach stack**.
-      4. Select **${main_stack_name}**.
+      1. Open your stack **${main_stack_name}**.
+      2. Go to the **Settings** tab, then **Policies**.
+      3. Click **Attach policy**.
+      4. Select **${approval_policy_name}**.
       5. Save the attachment.
     hint: "Now every run on this stack will require approval before applying."
     validationHint: "The policy should be attached to your stack."
