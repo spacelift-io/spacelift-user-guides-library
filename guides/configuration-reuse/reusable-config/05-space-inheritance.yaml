@@ -1,0 +1,125 @@
+slug: config-reuse-space-inheritance
+ordering: 5
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "config-reuse-autoattach"
+metadata:
+  title: "Space Inheritance - Config Flows Downhill"
+  description: "Build a space hierarchy where configuration defined at the top cascades down to all child spaces automatically"
+  labels: ["spaces", "hierarchy", "inheritance", "organization"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Autoattachment guide with contexts using label-based attachment"
+
+steps:
+  - order: 1
+    title: "Create a Team Space"
+    instruction: |
+      1. Navigate to [Organize > Spaces](/spaces).
+      2. Click **Create space**.
+      3. Name: **platform-team**, Parent: **root**.
+      4. Enable **Inherit entities** from parent.
+      5. Click **Create space**.
+    hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
+    validationHint: "The platform-team space should be created."
+    validation: |
+      package spacelift
+
+      valid if {
+        some space in input.spaces
+        space.slug == "platform-team"
+        space.parent_slug == "root"
+      }
+
+  - order: 2
+    title: "Create a Production Space"
+    instruction: |
+      1. Click **Create space** again.
+      2. Name: **production**, Parent: **platform-team**.
+      3. Enable **Inherit entities** from parent.
+      4. Click **Create space**.
+    hint: "Now you have a hierarchy: root > platform-team > production. Configuration can cascade through these levels."
+    validationHint: "The production space should be a child of platform-team."
+    validation: |
+      package spacelift
+
+      valid if {
+        some space in input.spaces
+        space.slug == "production"
+        space.parent_slug == "platform-team"
+      }
+
+  - order: 3
+    title: "Move Stack to Production Space"
+    instruction: |
+      1. Go to [Ship Infra > Stacks](/stacks).
+      2. Open your stack **${main_stack_name}**.
+      3. Go to **Settings** > **Behavior**.
+      4. Change **Space** from **root** to **production**.
+      5. Save the change.
+    hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."
+    validationHint: "Your stack should be in the production space."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.space_slug == "production"
+      }
+
+  - order: 4
+    title: "Create a Company-Wide Context"
+    instruction: |
+      1. Navigate to [Reuse config > Contexts](/contexts).
+      2. Click **Create context**.
+      3. Name: **${company_context_name}**, Space: **platform-team**.
+      4. Create the context.
+      5. Add an environment variable: **COMPANY=orbit-labs**.
+      6. Go to **Attached stacks** and add autoattach label: '*' (asterisk means all).
+    hint: "The autoattach:* label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
+    validationHint: "The company context should exist with the autoattach:* label and the COMPANY environment variable."
+    validation: |
+      package spacelift
+
+      company_context := ctx if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.company_context_name
+        "autoattach:*" in ctx.labels
+        "COMPANY" in ctx.environment_variables
+      }
+
+      valid if {
+        company_context
+      }
+
+  - order: 5
+    title: "Verify Inherited Configuration"
+    instruction: |
+      1. Go to your stack **${main_stack_name}** (in the production space).
+      2. Check the **Contexts** tab - you should see **${company_context_name}** attached.
+      3. Trigger a run.
+      4. In the run logs/outputs, verify the COMPANY variable is available.
+    hint: "Define it once at the team level, inherit it everywhere below. The space tree becomes your configuration tree."
+    validationHint: "The company context should be attached to your stack via inheritance."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.context_attachments
+        attachment.context_name == input.expectations.company_context_name
+        attachment.stack_slug == main_stack.id
+      }
+
+completion:
+  successMessage: "Configuration flows downhill through your space hierarchy. Define it once at the top, and everything below inherits it automatically. Next, let's see how this same mechanism works for policies and integrations!"
+  recommendedGuideIds: ["config-reuse-unified-mechanism"]

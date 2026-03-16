@@ -1,0 +1,160 @@
+slug: config-reuse-extract-context
+ordering: 3
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "config-reuse-inline-config"
+metadata:
+  title: "Extract and Reuse with Contexts"
+  description: "Move configuration from your stack into a reusable Context - a bundle of environment variables and hooks that can be shared"
+  labels: ["contexts", "reusability", "environment-variables", "hooks"]
+  difficulty: "medium"
+  minutesToComplete: 15
+  prerequisites:
+    - "Completed the Inline Configuration guide with a stack that has env vars and hooks"
+
+steps:
+  - order: 1
+    title: "Create a Context"
+    instruction: |
+      1. Navigate to [Reuse config > Contexts](/contexts).
+      2. Click **Create context**.
+      3. Name it **${context_name}**.
+      4. Space: **root**.
+      5. Click **Create context**.
+    hint: "Copy-paste is not a strategy. Contexts are reusable bundles of configuration - environment variables, mounted files, and hooks that can be attached to any stack."
+    validationHint: "Your context should be created and visible in Spacelift."
+    validation: |
+      package spacelift
+
+      valid if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.context_name
+      }
+
+  - order: 2
+    title: "Add the Environment Variable to Context"
+    instruction: |
+      1. Open your new context **${context_name}**.
+      2. Go to the **Environment** tab.
+      3. Click **Add variable**.
+      4. Set Name: **TF_VAR_environment**, Value: **production**.
+      5. Click **Save**.
+    hint: "Now this variable lives in the context, not the stack. Any stack that attaches this context will get this variable."
+    validationHint: "The context should have the TF_VAR_environment variable."
+    validation: |
+      package spacelift
+
+      context_with_env := ctx if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.context_name
+        "TF_VAR_environment" in ctx.environment_variables
+      }
+
+      valid if {
+        context_with_env
+      }
+
+  - order: 3
+    title: "Add the Hook to Context"
+    instruction: |
+      1. Still in your context **${context_name}**, go to the **Hooks** tab.
+      2. In **Before init**, add:
+      ```language-bash
+      echo "Initializing for environment: $TF_VAR_environment"
+      ```
+      3. Click **Save**.
+    hint: "Hooks in contexts work just like hooks on stacks. When attached, they merge with stack hooks (context hooks run first)."
+    validationHint: "The context should have a before_init hook."
+    validation: |
+      package spacelift
+
+      context_with_hook := ctx if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.context_name
+        ctx.has_before_init_hooks
+      }
+
+      valid if {
+        context_with_hook
+      }
+
+  - order: 4
+    title: "Remove Inline Config from Stack"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to **Environment** tab and delete the **TF_VAR_environment** variable.
+      3. Go to **Settings** > **Hooks** and remove the before-init script.
+      4. Save your changes.
+    hint: "We're moving the config, not duplicating it. The stack should be clean of inline configuration."
+    validationHint: "Your stack should no longer have the inline TF_VAR_environment variable or the before-init hook."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        not "TF_VAR_environment" in main_stack.environment_variables
+        not main_stack.has_before_init_hooks
+      }
+
+  - order: 5
+    title: "Attach Context to Stack"
+    instruction: |
+      1. Go to your stack **${main_stack_name}**.
+      2. Go to the **Contexts** tab.
+      3. Click **Attach context**.
+      4. Select **${context_name}** from the dropdown.
+      5. Click **Attach**.
+    hint: "Attaching a context is like plugging in a configuration module. The stack inherits all the context's variables and hooks."
+    validationHint: "The context should be attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.context_attachments
+        attachment.context_name == input.expectations.context_name
+        attachment.stack_slug == main_stack.id
+      }
+
+  - order: 6
+    title: "Verify Same Behavior"
+    instruction: |
+      1. Trigger a run on your stack.
+      2. Watch the logs - you should see the same hook output as before.
+      3. The environment variable is still available to Terraform.
+    hint: "Same result. But now you can attach this Context to any stack that needs it. Define once, reuse everywhere."
+    validationHint: "Wait for the run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "You've extracted configuration into a reusable Context. Now any stack can get this configuration by simply attaching the context. Next, let's automate this with labels!"
+  recommendedGuideIds: ["config-reuse-autoattach"]
