@@ -69,7 +69,7 @@ steps:
     title: "Attach Policy to Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Settings** tab, then **Policies**.
+      2. Go to the **Policies** tab.
       3. Click **Attach policy**.
       4. Select **${approval_policy_name}**.
       5. Save the attachment.

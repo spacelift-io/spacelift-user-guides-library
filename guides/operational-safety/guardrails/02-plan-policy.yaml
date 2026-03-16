@@ -27,8 +27,8 @@ steps:
       deny contains msg if {
         rc := input.terraform.resource_changes[_]
         rc.type == "aws_s3_bucket"
-        actions := rc.change.actions
-        any([actions[_] == "create", actions[_] == "update"])
+        some action in rc.change.actions
+        action in {"create", "update"}
 
         tags := object.get(rc.change.after, "tags", {})
         cost_center := object.get(tags, "cost-center", null)
@@ -53,7 +53,7 @@ steps:
     title: "Attach Policy to Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Settings** tab, then **Policies**.
+      2. Go to the **Policies** tab.
       3. Click **Attach policy**.
       4. Select **${plan_policy_name}**.
       5. Save the attachment.
