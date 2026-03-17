@@ -61,6 +61,8 @@ const (
 	VariableResourceTypeStack          VariableResourceType = "stack"
 	VariableResourceTypePolicy         VariableResourceType = "policy"
 	VariableResourceTypeAWSIntegration VariableResourceType = "aws_integration"
+	VariableResourceTypeContext        VariableResourceType = "context"
+	VariableResourceTypeSpace          VariableResourceType = "space"
 )
 
 type GuideVariable struct {
@@ -357,6 +359,8 @@ func (c Chapter) Validate() error {
 		VariableResourceTypeStack:          true,
 		VariableResourceTypePolicy:         true,
 		VariableResourceTypeAWSIntegration: true,
+		VariableResourceTypeContext:        true,
+		VariableResourceTypeSpace:          true,
 	}
 	for _, v := range c.Variables {
 		if v.ResourceType == "" {
