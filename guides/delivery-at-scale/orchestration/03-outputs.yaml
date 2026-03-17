@@ -27,7 +27,7 @@ steps:
       1. Open your stack **${main_stack_name}** (the app stack).
       2. Go to the **Dependencies** tab.
       3. Find the dependency on **${database_stack_name}**.
-      4. Click **Edit** or **Configure outputs**.
+      4. Click **Add output**.
       5. Add an output reference:
          - **Output name**: data_store_bucket
          - **Input name**: TF_VAR_data_bucket
@@ -68,8 +68,8 @@ steps:
   - order: 4
     title: "Observe the App Receives the Input"
     instruction: |
-      1. After database completes, the app stack will run automatically.
-      2. Open the app stack's run and check the **Environment** or **Variables** section.
+      1. After **${database_stack_name}** completes, the **${main_stack_name}** stack will run automatically.
+      2. Open the **${main_stack_name}** run and check the **Environment** or **Variables** section.
       3. You should see **TF_VAR_data_bucket** set to the actual bucket name from the database.
     hint: "No more hardcoded values. No more 'go look at the other stack and copy-paste.' Data flows through the graph."
 
