@@ -1,0 +1,142 @@
+slug: delivery-smart-orchestration
+ordering: 4
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "delivery-outputs"
+metadata:
+  title: "Wait, Skip, Proceed - Smart Orchestration"
+  description: "Learn how Spacelift skips downstream stacks when there are no changes, and waits when changes are in progress"
+  labels: ["orchestration", "skip", "pending", "no-changes"]
+  difficulty: "medium"
+  minutesToComplete: 20
+  prerequisites:
+    - "Completed the Pass the Data guide with output-to-input wiring"
+
+steps:
+  - order: 1
+    title: "Trigger a No-Changes Run"
+    instruction: |
+      1. Go to the **${database_stack_name}** stack.
+      2. Click **Trigger** to start a run.
+      3. Since nothing changed in the code, the plan should show **No changes**.
+      4. The run will complete quickly with no resources modified.
+    hint: "Not every push changes everything. When there are no changes, Spacelift is smart about it."
+    validationHint: "The database stack should have completed the no-changes run."
+    validation: |
+      package spacelift
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+  - order: 2
+    title: "Observe the App Stack is Skipped"
+    instruction: |
+      1. After the database run completes with no changes, check the **${main_stack_name}** stack.
+      2. Notice that no new run was triggered.
+      3. Check the **Runs** tab - the app stack was **skipped** because the dependency's referenced output did not change.
+    hint: "Smart orchestration. When the output wired to the downstream stack hasn't changed, Spacelift skips it entirely."
+
+  - order: 3
+    title: "Make a Real Change"
+    instruction: |
+      1. Update your **database/main.tf** to add a tag:
+      ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
+      resource "aws_s3_bucket" "data_store" {
+        bucket_prefix = "orbit-labs-db-"
+
+        tags = {
+          name      = "Orbit Labs Data Store"
+          managedBy = "Spacelift"
+          type      = "database"
+          version   = "v2"
+        }
+      }
+
+      output "data_store_bucket" {
+        value = aws_s3_bucket.data_store.id
+      }
+      ```
+      2. Commit and push the change.
+    hint: "This change will trigger database, which will then trigger app."
+
+  - order: 4
+    title: "Observe Pending and Proceed"
+    instruction: |
+      1. The **${database_stack_name}** stack will start running automatically (autodeploy).
+      2. While it's running, check **${main_stack_name}** - it should be in **PENDING** state.
+      3. The **${main_stack_name}** stack is waiting for the dependency to complete.
+      4. After **${database_stack_name}** finishes, observe **${main_stack_name}** proceeds to run.
+    hint: "Don't run out of order. The app waits until database is done."
+
+  - order: 5
+    title: "Verify Both Complete Successfully"
+    instruction: |
+      1. Wait for both runs to complete.
+      2. The database run should be **FINISHED**.
+      3. The app run should be **FINISHED**.
+    hint: "The orchestration handled everything: detected changes, ran in order, and completed the chain."
+    validationHint: "Both the database and app stacks should have completed runs."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      main_tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      database_tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == database_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_main_run := run if {
+        some run in main_tracked_runs
+        run.created_at == max([r.created_at | some r in main_tracked_runs])
+      }
+
+      latest_database_run := run if {
+        some run in database_tracked_runs
+        run.created_at == max([r.created_at | some r in database_tracked_runs])
+      }
+
+      valid if {
+        latest_main_run.status == "FINISHED"
+        latest_database_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "Smart orchestration in action! Spacelift skips when there's nothing to do, waits when dependencies are running, and proceeds when ready. Next, let's build a promotion gate!"
+  recommendedGuideIds: ["delivery-promotion"]

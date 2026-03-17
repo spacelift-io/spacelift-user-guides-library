@@ -132,12 +132,6 @@
         }
       }
     },
-    "releaseState": {
-      "type": "string",
-      "description": "Controls visibility: 'testing' (internal only) or 'published' (visible to all). Defaults to 'published' if omitted.",
-      "enum": ["testing", "published"],
-      "default": "published"
-    },
     "completion": {
       "type": "object",
       "description": "Information displayed when the guide is completed",
