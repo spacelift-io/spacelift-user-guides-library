@@ -1,0 +1,130 @@
+slug: config-reuse-launchpad
+ordering: 1
+releaseState: testing
+metadata:
+  title: "Launchpad - Quick Start"
+  description: "Get the basics in place fast: VCS connected, AWS wired up, and a stack that deploys real infrastructure"
+  labels: ["getting-started", "vcs", "aws", "stack", "speedrun"]
+  difficulty: "easy"
+  minutesToComplete: 15
+  prerequisites:
+    - "A GitHub, GitLab, Bitbucket, or Azure DevOps account"
+    - "An existing AWS integration (see the 'Credentials, Not Secrets' guide in Foundations)"
+
+steps:
+  - order: 1
+    title: "Connect Your VCS Provider"
+    instruction: |
+      1. Navigate to [Integrations](/integrations).
+      2. Filter by your version control system and click **View**.
+      3. Click **Set up** and follow the authorization prompts.
+      4. If you've already connected your VCS provider, you can skip this step and move on.
+    hint: "Before you can reuse config, you need config to reuse. This speedrun gets your foundation in place."
+
+  - order: 2
+    title: "Create a Repository with Terraform"
+    instruction: |
+      1. In your VCS provider, create a new repository.
+      2. Add a **main.tf** file with this S3 bucket configuration:
+      ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
+      variable "environment" {
+        default = "demo"
+      }
+
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = var.environment
+        }
+      }
+
+      output "bucket_name" {
+        value = aws_s3_bucket.data.id
+      }
+      ```
+      3. Commit and push to your main branch.
+    hint: "This creates a real S3 bucket that we'll use throughout the Configuration Reuse journey."
+
+  - order: 3
+    title: "Create Your Stack"
+    instruction: |
+      1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
+      2. Name it **${main_stack_name}**, Space: **root**, add label **env:production**.
+      3. Select your VCS integration and repository, Branch: **main**.
+      4. Workflow tool: **OpenTofu**, choose the latest version.
+      5. Enable **Autodeploy**.
+      6. Complete the wizard and create the stack.
+    hint: "The label 'env:production' will be important later for autoattachment. Autodeploy means tracked runs confirm automatically."
+    validationHint: "Your stack should be created with the env:production label visible in Settings > Behavior."
+    validation: |
+      package spacelift
+
+      valid if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+        "env:production" in stack.labels
+      }
+
+  - order: 4
+    title: "Attach the AWS Integration"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to the **Settings** tab, then **Integrations**.
+      3. Under **Cloud**, click **Attach** next to your AWS integration.
+      4. Configure it to read and write.
+    hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
+    validationHint: "The AWS integration should be attached to your stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        some attachment in input.aws_attachments
+        attachment.attached_to == main_stack.id
+      }
+
+  - order: 5
+    title: "Trigger and Complete a Run"
+    instruction: |
+      1. Click **Trigger** on your stack.
+      2. Watch the run progress through INITIALIZING, PLANNING, and (with autodeploy) APPLYING.
+      3. Wait for the run to reach **FINISHED** state.
+    hint: "With autodeploy enabled and no warnings, the run confirms automatically. Your S3 bucket is now deployed!"
+    validationHint: "Wait for a tracked run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "Your launchpad is ready! You have VCS connected, AWS integrated, and a working stack with deployed infrastructure. Now let's make this configuration reusable."
+  recommendedGuideIds: ["config-reuse-inline-config"]

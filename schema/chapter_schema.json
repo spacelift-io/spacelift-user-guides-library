@@ -39,7 +39,7 @@
           "resourceType": {
             "type": "string",
             "description": "The Spacelift resource type this variable represents",
-            "enum": ["stack", "policy", "aws_integration"]
+            "enum": ["stack", "policy", "aws_integration", "context", "space"]
           }
         }
       }

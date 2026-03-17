@@ -1,0 +1,135 @@
+slug: config-reuse-inline-config
+ordering: 2
+releaseState: testing
+prerequisiteGuideSlugs:
+  - "config-reuse-launchpad"
+metadata:
+  title: "Inline Configuration"
+  description: "Add environment variables and hooks directly to your stack - the quick and dirty way that works but doesn't scale"
+  labels: ["environment-variables", "hooks", "configuration", "inline"]
+  difficulty: "easy"
+  minutesToComplete: 10
+  prerequisites:
+    - "Completed the Launchpad guide with a working stack"
+
+steps:
+  - order: 1
+    title: "Add an Environment Variable"
+    instruction: |
+      1. Open your stack **${main_stack_name}**.
+      2. Go to the **Environment** tab.
+      3. Click **Add variable**.
+      4. Set Name: **TF_VAR_environment**, Value: **production**.
+      5. Leave it as plaintext (not secret) for now.
+      6. Click **Save**.
+    hint: "It works. But it's getting messy. Environment variables prefixed with TF_VAR_ automatically populate the matching Terraform variable — so TF_VAR_environment sets var.environment."
+    validationHint: "The TF_VAR_environment variable should be visible in your stack's environment."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        "TF_VAR_environment" in main_stack.environment_variables
+      }
+
+  - order: 2
+    title: "Add a Before-Init Hook"
+    instruction: |
+      1. Still in your stack **${main_stack_name}**, go to the **Hooks** tab.
+      2. In **Before init**, add this script:
+      ```language-bash
+      echo "Initializing for environment: $TF_VAR_environment"
+      ```
+      3. Click **Save**.
+    hint: "Hooks run at specific points in the run lifecycle. Before-init hooks execute before Terraform/OpenTofu initializes - perfect for setup scripts."
+    validationHint: "Your stack should now have a before_init hook configured."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.has_before_init_hooks
+      }
+
+  - order: 3
+    title: "Trigger a Run to See Your Configuration"
+    instruction: |
+      1. Click **Trigger** on your stack.
+      2. Watch the run logs during the INITIALIZING phase.
+      3. You should see your hook output: "Initializing for environment: production"
+    hint: "You should see 'Initializing for environment: production' in the logs. It works! But what happens when you have 10 stacks that all need the same setup? Copy-paste is not a strategy."
+
+  - order: 4
+    title: "Verify the Environment Variable in Terraform"
+    instruction: |
+      1. Update your **main.tf** to use the environment variable:
+      ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
+      variable "environment" {
+        default = "demo"
+      }
+
+      locals {
+        env = coalesce(var.environment, "unknown")
+      }
+
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = local.env
+        }
+      }
+
+      output "bucket_name" {
+        value = aws_s3_bucket.data.id
+      }
+
+      output "deploy_env" {
+        value = local.env
+      }
+      ```
+      2. Commit and push this change.
+      3. A run will trigger automatically (autodeploy is on).
+      4. Check the outputs after the run completes.
+    hint: "TF_VAR_environment=production sets var.environment to 'production' inside Terraform. The deploy_env output now shows the value injected from Spacelift."
+    validationHint: "Wait for the autodeploy run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "FINISHED"
+      }
+
+completion:
+  successMessage: "You've added inline configuration to your stack. This works, but doesn't scale. Next, we'll extract this configuration into a reusable Context."
+  recommendedGuideIds: ["config-reuse-extract-context"]

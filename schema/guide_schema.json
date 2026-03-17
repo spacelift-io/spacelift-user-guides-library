@@ -17,6 +17,11 @@
       "description": "Display order of the guide within its chapter",
       "minimum": 1
     },
+    "releaseState": {
+      "type": "string",
+      "description": "Release state of the guide",
+      "enum": ["testing", "published"]
+    },
     "prerequisiteGuideSlugs": {
       "type": "array",
       "description": "Slugs of guides that should be completed before this one",
