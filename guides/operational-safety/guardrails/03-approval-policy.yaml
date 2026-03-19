@@ -135,7 +135,8 @@ steps:
     title: "Watch the Run Enter Unconfirmed"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
-      2. The run should stop at **UNCONFIRMED** state, waiting for your approval.
+      2. The run will pause in **QUEUED** state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
+      3. The run should stop at **UNCONFIRMED** state, waiting for your approval.
     hint: "The approval policy requires sign-off before the run can proceed."
     validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
     validation: |
