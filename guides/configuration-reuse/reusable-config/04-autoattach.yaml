@@ -17,7 +17,7 @@ steps:
     title: "Verify Stack Label"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Settings** > **Behavior**.
+      2. Go to **Settings** > **Stack details**.
       3. Confirm you have the label **env:production** (we added this in Launchpad).
       4. If not, add it now and save.
     hint: "Labels are key-value pairs that describe your stack. They become contracts: 'If you're production, you get production config.'"
@@ -104,9 +104,12 @@ steps:
       }
 
       valid if {
-        some attachment in input.context_attachments
-        attachment.context_name == input.expectations.context_name
-        attachment.stack_slug == second_stack.id
+        some ctx in input.contexts
+        ctx.name == input.expectations.context_name
+        some label in ctx.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target in second_stack.labels
       }
 
 completion:
