@@ -121,7 +121,7 @@ steps:
     instruction: |
       1. Open your stack **${main_stack_name}** (the app stack).
       2. Go to the **Dependencies** tab.
-      3. Click **Depends on**.
+      3. In the **Depends on** section, click **Add dependencies**.
       4. Select **${database_stack_name}**.
       5. Save the dependency.
     hint: "This tells Spacelift: 'Don't run the app stack until the database stack has finished successfully.'"

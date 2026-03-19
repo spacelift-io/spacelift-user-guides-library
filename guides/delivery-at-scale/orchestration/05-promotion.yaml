@@ -99,7 +99,7 @@ steps:
     instruction: |
       1. Open the **${production_stack_name}** stack.
       2. Go to the **Dependencies** tab.
-      3. Click **Depends on** and select **${staging_stack_name}**.
+      3. In the **Depends on** section, click **Add dependencies** and select **${staging_stack_name}**.
       4. Save the dependency.
     hint: "Staging has to pass before production can even try. This is your promotion gate."
     validationHint: "Production should depend on staging."
