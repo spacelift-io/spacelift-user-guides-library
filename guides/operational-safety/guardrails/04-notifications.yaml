@@ -29,7 +29,7 @@ steps:
         msg := {
           "title": sprintf("Run needs approval: %s", [input.run_updated.stack.name]),
           "body": sprintf("Run %s on stack %s is waiting for approval.",
-                          [input.run_updated.ulid, input.run_updated.stack.name]),
+                          [input.run_updated.run.id, input.run_updated.stack.name]),
           "severity": "INFO"
         }
       }
