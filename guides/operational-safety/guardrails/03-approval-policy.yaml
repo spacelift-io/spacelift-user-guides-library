@@ -132,12 +132,12 @@ steps:
     hint: "The approval flow needs real infrastructure changes to go through the full cycle. If the plan has no changes, the run skips the confirmation step entirely."
 
   - order: 5
-    title: "Watch the Run Enter Unconfirmed"
+    title: "Watch the Run Enter Queued"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
-      2. The run should stop at **UNCONFIRMED** state, waiting for your approval.
-    hint: "The approval policy requires sign-off before the run can proceed."
-    validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
+      2. The run should stop at **QUEUED** state — the approval policy evaluated to **UNDECIDED**, meaning no approver has acted yet, so the run is held until someone approves.
+    hint: "The run enters QUEUED (not UNCONFIRMED) because the approval policy must be satisfied before the run can proceed to confirmation."
+    validationHint: "The run should be in QUEUED state, held by the approval policy."
     validation: |
       package spacelift
 
@@ -158,13 +158,13 @@ steps:
       }
 
       valid if {
-        latest_tracked_run.status == "UNCONFIRMED"
+        latest_tracked_run.status == "QUEUED"
       }
 
   - order: 6
     title: "Approve, Confirm, and Complete"
     instruction: |
-      1. Open the unconfirmed run on **${main_stack_name}**.
+      1. Open the queued run on **${main_stack_name}**.
       2. Click **Approve** to give your approval.
       3. The run will proceed to **PLANNING**.
       4. After planning completes, review the plan to see what will change.
