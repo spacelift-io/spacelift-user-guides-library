@@ -53,6 +53,7 @@ steps:
 
       valid if {
         database_stack.autodeploy == true
+        database_stack.project_root == "database"
         some attachment in input.aws_attachments
         attachment.attached_to == database_stack.id
       }
@@ -102,6 +103,18 @@ steps:
       3. Set **Project root** to **app**.
       4. Save the change.
     hint: "Now your main stack points to the app folder, and the database stack points to the database folder."
+    validationHint: "The main stack should have its project root set to 'app'."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.project_root == "app"
+      }
 
   - order: 4
     title: "Create the Dependency"

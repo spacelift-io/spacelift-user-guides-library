@@ -10,12 +10,14 @@
             "id": "stack-irrelevant-1",
             "name": "Stack irrelevant 1",
             "autodeploy": true,
+            "project_root": "",
             "dependencies": []
         },
         {
             "id": "kind-cat",
             "name": "Kind cat",
             "autodeploy": false,
+            "project_root": "",
             "dependencies": [
                 "dep-stack"
             ]
@@ -24,12 +26,14 @@
             "id": "dep-stack",
             "name": "Dependency stack",
             "autodeploy": false,
+            "project_root": "",
             "dependencies": []
         },
         {
             "id": "stack-irrelevant-2",
             "name": "Stack irrelevant 2",
             "autodeploy": true,
+            "project_root": "",
             "dependencies": []
         }
     ],
