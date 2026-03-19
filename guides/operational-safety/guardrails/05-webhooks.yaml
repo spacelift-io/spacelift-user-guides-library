@@ -63,6 +63,19 @@ steps:
           }
         }
       }
+
+      webhook contains payload if {
+        input.run_updated.state == "FINISHED"
+        payload := {
+          "endpoint_id": "test-webhook",
+          "payload": {
+            "stack": input.run_updated.stack.name,
+            "run_id": input.run_updated.run.id,
+            "state": input.run_updated.state,
+            "message": "Run completed successfully"
+          }
+        }
+      }
       ```
       4. Save the policy.
     hint: "The webhook rule targets your endpoint by name. You can send different payloads to different webhooks."
@@ -182,8 +195,8 @@ steps:
     instruction: |
       1. Go back to Spacelift and approve the run.
       2. Wait for the run to reach **FINISHED** state.
-      3. Check webhook.site again - you may see additional events as the run progresses.
-    hint: "Webhooks can notify on many events: run started, run finished, approval needed, etc."
+      3. Check webhook.site again - you should see a second request fired when the run reaches **FINISHED** state.
+    hint: "The policy fires on both UNCONFIRMED and FINISHED, so you get two webhook calls. You can target any run state this way."
     validationHint: "Wait for the run to complete successfully after approval."
     validation: |
       package spacelift
