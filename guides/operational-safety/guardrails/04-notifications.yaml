@@ -48,14 +48,92 @@ steps:
       }
 
   - order: 2
-    title: "Trigger a Run"
+    title: "Make a Change to Trigger Approval"
     instruction: |
-      1. Go to your stack **${main_stack_name}**.
-      2. Click **Trigger** to start a run.
-      3. The approval policy from the previous guide is still active, so the run will stop at **UNCONFIRMED** state waiting for sign-off — triggering the notification.
+      A run with no changes skips straight to FINISHED — no UNCONFIRMED, no notification. You need a real diff.
+
+      1. Update your **main.tf** to add a backups bucket:
+      ```language-hcl
+      provider "aws" {
+        region = "us-east-1"
+      }
+
+      variable "environment" {
+        default = "demo"
+      }
+
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          cost-center = "engineering"
+        }
+      }
+
+      resource "aws_s3_bucket" "logs" {
+        bucket_prefix = "orbit-labs-logs-"
+
+        tags = {
+          name        = "Orbit Labs Logs"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          cost-center = "engineering"
+        }
+      }
+
+      resource "aws_s3_bucket" "backups" {
+        bucket_prefix = "orbit-labs-backups-"
+
+        tags = {
+          name        = "Orbit Labs Backups"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          cost-center = "engineering"
+        }
+      }
+
+      output "bucket_name" {
+        value = aws_s3_bucket.data.id
+      }
+      ```
+      2. Commit and push this change.
     hint: "The approval policy gates the run, and the notification policy fires when it enters UNCONFIRMED."
 
   - order: 3
+    title: "Watch the Run Enter Unconfirmed"
+    instruction: |
+      1. A run will trigger automatically on **${main_stack_name}**.
+      2. The run will pause in **QUEUED** state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
+      3. The run should stop at **UNCONFIRMED** state, waiting for approval — and the notification policy will fire.
+    hint: "The approval policy is still active from the previous guide. Any run with real changes will hit UNCONFIRMED."
+    validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+      }
+
+      latest_tracked_run := run if {
+        some run in tracked_runs
+        run.created_at == max([r.created_at | some r in tracked_runs])
+      }
+
+      valid if {
+        latest_tracked_run.status == "UNCONFIRMED"
+      }
+
+  - order: 4
     title: "Check the Inbox"
     instruction: |
       1. Click on the **Inbox** icon in the Spacelift navigation (bell icon).
@@ -63,7 +141,7 @@ steps:
       3. Click the notification to go directly to the run.
     hint: "Mission Control knows. The inbox is your central place for action items."
 
-  - order: 4
+  - order: 5
     title: "Complete the Run"
     instruction: |
       1. Approve the run to let it proceed.
