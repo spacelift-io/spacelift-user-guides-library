@@ -42,7 +42,7 @@ steps:
       5. Point it to your repository with **Project root**: **database**.
       6. Enable **Autodeploy** and attach the AWS integration.
     hint: "The database has to exist before the app can connect to it. We're modeling this dependency explicitly."
-    validationHint: "The database stack should be created with autodeploy enabled and the AWS integration attached."
+    validationHint: "The database stack should be created with Project root set to 'database', autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
 
