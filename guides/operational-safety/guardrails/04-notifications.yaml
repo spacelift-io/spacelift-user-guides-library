@@ -29,7 +29,7 @@ steps:
         msg := {
           "title": sprintf("Run needs approval: %s", [input.run_updated.stack.name]),
           "body": sprintf("Run %s on stack %s is waiting for approval.",
-                          [input.run_updated.ulid, input.run_updated.stack.name]),
+                          [input.run_updated.run.id, input.run_updated.stack.name]),
           "severity": "INFO"
         }
       }
@@ -51,6 +51,10 @@ steps:
     title: "Make a Change to Trigger Approval"
     instruction: |
       A run with no changes skips straight to FINISHED — no UNCONFIRMED, no notification. You need a real diff.
+
+      Before pushing, make sure **Autodeploy is disabled** on **${main_stack_name}**. If autodeploy is on, the run applies immediately after planning and never enters UNCONFIRMED — so neither the approval policy nor the notification fires.
+
+      To disable it: open the stack, go to **Settings > Behavior**, and turn off **Autodeploy**.
 
       1. Update your **main.tf** to add a backups bucket:
       ```language-hcl
