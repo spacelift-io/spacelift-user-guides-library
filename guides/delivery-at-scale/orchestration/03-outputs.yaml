@@ -27,7 +27,7 @@ steps:
       1. Open your stack **${main_stack_name}** (the app stack).
       2. Go to the **Dependencies** tab.
       3. Find the dependency on **${database_stack_name}**.
-      4. Click **Add output**.
+      4. Click **Add output reference**.
       5. Add an output reference:
          - **Output name**: data_store_bucket
          - **Input name**: TF_VAR_data_bucket
