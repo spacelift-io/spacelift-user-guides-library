@@ -124,10 +124,25 @@ steps:
         stack.name == input.expectations.main_stack_name
       }
 
+      company_context := ctx if {
+        some ctx in input.contexts
+        ctx.name == input.expectations.company_context_name
+      }
+
+      # autoattach:* attaches to all stacks regardless of labels
       valid if {
-        some attachment in input.context_attachments
-        attachment.context_name == input.expectations.company_context_name
-        attachment.stack_slug == main_stack.id
+        some label in company_context.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target == "*"
+      }
+
+      # autoattach:<label> attaches to stacks with matching label
+      valid if {
+        some label in company_context.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target in main_stack.labels
       }
 
 completion:
