@@ -140,7 +140,9 @@ steps:
       }
 
       valid if {
-        database_stack.id in main_stack.dependencies
+        some dep in input.stack_dependencies
+        dep.stack_id == main_stack.id
+        dep.depends_on == database_stack.id
       }
 
   - order: 5

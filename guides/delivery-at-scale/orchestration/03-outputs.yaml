@@ -33,6 +33,27 @@ steps:
          - **Input name**: TF_VAR_data_bucket
       6. Save the configuration.
     hint: "This wires the database stack's 'data_store_bucket' output to the app stack's 'data_bucket' Terraform variable."
+    validationHint: "The output reference should wire 'data_store_bucket' from the database stack to 'TF_VAR_data_bucket' on the app stack."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      database_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.database_stack_name
+      }
+
+      valid if {
+        some ref in input.stack_dependency_references
+        ref.stack_id == main_stack.id
+        ref.depends_on == database_stack.id
+        ref.output_name == "data_store_bucket"
+        ref.input_name == "TF_VAR_data_bucket"
+      }
 
   - order: 3
     title: "Trigger the Database Stack"

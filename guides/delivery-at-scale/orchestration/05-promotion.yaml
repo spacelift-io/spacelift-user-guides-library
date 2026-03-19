@@ -117,7 +117,9 @@ steps:
       }
 
       valid if {
-        staging_stack.id in production_stack.dependencies
+        some dep in input.stack_dependencies
+        dep.stack_id == production_stack.id
+        dep.depends_on == staging_stack.id
       }
 
   - order: 5
