@@ -42,7 +42,7 @@ steps:
       5. Point it to your repository with **Project root**: **database**.
       6. Enable **Autodeploy** and attach the AWS integration.
     hint: "The database has to exist before the app can connect to it. We're modeling this dependency explicitly."
-    validationHint: "The database stack should be created with autodeploy enabled and the AWS integration attached."
+    validationHint: "The database stack should be created with Project root set to 'database', autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -53,6 +53,7 @@ steps:
 
       valid if {
         database_stack.autodeploy == true
+        database_stack.project_root == "database"
         some attachment in input.aws_attachments
         attachment.attached_to == database_stack.id
       }
@@ -102,13 +103,25 @@ steps:
       3. Set **Project root** to **app**.
       4. Save the change.
     hint: "Now your main stack points to the app folder, and the database stack points to the database folder."
+    validationHint: "The main stack should have its project root set to 'app'."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      valid if {
+        main_stack.project_root == "app"
+      }
 
   - order: 4
     title: "Create the Dependency"
     instruction: |
       1. Open your stack **${main_stack_name}** (the app stack).
       2. Go to the **Dependencies** tab.
-      3. Click **Depends on**.
+      3. In the **Depends on** section, click **Add dependencies**.
       4. Select **${database_stack_name}**.
       5. Save the dependency.
     hint: "This tells Spacelift: 'Don't run the app stack until the database stack has finished successfully.'"
@@ -127,7 +140,9 @@ steps:
       }
 
       valid if {
-        database_stack.id in main_stack.dependencies
+        some dep in input.stack_dependencies
+        dep.stack_id == main_stack.id
+        dep.depends_on == database_stack.id
       }
 
   - order: 5

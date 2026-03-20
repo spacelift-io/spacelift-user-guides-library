@@ -180,7 +180,9 @@ steps:
       }
 
       valid if {
-        dependency_stack.id in main_stack.dependencies
+        some dep in input.stack_dependencies
+        dep.stack_id == main_stack.id
+        dep.depends_on == dependency_stack.id
       }
 
   - order: 6
