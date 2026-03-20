@@ -170,7 +170,7 @@ steps:
 
       valid if {
         latest_staging_run.status == "FINISHED"
-        latest_production_run.status == "UNCONFIRMED"
+        latest_production_run.status in {"UNCONFIRMED", "QUEUED"}
       }
 
   - order: 6

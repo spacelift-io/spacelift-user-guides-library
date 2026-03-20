@@ -84,8 +84,8 @@ steps:
     title: "Observe Pending and Proceed"
     instruction: |
       1. The **${database_stack_name}** stack will start running automatically (autodeploy).
-      2. While it's running, check **${main_stack_name}** - it should be in **QUEUED** state.
-      3. The **${main_stack_name}** stack is queued, waiting for the dependency to complete.
+      2. While it's running, check **${main_stack_name}** - it should be in **UNCONFIRMED** state.
+      3. The **${main_stack_name}** stack is waiting for the dependency to complete.
       4. After **${database_stack_name}** finishes, observe **${main_stack_name}** proceeds to run.
     hint: "Don't run out of order. The app waits until database is done."
 
