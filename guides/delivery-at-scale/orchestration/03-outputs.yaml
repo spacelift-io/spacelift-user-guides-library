@@ -90,16 +90,16 @@ steps:
     title: "Observe the App Receives the Input"
     instruction: |
       1. After **${database_stack_name}** completes, the **${main_stack_name}** stack will run automatically.
-      2. Open the **${main_stack_name}** run and check the **Environment** or **Variables** section.
-      3. You should see **TF_VAR_data_bucket** set to the actual bucket name from the database.
+      2. Open the **${main_stack_name}** run and check the **Environment** section.
+      3. You should see **TF_VAR_data_bucket** marked as `<computed>` — this means it's wired from the dependency and will be resolved at runtime with the actual bucket name.
     hint: "No more hardcoded values. No more 'go look at the other stack and copy-paste.' Data flows through the graph."
 
   - order: 5
     title: "Verify in Terraform Outputs"
     instruction: |
-      1. Wait for the app stack run to complete.
-      2. Check the **Outputs** tab.
-      3. The **data_bucket_reference** output should show the bucket name from the database stack.
+      1. Wait for the **${main_stack_name}** run to complete.
+      2. Check the **Outputs** tab or the run logs.
+      3. The **data_bucket_reference** output should show the actual bucket name from the database stack — confirming the value flowed through the dependency wire.
     hint: "The value flowed: database Terraform output -> dependency wire -> app Terraform variable -> app Terraform output."
     validationHint: "The app stack should have completed a run with the wired input in place."
     validation: |

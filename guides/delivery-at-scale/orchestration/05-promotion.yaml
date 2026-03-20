@@ -53,7 +53,7 @@ steps:
       4. Enable **Autodeploy**.
       5. Attach the AWS integration.
     hint: "Staging deploys automatically. Every push goes straight to staging."
-    validationHint: "The staging stack should be created with Project root set to 'environments', autodeploy enabled, and the AWS integration attached."
+    validationHint: "The staging stack should be created with Project root set to 'environments', TF_VAR_env set, autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -65,6 +65,7 @@ steps:
       valid if {
         staging_stack.autodeploy == true
         staging_stack.project_root == "environments"
+        "TF_VAR_env" in staging_stack.environment_variables
         some attachment in input.aws_attachments
         attachment.attached_to == staging_stack.id
       }
@@ -78,7 +79,7 @@ steps:
       4. **Disable** Autodeploy (leave it unchecked).
       5. Attach the AWS integration.
     hint: "Production requires manual approval. Autodeploy is OFF."
-    validationHint: "The production stack should be created with Project root set to 'environments', autodeploy disabled, and the AWS integration attached."
+    validationHint: "The production stack should be created with Project root set to 'environments', TF_VAR_env set, autodeploy disabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -90,6 +91,7 @@ steps:
       valid if {
         production_stack.autodeploy == false
         production_stack.project_root == "environments"
+        "TF_VAR_env" in production_stack.environment_variables
         some attachment in input.aws_attachments
         attachment.attached_to == production_stack.id
       }
