@@ -55,14 +55,21 @@ steps:
   - order: 3
     title: "Make a Code Change"
     instruction: |
-      1. Add a small resource to your **main.tf**:
+      1. Update your **aws_s3_bucket** resource in **main.tf** to add a `project` tag:
       ```language-hcl
-      resource "terraform_data" "trigger" {
-        input = var.environment
+      resource "aws_s3_bucket" "data" {
+        bucket_prefix = "orbit-labs-"
+
+        tags = {
+          name        = "Orbit Labs Storage"
+          managedBy   = "Spacelift"
+          environment = var.environment
+          project     = "orbit-labs"
+        }
       }
       ```
       2. Commit and push this change.
-    hint: "Plan policies only evaluate resources that have changes. Adding a new resource ensures the plan has something to evaluate, and the bucket will appear in the plan alongside it."
+    hint: "Plan policies only evaluate resources that appear in resource_changes — Spacelift excludes no-op resources. Modifying the bucket directly ensures it shows up as an update in the plan, so the policy actually fires."
 
   - order: 4
     title: "Test the Policy"
@@ -108,6 +115,7 @@ steps:
           name        = "Orbit Labs Storage"
           managedBy   = "Spacelift"
           environment = var.environment
+          project     = "orbit-labs"
           team        = "platform"
         }
       }
