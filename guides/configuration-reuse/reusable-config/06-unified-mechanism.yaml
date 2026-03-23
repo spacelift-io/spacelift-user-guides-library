@@ -115,6 +115,7 @@ steps:
           name        = "Orbit Labs Storage"
           managedBy   = "Spacelift"
           environment = var.environment
+          project     = "orbit-labs"
           team        = "platform"
         }
       }
