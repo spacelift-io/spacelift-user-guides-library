@@ -1,6 +1,5 @@
 slug: delivery-launchpad
 ordering: 1
-releaseState: testing
 metadata:
   title: "Launchpad - Quick Start"
   description: "Get the basics in place fast: VCS connected, AWS wired up, and a stack that deploys real infrastructure"

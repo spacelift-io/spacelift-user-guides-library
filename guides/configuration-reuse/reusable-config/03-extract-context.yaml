@@ -1,6 +1,5 @@
 slug: config-reuse-extract-context
 ordering: 3
-releaseState: testing
 prerequisiteGuideSlugs:
   - "config-reuse-inline-config"
 metadata:

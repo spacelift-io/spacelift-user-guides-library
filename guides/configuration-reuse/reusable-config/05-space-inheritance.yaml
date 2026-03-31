@@ -1,6 +1,5 @@
 slug: config-reuse-space-inheritance
 ordering: 5
-releaseState: testing
 prerequisiteGuideSlugs:
   - "config-reuse-autoattach"
 metadata:

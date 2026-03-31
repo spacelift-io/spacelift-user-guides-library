@@ -1,6 +1,5 @@
 slug: safety-notifications
 ordering: 4
-releaseState: testing
 prerequisiteGuideSlugs:
   - "safety-approval-policy"
 metadata:

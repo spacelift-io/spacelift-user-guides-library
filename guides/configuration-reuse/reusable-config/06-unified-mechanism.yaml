@@ -1,6 +1,5 @@
 slug: config-reuse-unified-mechanism
 ordering: 6
-releaseState: testing
 prerequisiteGuideSlugs:
   - "config-reuse-space-inheritance"
 metadata:
