@@ -1,6 +1,5 @@
 slug: safety-launchpad
 ordering: 1
-releaseState: testing
 metadata:
   title: "Launchpad - Quick Start"
   description: "Get the basics in place fast: VCS connected, AWS wired up, a plan policy attached, and a stack that hits its first guardrail"

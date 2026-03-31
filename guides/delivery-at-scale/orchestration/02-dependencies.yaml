@@ -1,6 +1,5 @@
 slug: delivery-dependencies
 ordering: 2
-releaseState: testing
 prerequisiteGuideSlugs:
   - "delivery-launchpad"
 metadata:

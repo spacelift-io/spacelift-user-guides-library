@@ -1,6 +1,5 @@
 slug: delivery-smart-orchestration
 ordering: 4
-releaseState: testing
 prerequisiteGuideSlugs:
   - "delivery-outputs"
 metadata:
