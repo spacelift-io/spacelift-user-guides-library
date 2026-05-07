@@ -120,7 +120,55 @@ steps:
       }
 
   - order: 4
-    title: "Configure App Stack to Accept Input"
+    title: "Create Stack Dependency with Output Reference"
+    instruction: |
+      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
+      2. Click **Add dependencies** under the **Depended on by** section.
+      3. Select your app stack (${main_stack_name}) from the dropdown.
+      4. Click **Add**.
+      5. Then on the dependency you just created, click **Add output reference**.
+      6. In **Output name**, enter 'subnet_id'.
+      7. In **Input name**, enter 'TF_VAR_subnet_id'.
+      8. Click **Add**.
+    hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. Whenever the networking stack applies, its 'subnet_id' output is automatically passed to the app stack as the 'TF_VAR_subnet_id' environment variable. We set this up *before* changing any app stack code so the variable is available when we need it."
+    validationHint: "Before moving on, make sure the dependency between your stacks is configured."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      dependency_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.dependency_stack_name
+      }
+
+      valid if {
+        some dep in input.stack_dependencies
+        dep.stack_id == main_stack.id
+        dep.depends_on == dependency_stack.id
+      }
+
+  - order: 5
+    title: "Trigger an Initial Cascade to Prime the Input"
+    instruction: |
+      In your networking repository, edit main.tf and add a tag to the VPC:
+      ```language-hcl
+      tags = {
+        name    = "Orbit Labs VPC"
+        project = "Orbit-labs"
+        owner   = "Saturnhead"
+      }
+      ```
+      Commit and push this change. The networking stack run will sit unconfirmed until you approve it — **confirm the run** to apply.
+
+      After it finishes, Spacelift will automatically trigger a run on your app stack (${main_stack_name}), passing the 'subnet_id' output as the 'TF_VAR_subnet_id' environment variable. The app stack code does not use this variable yet, so the cascaded run will show no resource changes — confirm it anyway so the run completes. Once it finishes, 'TF_VAR_subnet_id' is set on the app stack and ready for the next step.
+    hint: "This step doesn't change app stack resources — its purpose is to populate 'TF_VAR_subnet_id' on the app stack via the dependency you just created. After this cascade finishes, every future run on the app stack has the variable available."
+
+  - order: 6
+    title: "Configure App Stack to Consume the Input"
     instruction: |
       In your original repository, edit main.tf to add a variable at the top:
       ```language-hcl
@@ -150,54 +198,8 @@ steps:
         }
       }
       ```
-      Commit and push.
-    hint: "We're adding a variable that will receive the subnet_id from the networking stack. The security group resource will be created in the VPC that the subnet belongs to, creating a real dependency between the stacks."
-
-  - order: 5
-    title: "Create Stack Dependency with Output Reference"
-    instruction: |
-      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
-      2. Click **Add dependencies** under the **Depended on by** section.
-      3. Select your app stack (${main_stack_name}) from the dropdown.
-      4. Click **Add**.
-      5. Then on the dependency you just created, click **Add output reference**.
-      6. In **Output name**, enter 'subnet_id'.
-      7. In **Input name**, enter 'TF_VAR_subnet_id'.
-      8. Click **Add**.
-    hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. The subnet_id output will automatically pass as the subnet_id variable to the app stack. No manual copying needed - Spacelift handles it!"
-    validationHint: "Before moving on, make sure the dependency between your stacks is configured."
-    validation: |
-      package spacelift
-
-      main_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.main_stack_name
-      }
-
-      dependency_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.dependency_stack_name
-      }
-
-      valid if {
-        some dep in input.stack_dependencies
-        dep.stack_id == main_stack.id
-        dep.depends_on == dependency_stack.id
-      }
-
-  - order: 6
-    title: "Test Dependency Chain and Observe Cascading Execution"
-    instruction: |
-      In your networking repository, edit main.tf and add a tag to the VPC:
-      ```language-hcl
-      tags = {
-        name    = "Orbit Labs VPC"
-        project = "Orbit-labs"
-        owner   = "Saturnhead"
-      }
-      ```
-      Commit and push this change. With autodeploy off, the networking stack run will sit in unconfirmed until you approve it. After it finishes, Spacelift will trigger your app stack (${main_stack_name}) automatically, passing along the subnet_id output.
-    hint: "This is stack orchestration in action! The dependency chain handles both execution order and data flow between stacks, so teams can work independently."
+      Commit and push. Because 'TF_VAR_subnet_id' was already populated by the previous step's cascade, the app stack run plans cleanly — no manual variable wrangling needed. Confirm the run to create the security group.
+    hint: "This is stack orchestration paying off: the dependency was wired up first, so the moment your code starts using 'var.subnet_id', the value is already there. Teams owning networking and app code can ship independently."
 
 completion:
   successMessage: "Outstanding! You've mastered stack dependencies and orchestration. You now understand how to coordinate multiple infrastructure stacks, pass data between them, and control execution order. You're ready to manage complex, multi-stack infrastructure deployments!"
