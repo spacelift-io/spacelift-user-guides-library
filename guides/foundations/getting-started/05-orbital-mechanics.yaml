@@ -130,7 +130,7 @@ steps:
       6. In **Output name**, enter 'subnet_id'.
       7. In **Input name**, enter 'TF_VAR_subnet_id'.
       8. Click **Add**.
-    hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. Whenever the networking stack applies, its 'subnet_id' output is automatically passed to the app stack as the 'TF_VAR_subnet_id' environment variable. We set this up *before* changing any app stack code so the variable is available when we need it."
+    hint: "This establishes both the relationship and the data flow: networking is the parent, app stack is the child. The dependency reference behaves like an environment variable on the app stack whose value is sourced from the networking stack's 'subnet_id' output — available to every run on the app stack, not just cascaded ones. Adding the reference auto-triggers a run on the app stack to pick up the current value; with the existing app code, this run will be a no-op — confirm it to clear it out."
     validationHint: "Before moving on, make sure the dependency between your stacks is configured."
     validation: |
       package spacelift
@@ -152,22 +152,6 @@ steps:
       }
 
   - order: 5
-    title: "Trigger an Initial Cascade to Prime the Input"
-    instruction: |
-      In your networking repository, edit main.tf and add a tag to the VPC:
-      ```language-hcl
-      tags = {
-        name    = "Orbit Labs VPC"
-        project = "Orbit-labs"
-        owner   = "Saturnhead"
-      }
-      ```
-      Commit and push this change. The networking stack run will sit unconfirmed until you approve it — **confirm the run** to apply.
-
-      After it finishes, Spacelift will automatically trigger a run on your app stack (${main_stack_name}), passing the 'subnet_id' output as the 'TF_VAR_subnet_id' environment variable. The app stack code does not use this variable yet, so the cascaded run will show no resource changes — confirm it anyway so the run completes. Once it finishes, 'TF_VAR_subnet_id' is set on the app stack and ready for the next step.
-    hint: "This step doesn't change app stack resources — its purpose is to populate 'TF_VAR_subnet_id' on the app stack via the dependency you just created. After this cascade finishes, every future run on the app stack has the variable available."
-
-  - order: 6
     title: "Configure App Stack to Consume the Input"
     instruction: |
       In your original repository, edit main.tf to add a variable at the top:
@@ -198,8 +182,24 @@ steps:
         }
       }
       ```
-      Commit and push. Because 'TF_VAR_subnet_id' was already populated by the previous step's cascade, the app stack run plans cleanly — no manual variable wrangling needed. Confirm the run to create the security group.
-    hint: "This is stack orchestration paying off: the dependency was wired up first, so the moment your code starts using 'var.subnet_id', the value is already there. Teams owning networking and app code can ship independently."
+      Commit and push. Because the dependency reference set up in the previous step already exposes the networking stack's 'subnet_id' as 'TF_VAR_subnet_id' on the app stack, the run plans cleanly — no manual variable wrangling. Confirm the run to create the security group.
+    hint: "This is stack orchestration paying off: with the dependency wired up first, the moment your code starts using 'var.subnet_id', the value is already there. Teams owning networking and app code can ship independently."
+
+  - order: 6
+    title: "Test the Dependency Chain End-to-End"
+    instruction: |
+      Now watch the full chain in action. In your networking repository, edit main.tf and add a tag to the VPC:
+      ```language-hcl
+      tags = {
+        name    = "Orbit Labs VPC"
+        project = "Orbit-labs"
+        owner   = "Saturnhead"
+      }
+      ```
+      Commit and push this change. The networking stack run will sit unconfirmed until you approve it — **confirm the run** to apply.
+
+      Once it finishes, Spacelift automatically triggers a run on your app stack (${main_stack_name}), carrying the latest 'subnet_id' output. This is the dependency you wired up in step 4 finally doing what it was built for: a change in the parent flowing through to the child without anyone copying values around.
+    hint: "This is the cascade payoff: parent applies → child runs → outputs flow through. With autodeploy off, you'll need to confirm the cascaded run on the app stack as well."
 
 completion:
   successMessage: "Outstanding! You've mastered stack dependencies and orchestration. You now understand how to coordinate multiple infrastructure stacks, pass data between them, and control execution order. You're ready to manage complex, multi-stack infrastructure deployments!"
