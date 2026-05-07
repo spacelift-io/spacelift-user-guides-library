@@ -58,7 +58,7 @@ steps:
       1. Push your commit to the main/master branch of your repository.
       2. Return to Spacelift and navigate to your stack's **Runs** tab.
       3. You should see a new TRACKED run automatically triggered by your VCS push.
-      4. Watch as it progresses through INITIALIZING → PLANNING phases.
+      4. Watch as it progresses through INITIALIZING → PLANNING phases. Review the plan carefully but do not confirm it yet.
     hint: "Spacelift watches your repository for changes. When you push to the tracked branch, it automatically starts a run. Since autodeploy is off, this run will stop at UNCONFIRMED, waiting for you to review and approve."
     validationHint: "Wait for the run to reach unconfirmed state before moving on."
     validation: |
