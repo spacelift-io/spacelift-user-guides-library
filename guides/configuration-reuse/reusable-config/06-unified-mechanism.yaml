@@ -54,7 +54,7 @@ steps:
   - order: 3
     title: "Make a Code Change"
     instruction: |
-      1. Update your **aws_s3_bucket** resource in **main.tf** to add a `project` tag:
+      1. Update your **aws_s3_bucket** resource in **main.tf** for **${main_stack_name}** to add a `project` tag:
       ```language-hcl
       resource "aws_s3_bucket" "data" {
         bucket_prefix = "orbit-labs-"
