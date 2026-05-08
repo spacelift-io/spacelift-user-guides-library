@@ -86,10 +86,9 @@ steps:
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Click **Create context**.
-      3. Name: **${company_context_name}**, Space: **${space_name}**.
+      3. Name: **${company_context_name}**, Space: **${space_name}**, Label **autoattach:*** (asterisk means all).
       4. Create the context.
-      5. Add an environment variable: **COMPANY=orbit-labs**.
-      6. Click **Edit** and add the label **autoattach:*** (asterisk means all). Save.
+      5. Add an environment variable with name **COMPANY** and value **orbit-labs**.
     hint: "The autoattach:* label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
     validationHint: "The company context should exist with the autoattach:* label and the COMPANY environment variable."
     validation: |
