@@ -120,7 +120,39 @@ steps:
       }
 
   - order: 4
-    title: "Configure App Stack to Accept Input"
+    title: "Create Stack Dependency with Output Reference"
+    instruction: |
+      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
+      2. Click **Add dependencies** under the **Depended on by** section.
+      3. Select your app stack (${main_stack_name}) from the dropdown.
+      4. Click **Add**.
+      5. Then on the dependency you just created, click **Add output reference**.
+      6. In **Output name**, enter 'subnet_id'.
+      7. In **Input name**, enter 'TF_VAR_subnet_id'.
+      8. Click **Add**.
+    hint: "This establishes both the relationship and the data flow: networking is the parent, app stack is the child. The dependency reference behaves like an environment variable on the app stack whose value is sourced from the networking stack's 'subnet_id' output — available to every run on the app stack, not just cascaded ones. If Spacelift auto-triggers a run on the app stack after you add the reference, it will be a no-op against the existing code — just confirm or discard it before moving on."
+    validationHint: "Before moving on, make sure the dependency between your stacks is configured."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      dependency_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.dependency_stack_name
+      }
+
+      valid if {
+        some dep in input.stack_dependencies
+        dep.stack_id == main_stack.id
+        dep.depends_on == dependency_stack.id
+      }
+
+  - order: 5
+    title: "Configure App Stack to Consume the Input"
     instruction: |
       In your original repository, edit main.tf to add a variable at the top:
       ```language-hcl
@@ -150,45 +182,13 @@ steps:
         }
       }
       ```
-      Commit and push.
-    hint: "We're adding a variable that will receive the subnet_id from the networking stack. The security group resource will be created in the VPC that the subnet belongs to, creating a real dependency between the stacks."
-
-  - order: 5
-    title: "Create Stack Dependency with Output Reference"
-    instruction: |
-      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
-      2. Click **Add dependencies** under the **Depended on by** section.
-      3. Select your app stack (${main_stack_name}) from the dropdown.
-      4. Click **Add**.
-      5. Then on the dependency you just created, click **Add output reference**.
-      6. In **Output name**, enter 'subnet_id'.
-      7. In **Input name**, enter 'TF_VAR_subnet_id'.
-      8. Click **Add**.
-    hint: "This establishes the relationship AND the data flow: networking stack is the parent, app stack is the child. The subnet_id output will automatically pass as the subnet_id variable to the app stack. No manual copying needed - Spacelift handles it!"
-    validationHint: "Before moving on, make sure the dependency between your stacks is configured."
-    validation: |
-      package spacelift
-
-      main_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.main_stack_name
-      }
-
-      dependency_stack := stack if {
-        some stack in input.stacks
-        stack.name == input.expectations.dependency_stack_name
-      }
-
-      valid if {
-        some dep in input.stack_dependencies
-        dep.stack_id == main_stack.id
-        dep.depends_on == dependency_stack.id
-      }
+      Commit and push. Because the dependency reference set up in the previous step already exposes the networking stack's 'subnet_id' as 'TF_VAR_subnet_id' on the app stack, the run plans cleanly — no manual variable wrangling. Confirm the run to create the security group.
+    hint: "This is stack orchestration paying off: with the dependency wired up first, the moment your code starts using 'var.subnet_id', the value is already there. Teams owning networking and app code can ship independently."
 
   - order: 6
-    title: "Test Dependency Chain and Observe Cascading Execution"
+    title: "Test the Dependency Chain End-to-End"
     instruction: |
-      In your networking repository, edit main.tf and add a tag to the VPC:
+      Now watch the full chain in action. In your networking repository, edit main.tf and add a tag to the VPC:
       ```language-hcl
       tags = {
         name    = "Orbit Labs VPC"
@@ -196,8 +196,10 @@ steps:
         owner   = "Saturnhead"
       }
       ```
-      Commit and push this change. With autodeploy off, the networking stack run will sit in unconfirmed until you approve it. After it finishes, Spacelift will trigger your app stack (${main_stack_name}) automatically, passing along the subnet_id output.
-    hint: "This is stack orchestration in action! The dependency chain handles both execution order and data flow between stacks, so teams can work independently."
+      Commit and push this change. The networking stack run will sit unconfirmed until you approve it — **confirm the run** to apply.
+
+      Once it finishes, Spacelift automatically triggers a run on your app stack (${main_stack_name}), carrying the latest 'subnet_id' output. This is the dependency you wired up in step 4 finally doing what it was built for: a change in the parent flowing through to the child without anyone copying values around.
+    hint: "This is the cascade payoff: parent applies → child runs → outputs flow through. With autodeploy off, you'll need to confirm the cascaded run on the app stack as well."
 
 completion:
   successMessage: "Outstanding! You've mastered stack dependencies and orchestration. You now understand how to coordinate multiple infrastructure stacks, pass data between them, and control execution order. You're ready to manage complex, multi-stack infrastructure deployments!"
