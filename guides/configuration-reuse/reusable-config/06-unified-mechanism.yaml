@@ -152,7 +152,7 @@ steps:
       1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
       2. Open your AWS integration.
       3. Go to the **Attached stacks** tab.
-      4. Add autoattach label: '*' (asterisk means all).
+      4. Add the label **autoattach:*** (asterisk means all).
       5. Set the space scope to **${space_name}**.
     hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
     validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
