@@ -151,6 +151,45 @@ completion:
 - `successMessage` (string): Message shown when guide is completed
 - `recommendedGuideIds` ([]string): IDs of guides to suggest next
 
+## Content Style Conventions
+
+Guide instructions, hints, and other user-facing strings support Markdown. To keep the experience consistent across the product, follow these formatting rules:
+
+### Actions — **bold**
+
+Use bold for anything the user is expected to click, type, toggle, or otherwise act on: buttons, menu items, form labels, checkboxes, and entered values.
+
+```yaml
+instruction: "Click **Create stack**, set Workflow tool to **OpenTofu**, then click **Continue**."
+```
+
+### Titles — `code style` (Inconsolata)
+
+Use backticks for UI titles such as page/screen names and menu paths or breadcrumbs. This visually distinguishes "where you are" from "what you click".
+
+```yaml
+instruction: "Navigate to `Ship Infra > Stacks` and open the `Stacks` page."
+```
+
+Reserve bold for the actual action within that location (e.g. "On the `Stacks` page, click **Create stack**.").
+
+### Statuses — ALL CAPS, no formatting
+
+Run states, phases, and similar status values are written in ALL CAPS without bold or backticks. They're already visually distinct and match how Spacelift renders them in the UI.
+
+```yaml
+instruction: "Watch the run progress through INITIALIZING → PLANNING → UNCONFIRMED → APPLYING → FINISHED."
+hint: "If the run enters the FAILED state, check the logs for details."
+```
+
+### Quick reference
+
+| Element | Style | Example |
+| --- | --- | --- |
+| Buttons, links, fields, values to enter | **Bold** | Click **Trigger** |
+| Page names, tabs, menu paths, breadcrumbs | `Code` (backticks) | Open `Settings > Behavior` |
+| Run states, phases, statuses | ALL CAPS, no formatting | The run is UNCONFIRMED |
+
 ## How to Add New Guides
 
 ### 1. Create or Navigate to a Group
