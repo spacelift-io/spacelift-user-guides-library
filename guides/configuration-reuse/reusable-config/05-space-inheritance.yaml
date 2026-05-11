@@ -18,7 +18,7 @@ steps:
       1. Navigate to [Organize > Spaces](/spaces).
       2. Click **Create space**.
       3. Set Name: **${space_name}**, Parent: **root**.
-      4. Enable `Inherit entities` from parent.
+      4. Enable **Inherit entities** from parent.
       5. Click **Create space**.
     hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
     validationHint: "Your team space should be created."
@@ -36,7 +36,7 @@ steps:
     instruction: |
       1. Click **Create space** again.
       2. Set Name: **${child_space_name}**, Parent: **${space_name}**.
-      3. Enable `Inherit entities` from parent.
+      3. Enable **Inherit entities** from parent.
       4. Click **Create space**.
     hint: "Now you have a hierarchy: root > ${space_name} > ${child_space_name}. Configuration can cascade through these levels."
     validationHint: "The child space should be created under your team space."

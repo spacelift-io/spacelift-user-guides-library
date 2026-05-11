@@ -16,15 +16,15 @@ steps:
     title: "Understand the Failure"
     instruction: |
       1. Open the failed run on your stack **${main_stack_name}**.
-      2. Look at the **Policy evaluation** section.
-      3. You should see a deny message: "S3 bucket ... is missing required 'cost-center' tag".
+      2. Look at the `Policy evaluation` section.
+      3. You should see a deny message: `S3 bucket ... is missing required 'cost-center' tag`.
       4. This is the plan policy in action - it inspected the Terraform plan and found a violation.
     hint: "Plan policies evaluate what Terraform is about to do, not what it has already done. They're your pre-flight checklist."
 
   - order: 2
     title: "Fix the Violation"
     instruction: |
-      1. Update your **main.tf** to add the cost-center tag:
+      1. Update your `main.tf` to add the `cost-center` tag:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -57,9 +57,9 @@ steps:
     title: "Verify Policy Pass"
     instruction: |
       1. Wait for the run to complete.
-      2. Check the **Policy evaluation** section.
-      3. The plan policy should show **PASS** (no deny messages).
-      4. The run should reach **FINISHED** state.
+      2. Check the `Policy evaluation` section.
+      3. The plan policy should show PASS (no deny messages).
+      4. The run should reach FINISHED state.
     hint: "Plan policies enforce rules at deploy time. No untagged buckets can slip through."
     validationHint: "Your stack should have a successful run with the policy passing."
     validation: |

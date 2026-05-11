@@ -9,14 +9,14 @@ metadata:
   difficulty: "medium"
   minutesToComplete: 25
   prerequisites:
-    - "You should have a working stack (${main_stack_name}) with S3 bucket"
+    - "You should have a working stack (**${main_stack_name}**) with S3 bucket"
     - "Basic understanding of Terraform outputs and variables"
 
 steps:
   - order: 1
     title: "Create Networking Repository"
     instruction: |
-      In your VCS provider, create a new repository for your networking infrastructure. Add a **main.tf** file containing:
+      In your VCS provider, create a new repository for your networking infrastructure. Add a `main.tf` file containing:
       ```language-hcl
       terraform {
         required_providers {
@@ -61,8 +61,8 @@ steps:
     title: "Create Networking Stack in Spacelift"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Name: '${dependency_stack_name}', Space: 'root', Description: 'Network infrastructure for Orbit Labs', Labels: 'network,infrastructure'. Click **Continue**.
-      3. Select your VCS integration and your networking repository, branch 'main'. Click **Continue**.
+      2. Set Name: **${dependency_stack_name}**, Space: **root**, Description: **Network infrastructure for Orbit Labs**, Labels: **network,infrastructure**. Click **Continue**.
+      3. Select your VCS integration and your networking repository, Branch: **main**. Click **Continue**.
       4. Select **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Attach your AWS integration with **Read** and **Write** access.
     hint: "This networking stack will be the parent - it runs first and provides outputs to dependent stacks. We're setting it up just like your first stack, but with different code."
@@ -93,7 +93,7 @@ steps:
       3. Review the plan - it should show creating 1 VPC and 1 subnet.
       4. Click **Confirm** to apply.
       5. Wait for the run to complete successfully.
-      6. Once finished, check the **Outputs** section - you should see 'subnet_id' with a value like 'subnet-abc123'.
+      6. Once finished, check the `Outputs` section - you should see `subnet_id` with a value like `subnet-abc123`.
     hint: "The subnet_id output is now available for other stacks to use. This is the foundation that the app stack will depend on. Copy this subnet ID if you want to verify it later."
     validationHint: "Wait for the run to finish successfully before moving on."
     validation: |
@@ -122,15 +122,15 @@ steps:
   - order: 4
     title: "Create Stack Dependency with Output Reference"
     instruction: |
-      1. Navigate to your networking stack (${dependency_stack_name}) and go to the **Dependencies** tab.
-      2. Click **Add dependencies** under the **Depended on by** section.
-      3. Select your app stack (${main_stack_name}) from the dropdown.
+      1. Navigate to your networking stack (**${dependency_stack_name}**) and go to the `Dependencies` tab.
+      2. Click **Add dependencies** under the `Depended on by` section.
+      3. Select your app stack (**${main_stack_name}**) from the dropdown.
       4. Click **Add**.
       5. Then on the dependency you just created, click **Add output reference**.
-      6. In **Output name**, enter 'subnet_id'.
-      7. In **Input name**, enter 'TF_VAR_subnet_id'.
+      6. In the `Output name` field, enter **subnet_id**.
+      7. In the `Input name` field, enter **TF_VAR_subnet_id**.
       8. Click **Add**.
-    hint: "This establishes both the relationship and the data flow: networking is the parent, app stack is the child. The dependency reference behaves like an environment variable on the app stack whose value is sourced from the networking stack's 'subnet_id' output — available to every run on the app stack, not just cascaded ones. If Spacelift auto-triggers a run on the app stack after you add the reference, it will be a no-op against the existing code — just confirm or discard it before moving on."
+    hint: "This establishes both the relationship and the data flow: networking is the parent, app stack is the child. The dependency reference behaves like an environment variable on the app stack whose value is sourced from the networking stack's `subnet_id` output — available to every run on the app stack, not just cascaded ones. If Spacelift auto-triggers a run on the app stack after you add the reference, it will be a no-op against the existing code — just confirm or discard it before moving on."
     validationHint: "Before moving on, make sure the dependency between your stacks is configured."
     validation: |
       package spacelift
@@ -154,7 +154,7 @@ steps:
   - order: 5
     title: "Configure App Stack to Consume the Input"
     instruction: |
-      In your original repository, edit main.tf to add a variable at the top:
+      In your original repository, edit `main.tf` to add a variable at the top:
       ```language-hcl
       variable "subnet_id" {
         type        = string
@@ -182,13 +182,13 @@ steps:
         }
       }
       ```
-      Commit and push. Because the dependency reference set up in the previous step already exposes the networking stack's 'subnet_id' as 'TF_VAR_subnet_id' on the app stack, the run plans cleanly — no manual variable wrangling. Confirm the run to create the security group.
-    hint: "This is stack orchestration paying off: with the dependency wired up first, the moment your code starts using 'var.subnet_id', the value is already there. Teams owning networking and app code can ship independently."
+      Commit and push. Because the dependency reference set up in the previous step already exposes the networking stack's `subnet_id` as `TF_VAR_subnet_id` on the app stack, the run plans cleanly — no manual variable wrangling. Confirm the run to create the security group.
+    hint: "This is stack orchestration paying off: with the dependency wired up first, the moment your code starts using `var.subnet_id`, the value is already there. Teams owning networking and app code can ship independently."
 
   - order: 6
     title: "Test the Dependency Chain End-to-End"
     instruction: |
-      Now watch the full chain in action. In your networking repository, edit main.tf and add a tag to the VPC:
+      Now watch the full chain in action. In your networking repository, edit `main.tf` and add a tag to the VPC:
       ```language-hcl
       tags = {
         name    = "Orbit Labs VPC"
@@ -196,9 +196,9 @@ steps:
         owner   = "Saturnhead"
       }
       ```
-      Commit and push this change. The networking stack run will sit unconfirmed until you approve it — **confirm the run** to apply.
+      Commit and push this change. The networking stack run will sit UNCONFIRMED until you approve it — click **Confirm** on the run to apply.
 
-      Once it finishes, Spacelift automatically triggers a run on your app stack (${main_stack_name}), carrying the latest 'subnet_id' output. This is the dependency you wired up in step 4 finally doing what it was built for: a change in the parent flowing through to the child without anyone copying values around.
+      Once it finishes, Spacelift automatically triggers a run on your app stack (**${main_stack_name}**), carrying the latest `subnet_id` output. This is the dependency you wired up in step 4 finally doing what it was built for: a change in the parent flowing through to the child without anyone copying values around.
     hint: "This is the cascade payoff: parent applies → child runs → outputs flow through. With autodeploy off, you'll need to confirm the cascaded run on the app stack as well."
 
 completion:

@@ -58,7 +58,7 @@ steps:
       2. Name it **${main_stack_name}**, Space: **root**.
       3. Select your VCS integration and repository, Branch: **main**.
       4. Set Workflow tool: **OpenTofu**, choose the latest version.
-      5. Enable `Autodeploy`.
+      5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
     hint: "This stack will become the 'app' stack later when we add dependencies."
     validationHint: "Your stack should be created and visible in Spacelift."

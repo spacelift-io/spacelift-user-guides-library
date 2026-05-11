@@ -16,7 +16,7 @@ steps:
     title: "Disable Autodeploy"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Settings** > **Behavior**.
+      2. Go to `Settings > Behavior`.
       3. Disable **Autodeploy** (uncheck it).
       4. Save the change.
     hint: "We want runs to wait for approval. Autodeploy would bypass our approval policy."
@@ -38,7 +38,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Name: **${approval_policy_name}**, Type: **Approval**, Space: **root**.
+      3. Set Name: **${approval_policy_name}**, Type: **Approval**, Space: **root**.
       4. Add this OPA/Rego rule requiring one approval:
       ```language-rego
       package spacelift
@@ -68,7 +68,7 @@ steps:
     title: "Attach Policy to Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Policies** tab.
+      2. Go to the `Policies` tab.
       3. Click **Attach policy**.
       4. Select **${approval_policy_name}**.
       5. Save the attachment.
@@ -91,7 +91,7 @@ steps:
   - order: 4
     title: "Add a New Resource"
     instruction: |
-      1. Update your **main.tf** to add a second S3 bucket:
+      1. Update your `main.tf` to add a second S3 bucket:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -134,8 +134,8 @@ steps:
     title: "Watch the Run Enter Unconfirmed"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
-      2. The run will pause in **QUEUED** state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
-      3. The run should stop at **UNCONFIRMED** state, waiting for your approval.
+      2. The run will pause in QUEUED state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
+      3. The run should stop at UNCONFIRMED state, waiting for your approval.
     hint: "The approval policy requires sign-off before the run can proceed."
     validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
     validation: |
@@ -164,12 +164,12 @@ steps:
   - order: 6
     title: "Approve, Confirm, and Complete"
     instruction: |
-      1. Open the unconfirmed run on **${main_stack_name}**.
+      1. Open the UNCONFIRMED run on **${main_stack_name}**.
       2. Click **Approve** to give your approval.
-      3. The run will proceed to **PLANNING**.
+      3. The run will proceed to PLANNING.
       4. After planning completes, review the plan to see what will change.
       5. Click **Confirm** to apply the changes.
-      6. Wait for the run to reach **FINISHED** state.
+      6. Wait for the run to reach FINISHED state.
     hint: "Two gates: first the approval policy (before planning), then the manual confirm (after planning, because autodeploy is off). In a real scenario, a teammate would approve your change, and you'd confirm the apply after reviewing the plan."
     validationHint: "The run should complete successfully after approval and confirmation."
     validation: |
@@ -199,7 +199,7 @@ steps:
     title: "Re-enable Autodeploy"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Settings** > **Behavior**.
+      2. Go to `Settings > Behavior`.
       3. Enable **Autodeploy** (check it).
       4. Save the change.
     hint: "You've seen how manual confirmation works. Re-enabling autodeploy means future runs will auto-apply after approval — no second confirm needed."

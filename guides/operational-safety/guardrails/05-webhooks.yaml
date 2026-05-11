@@ -25,7 +25,7 @@ steps:
     instruction: |
       1. Navigate to [Integrate services > Integrations](/integrations).
       2. Filter by **Webhook** and click **Set up**.
-      3. Name it **test-webhook** (this exact name is referenced in the policy below).
+      3. Name it `test-webhook` (this exact name is referenced in the policy below).
       4. Enter your webhook.site URL (or ngrok URL).
       5. Save the endpoint.
     hint: "This creates a reusable webhook endpoint that notification policies can target."
@@ -84,11 +84,11 @@ steps:
     instruction: |
       A run with no changes skips straight to FINISHED — no UNCONFIRMED, no webhook. You need a real diff.
 
-      Before pushing, make sure **Autodeploy is disabled** on **${main_stack_name}**. If autodeploy is on, the run applies immediately after planning and never enters UNCONFIRMED — so neither the approval policy nor the webhook fires.
+      Before pushing, make sure `Autodeploy` is disabled on **${main_stack_name}**. If autodeploy is on, the run applies immediately after planning and never enters UNCONFIRMED — so neither the approval policy nor the webhook fires.
 
-      To disable it: open the stack, go to **Settings > Behavior**, and turn off **Autodeploy**.
+      To disable it: open the stack, go to `Settings > Behavior`, and turn off **Autodeploy**.
 
-      1. Update your **main.tf** to add an archive bucket:
+      1. Update your `main.tf` to add an archive bucket:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -153,8 +153,8 @@ steps:
     title: "Watch the Run Enter Unconfirmed"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
-      2. The run will pause in **QUEUED** state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
-      3. The run should stop at **UNCONFIRMED** state — this fires both the inbox notification and the webhook.
+      2. The run will pause in QUEUED state for policy evaluation — approve the first policy evaluation to allow the planning phase to proceed.
+      3. The run should stop at UNCONFIRMED state — this fires both the inbox notification and the webhook.
     hint: "The approval policy gates the run at UNCONFIRMED. Once it hits that state, Spacelift has already fired the notification and webhook."
     validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
     validation: |
@@ -193,8 +193,8 @@ steps:
     title: "Complete the Run"
     instruction: |
       1. Go back to Spacelift and approve the run.
-      2. Wait for the run to reach **FINISHED** state.
-      3. Check webhook.site again - you should see a second request fired when the run reaches **FINISHED** state.
+      2. Wait for the run to reach FINISHED state.
+      3. Check webhook.site again - you should see a second request fired when the run reaches FINISHED state.
     hint: "The policy fires on both UNCONFIRMED and FINISHED, so you get two webhook calls. You can target any run state this way."
     validationHint: "Wait for the run to complete successfully after approval."
     validation: |
