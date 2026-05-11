@@ -15,8 +15,8 @@ steps:
   - order: 1
     title: "Create a Database Stack"
     instruction: |
-      1. In your VCS repository, create a new folder called **database**.
-      2. Add a **main.tf** file:
+      1. In your VCS repository, create a new folder called `database`.
+      2. Add a `main.tf` file:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -38,10 +38,10 @@ steps:
       ```
       3. Commit and push.
       4. In Spacelift, create a new stack named **${database_stack_name}**.
-      5. Point it to your repository with **Project root**: **database**.
-      6. Enable **Autodeploy** and attach the AWS integration.
+      5. Point it to your repository with `Project root`: **database**.
+      6. Enable `Autodeploy` and attach the AWS integration.
     hint: "The database has to exist before the app can connect to it. We're modeling this dependency explicitly."
-    validationHint: "The database stack should be created with Project root set to 'database', autodeploy enabled, and the AWS integration attached."
+    validationHint: "The database stack should be created with `Project root` set to `database`, autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -60,8 +60,8 @@ steps:
   - order: 2
     title: "Create the App Folder"
     instruction: |
-      1. Create a folder called **app** in your repository.
-      2. Add a **main.tf** file:
+      1. Create a folder called `app` in your repository.
+      2. Add a `main.tf` file:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -98,11 +98,11 @@ steps:
     title: "Update the Main Stack to Use App Folder"
     instruction: |
       1. Open your stack **${main_stack_name}** in Spacelift.
-      2. Go to **Settings** > **Source code**.
-      3. Set **Project root** to **app**.
+      2. Go to `Settings > Source code`.
+      3. Set `Project root` to **app**.
       4. Save the change.
-    hint: "Now your main stack points to the app folder, and the database stack points to the database folder."
-    validationHint: "The main stack should have its project root set to 'app'."
+    hint: "Now your main stack points to the `app` folder, and the database stack points to the `database` folder."
+    validationHint: "The main stack should have its project root set to `app`."
     validation: |
       package spacelift
 
@@ -119,8 +119,8 @@ steps:
     title: "Create the Dependency"
     instruction: |
       1. Open your stack **${main_stack_name}** (the app stack).
-      2. Go to the **Dependencies** tab.
-      3. In the **Depends on** section, click **Add dependencies**.
+      2. Go to the `Dependencies` tab.
+      3. In the `Depends on` section, click **Add dependencies**.
       4. Select **${database_stack_name}**.
       5. Save the dependency.
     hint: "This tells Spacelift: 'Don't run the app stack until the database stack has finished successfully.'"
@@ -149,7 +149,7 @@ steps:
     instruction: |
       1. Go to the **${database_stack_name}** stack.
       2. Click **Trigger** to start a run.
-      3. Watch it progress through to **FINISHED**.
+      3. Watch it progress through to FINISHED.
     hint: "The database stack runs first because it has no dependencies."
     validationHint: "The database stack should have a completed run."
     validation: |

@@ -16,11 +16,11 @@ steps:
     title: "Verify Stack Label"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Settings** > **Stack details**.
-      3. Confirm you have the label **env:production** (we added this in Launchpad).
+      2. Go to `Settings > Stack details`.
+      3. Confirm you have the label `env:production` (we added this in Launchpad).
       4. If not, add it now and save.
     hint: "Labels are key-value pairs that describe your stack. They become contracts: 'If you're production, you get production config.'"
-    validationHint: "Your stack should have the env:production label."
+    validationHint: "Your stack should have the `env:production` label."
     validation: |
       package spacelift
 
@@ -39,10 +39,10 @@ steps:
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Open your context **${context_name}**.
       3. Click **Edit** to open the context settings.
-      4. Add the label **autoattach:env:production**.
+      4. Add the label `autoattach:env:production`.
       5. Save the changes.
     hint: "Autoattachment rules say: 'any stack with this label gets this context'. No manual wiring required."
-    validationHint: "The context should have an autoattach label for env:production."
+    validationHint: "The context should have an autoattach label for `env:production`."
     validation: |
       package spacelift
 
@@ -60,7 +60,7 @@ steps:
     title: "Detach Manual Attachment"
     instruction: |
       1. Go to your stack **${main_stack_name}**.
-      2. Go to the **Contexts** tab.
+      2. Go to the `Contexts` tab.
       3. Find the manual attachment of **${context_name}**.
       4. Click **Detach** to remove the manual attachment.
       5. Notice the context is still attached - but now via autoattachment!
@@ -71,11 +71,11 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Name it **${second_stack_name}**.
-      3. Add label **env:production**.
+      3. Add label `env:production`.
       4. Use the same VCS repo and settings as your first stack.
       5. Complete the wizard.
-    hint: "This new stack has the env:production label - it should automatically get the context without any manual attachment."
-    validationHint: "Your second stack should be created with the env:production label."
+    hint: "This new stack has the `env:production` label - it should automatically get the context without any manual attachment."
+    validationHint: "Your second stack should be created with the `env:production` label."
     validation: |
       package spacelift
 
@@ -89,7 +89,7 @@ steps:
     title: "Verify Automatic Context Attachment"
     instruction: |
       1. Open your new stack **${second_stack_name}**.
-      2. Go to the **Contexts** tab.
+      2. Go to the `Contexts` tab.
       3. You should see **${context_name}** already attached via autoattachment.
       4. Trigger a run and verify the hook output appears.
     hint: "Magic! The new stack automatically inherited the context because it has the matching label. No manual setup needed."

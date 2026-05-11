@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Name: **${policy_name}**, Type: **Plan**, Space: **${space_name}**.
+      3. Set Name: **${policy_name}**, Type: **Plan**, Space: **${space_name}**.
       4. Add this OPA/Rego rule that requires a team tag:
       ```language-rego
       package spacelift
@@ -47,14 +47,14 @@ steps:
     title: "Autoattach Policy to Space"
     instruction: |
       1. Open your policy **${policy_name}**.
-      2. Click **Edit** and add the label **autoattach:*** (asterisk means all).
+      2. Click **Edit** and add the label `autoattach:*` (asterisk means all).
       3. Save the changes.
     hint: "Just like contexts, policies can autoattach. Any stack in your team space or below will get this policy."
 
   - order: 3
     title: "Make a Code Change"
     instruction: |
-      1. Update your **aws_s3_bucket** resource in **main.tf** for **${main_stack_name}** to add a `project` tag:
+      1. Update your `aws_s3_bucket` resource in `main.tf` for **${main_stack_name}** to add a `project` tag:
       ```language-hcl
       resource "aws_s3_bucket" "data" {
         bucket_prefix = "orbit-labs-"
@@ -68,17 +68,17 @@ steps:
       }
       ```
       2. Commit and push this change.
-    hint: "Plan policies only evaluate resources that appear in resource_changes — Spacelift excludes no-op resources. Modifying the bucket directly ensures it shows up as an update in the plan, so the policy actually fires."
+    hint: "Plan policies only evaluate resources that appear in `resource_changes` — Spacelift excludes no-op resources. Modifying the bucket directly ensures it shows up as an update in the plan, so the policy actually fires."
 
   - order: 4
     title: "Test the Policy"
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
       2. The policy should evaluate during the planning phase.
-      3. Your bucket lacks a 'team' tag, so the run will fail with a DENY.
-      4. Check the Policy evaluation section in the run details.
+      3. Your bucket lacks a `team` tag, so the run will fail with a DENY.
+      4. Check the `Policy evaluation` section in the run details.
     hint: "The policy automatically applies because your stack inherited it through space hierarchy + autoattachment."
-    validationHint: "The run should fail with a policy denial about the missing team tag."
+    validationHint: "The run should fail with a policy denial about the missing `team` tag."
     validation: |
       package spacelift
 
@@ -105,7 +105,7 @@ steps:
   - order: 5
     title: "Fix the Violation"
     instruction: |
-      1. Update your **main.tf** to add the team tag:
+      1. Update your `main.tf` to add the `team` tag:
       ```language-hcl
       resource "aws_s3_bucket" "data" {
         bucket_prefix = "orbit-labs-"
@@ -151,11 +151,11 @@ steps:
     instruction: |
       1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
       2. Open your AWS integration.
-      3. Go to the **Attached stacks** tab.
-      4. Add the label **autoattach:*** (asterisk means all).
+      3. Go to the `Attached stacks` tab.
+      4. Add the label `autoattach:*` (asterisk means all).
       5. Set the space scope to **${space_name}**.
     hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
-    validationHint: "Verify the autoattach:* label appears under the Attached stacks tab of your AWS integration, then proceed."
+    validationHint: "Verify the `autoattach:*` label appears under the `Attached stacks` tab of your AWS integration, then proceed."
 
 completion:
   successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
