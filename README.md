@@ -153,25 +153,41 @@ completion:
 
 ## Content Style Conventions
 
-Guide instructions, hints, and other user-facing strings support Markdown. To keep the experience consistent across the product, follow these formatting rules:
+Guide instructions, hints, and other user-facing strings support Markdown. To keep the experience consistent across the product, follow these formatting rules.
 
 ### Actions — **bold**
 
-Use bold for anything the user is expected to click, type, toggle, or otherwise act on: buttons, menu items, form labels, checkboxes, and entered values.
+Use bold for anything the user clicks, types, or selects: buttons, links, and freeform values being entered into a field.
 
 ```yaml
 instruction: "Click **Create stack**, set Workflow tool to **OpenTofu**, then click **Continue**."
 ```
 
+User-named entities — references to a stack, policy, context, or space the user created earlier — are also bold, because they behave like proper nouns of UI entities:
+
+```yaml
+instruction: "Open your stack **${main_stack_name}** and click **Trigger**."
+```
+
 ### Titles — `code style` (Inconsolata)
 
-Use backticks for UI titles such as page/screen names and menu paths or breadcrumbs. This visually distinguishes "where you are" from "what you click".
+Use backticks for anything that names a UI location, label, or literal code identifier — the "where you are" rather than "what you click":
+
+- Page/screen names, tabs, menu paths and breadcrumbs, sections within a page
+- Field labels (when used as locators, e.g. "the `Role ARN` field")
+- Setting/toggle names when not being acted on (e.g. "disable `Autodeploy`" — the verb is the action, the setting name is a title)
+- File names (`main.tf`)
+- Code identifiers — variable names, resource types, output names, function names, etc.
+- Label literals (`env:production`, `autoattach:*`)
 
 ```yaml
 instruction: "Navigate to `Ship Infra > Stacks` and open the `Stacks` page."
+instruction: "Go to `Settings > Behavior` and disable `Autodeploy`."
+instruction: "Set Name: `TF_VAR_env`, Value: **staging**."
+instruction: "Edit `main.tf` to add the `aws_s3_bucket` resource."
 ```
 
-Reserve bold for the actual action within that location (e.g. "On the `Stacks` page, click **Create stack**.").
+Reserve bold for the actual action within that location (e.g. "In the `Policies` tab, click **Attach policy**.").
 
 ### Statuses — ALL CAPS, no formatting
 
@@ -186,9 +202,14 @@ hint: "If the run enters the FAILED state, check the logs for details."
 
 | Element | Style | Example |
 | --- | --- | --- |
-| Buttons, links, fields, values to enter | **Bold** | Click **Trigger** |
-| Page names, tabs, menu paths, breadcrumbs | `Code` (backticks) | Open `Settings > Behavior` |
-| Run states, phases, statuses | ALL CAPS, no formatting | The run is UNCONFIRMED |
+| Buttons, links, freeform values to enter | **Bold** | Click **Trigger**; Description: **My first stack** |
+| User-named entities (`${stack_name}` etc.) | **Bold** | Open your stack **${main_stack_name}** |
+| Page names, tabs, menu paths, sections, field labels | `Code` | Open `Settings > Behavior`; in the `Policies` tab |
+| Setting/toggle names | `Code` | Disable `Autodeploy` |
+| File names | `Code` | Edit `main.tf` |
+| Code identifiers (resources, variables, outputs) | `Code` | Set `TF_VAR_env` to **staging** |
+| Label literals | `Code` | Add label `env:production` |
+| Run states, phases, statuses | ALL CAPS, no formatting | Wait for FINISHED |
 
 ## How to Add New Guides
 
