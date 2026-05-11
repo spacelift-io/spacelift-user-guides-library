@@ -35,7 +35,7 @@ steps:
     instruction: |
       1. Open your new context **${context_name}**.
       2. Click **Add variable**.
-      3. Set Name: `TF_VAR_environment`, Value: **production**.
+      3. Set Name: **TF_VAR_environment**, Value: **production**.
       4. Click **Save**.
     hint: "Now this variable lives in the context, not the stack. Any stack that attaches this context will get this variable."
     validationHint: "The context should have the `TF_VAR_environment` variable."

@@ -48,7 +48,7 @@ steps:
     instruction: |
       1. In Spacelift, create a new stack named **${staging_stack_name}**.
       2. Point it to your repository with `Project root`: **environments**.
-      3. Add an environment variable: `TF_VAR_env` = **staging**.
+      3. Add an environment variable: **TF_VAR_env** = **staging**.
       4. Enable `Autodeploy`.
       5. Attach the AWS integration.
     hint: "Staging deploys automatically. Every push goes straight to staging."
@@ -74,7 +74,7 @@ steps:
     instruction: |
       1. Create another stack named **${production_stack_name}**.
       2. Point it to the same repository with `Project root`: **environments**.
-      3. Add an environment variable: `TF_VAR_env` = **production**.
+      3. Add an environment variable: **TF_VAR_env** = **production**.
       4. Disable `Autodeploy` (leave it unchecked).
       5. Attach the AWS integration.
     hint: "Production requires manual approval. Autodeploy is OFF."

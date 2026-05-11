@@ -18,7 +18,7 @@ steps:
       1. Open your stack **${main_stack_name}**.
       2. Go to the `Environment` tab.
       3. Click **Add variable**.
-      4. Set Name: `TF_VAR_environment`, Value: **production**.
+      4. Set Name: **TF_VAR_environment**, Value: **production**.
       5. Leave it as plaintext (not secret) for now.
       6. Click **Save**.
     hint: "It works. But it's getting messy. Environment variables prefixed with `TF_VAR_` automatically populate the matching Terraform variable — so `TF_VAR_environment` sets `var.environment`."

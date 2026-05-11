@@ -28,8 +28,8 @@ steps:
       3. Find the dependency on **${database_stack_name}**.
       4. Click **Add output reference**.
       5. Add an output reference:
-         - `Output name`: `data_store_bucket`
-         - `Input name`: `TF_VAR_data_bucket`
+         - `Output name`: **data_store_bucket**
+         - `Input name`: **TF_VAR_data_bucket**
       6. Save the configuration.
     hint: "This wires the database stack's `data_store_bucket` output to the app stack's `data_bucket` Terraform variable."
     validationHint: "The output reference should wire `data_store_bucket` from the database stack to `TF_VAR_data_bucket` on the app stack."

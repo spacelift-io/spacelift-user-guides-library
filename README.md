@@ -157,12 +157,16 @@ Guide instructions, hints, and other user-facing strings support Markdown. To ke
 
 ### Actions — **bold**
 
-Use bold for anything the user clicks, types, or selects: buttons, links, and any value being entered into a field (including code identifiers like `TF_VAR_env` or `subnet_id` — when the user is typing them in, the action wins over the code style).
+Use bold for any UI element the user is acting on — clicking, toggling, enabling, disabling, checking, typing into, or selecting from. That includes buttons, links, toggles, checkboxes, and values being entered into a field (including code identifiers like `TF_VAR_env` or `subnet_id` — when the user is typing them in, the action wins over the code style).
 
 ```yaml
 instruction: "Click **Create stack**, set Workflow tool to **OpenTofu**, then click **Continue**."
+instruction: "Enable **Autodeploy** and click **Save**."
+instruction: "Enable both **Read** and **Write** permissions."
 instruction: "In the `Output name` field, enter **subnet_id**."
 ```
+
+The rule is **acting vs. referring**. If the user is *doing something to* a toggle, its label is bold. If the user is *checking that* a toggle is in a certain state, or the toggle is just being referenced in prose, its label is backticked (see the next section).
 
 User-named entities — references to a stack, policy, context, or space the user created earlier — are also bold, because they behave like proper nouns of UI entities:
 
@@ -176,19 +180,19 @@ Use backticks for anything that names a UI location, label, or literal code iden
 
 - Page/screen names, tabs, menu paths and breadcrumbs, sections within a page
 - Field labels (when used as locators, e.g. "the `Role ARN` field")
-- Setting/toggle names when not being acted on (e.g. "disable `Autodeploy`" — the verb is the action, the setting name is a title)
+- Setting/toggle names when **referenced or verified, not acted on** (e.g. "make sure `Autodeploy` is disabled" or "the `Autodeploy` setting controls…")
 - File names (`main.tf`)
 - Code identifiers when referenced in descriptive prose — variable names, resource types, output names, function names, etc.
 - Label literals (`env:production`, `autoattach:*`) when referenced in descriptive prose
 
 ```yaml
 instruction: "Navigate to `Ship Infra > Stacks` and open the `Stacks` page."
-instruction: "Go to `Settings > Behavior` and disable `Autodeploy`."
+instruction: "Go to `Settings > Behavior` and verify `Autodeploy` is enabled."
 instruction: "Edit `main.tf` to add the `aws_s3_bucket` resource."
 hint: "The `data_store_bucket` output should show the bucket name."
 ```
 
-Note: when a code identifier or label literal is the value being entered into a field, it's **bold**, not `code` — see the actions rule above.
+Note: when a UI element is being acted on, or a code identifier/label literal is the value being entered into a field, it's **bold**, not `code` — see the actions rule above.
 
 Reserve bold for the actual action within that location (e.g. "In the `Policies` tab, click **Attach policy**.").
 
@@ -205,10 +209,10 @@ hint: "If the run enters the FAILED state, check the logs for details."
 
 | Element | Style | Example |
 | --- | --- | --- |
-| Buttons, links, any value being entered (including code identifiers entered as field values) | **Bold** | Click **Trigger**; Description: **My first stack**; enter **subnet_id** |
+| Buttons, links, toggles, checkboxes, values being entered (including code identifiers entered as field values) | **Bold** | Click **Trigger**; Enable **Autodeploy**; enter **subnet_id** |
 | User-named entities (`${stack_name}` etc.) | **Bold** | Open your stack **${main_stack_name}** |
 | Page names, tabs, menu paths, sections, field labels | `Code` | Open `Settings > Behavior`; in the `Policies` tab |
-| Setting/toggle names | `Code` | Disable `Autodeploy` |
+| Setting/toggle names when referenced, not acted on | `Code` | Make sure `Autodeploy` is enabled |
 | File names | `Code` | Edit `main.tf` |
 | Code identifiers referenced in prose | `Code` | The `aws_s3_bucket` resource; the `TF_VAR_` prefix |
 | Label literals referenced in prose | `Code` | Stacks with the `env:production` label |
