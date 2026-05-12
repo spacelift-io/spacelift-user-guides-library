@@ -24,7 +24,7 @@ steps:
     title: "Create a Repository with Terraform"
     instruction: |
       1. In your VCS provider, create a new repository.
-      2. Add a **main.tf** file with this S3 bucket configuration:
+      2. Add a `main.tf` file with this S3 bucket configuration:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -57,7 +57,7 @@ steps:
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Name it **${main_stack_name}**, Space: **root**.
       3. Select your VCS integration and repository, Branch: **main**.
-      4. Workflow tool: **OpenTofu**, choose the latest version.
+      4. Set Workflow tool: **OpenTofu**, choose the latest version.
       5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
     hint: "This stack will be our test subject for policies."
@@ -74,8 +74,8 @@ steps:
     title: "Attach the AWS Integration"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Settings** tab, then **Integrations**.
-      3. Under **Cloud**, click **Attach** next to your AWS integration.
+      2. Go to the `Settings` tab, then `Integrations`.
+      3. Under `Cloud`, click **Attach** next to your AWS integration.
       4. Configure it to read and write.
     hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
     validationHint: "The AWS integration should be attached to your stack."
@@ -97,8 +97,8 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Name: **${plan_policy_name}**, Type: **Plan**, Space: **root**.
-      4. Add this OPA/Rego rule that requires a cost-center tag:
+      3. Set Name: **${plan_policy_name}**, Type: **Plan**, Space: **root**.
+      4. Add this OPA/Rego rule that requires a `cost-center` tag:
       ```language-rego
       package spacelift
       import rego.v1
@@ -115,7 +115,7 @@ steps:
       }
       ```
       5. Click **Create policy**.
-    hint: "The finance team wants to know what's costing money. Every resource must have a cost-center tag."
+    hint: "The finance team wants to know what's costing money. Every resource must have a `cost-center` tag."
     validationHint: "Your plan policy should be created."
     validation: |
       package spacelift
@@ -130,7 +130,7 @@ steps:
     title: "Attach Policy to Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Policies** tab.
+      2. Go to the `Policies` tab.
       3. Click **Attach policy**.
       4. Select **${plan_policy_name}**.
       5. Save the attachment.
@@ -155,10 +155,10 @@ steps:
     instruction: |
       1. Click **Trigger** on your stack **${main_stack_name}**.
       2. Watch the run progress through INITIALIZING and PLANNING.
-      3. The run should **FAIL** with a policy denial - your S3 bucket is missing the cost-center tag.
-      4. Check the **Policy evaluation** section to see the violation message.
-    hint: "The guardrail caught it! Your bucket doesn't have a cost-center tag, so the policy blocks the deployment."
-    validationHint: "The run should fail with a policy denial about the missing cost-center tag."
+      3. The run should FAIL with a policy denial - your S3 bucket is missing the `cost-center` tag.
+      4. Check the `Policy evaluation` section to see the violation message.
+    hint: "The guardrail caught it! Your bucket doesn't have a `cost-center` tag, so the policy blocks the deployment."
+    validationHint: "The run should fail with a policy denial about the missing `cost-center` tag."
     validation: |
       package spacelift
 

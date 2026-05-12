@@ -24,7 +24,7 @@ steps:
     title: "Create a Repository with Terraform"
     instruction: |
       1. In your VCS provider, create a new repository.
-      2. Add a **main.tf** file with this S3 bucket configuration:
+      2. Add a `main.tf` file with this S3 bucket configuration:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -57,7 +57,7 @@ steps:
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
       2. Name it **${main_stack_name}**, Space: **root**.
       3. Select your VCS integration and repository, Branch: **main**.
-      4. Workflow tool: **OpenTofu**, choose the latest version.
+      4. Set Workflow tool: **OpenTofu**, choose the latest version.
       5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
     hint: "This stack will become the 'app' stack later when we add dependencies."
@@ -74,8 +74,8 @@ steps:
     title: "Attach the AWS Integration"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the **Settings** tab, then **Integrations**.
-      3. Under **Cloud**, click **Attach** next to your AWS integration.
+      2. Go to the `Settings` tab, then `Integrations`.
+      3. Under `Cloud`, click **Attach** next to your AWS integration.
       4. Configure it to read and write.
     hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
     validationHint: "The AWS integration should be attached to your stack."
@@ -97,7 +97,7 @@ steps:
     instruction: |
       1. Click **Trigger** on your stack.
       2. Watch the run progress through INITIALIZING, PLANNING, and (with autodeploy) APPLYING.
-      3. Wait for the run to reach **FINISHED** state.
+      3. Wait for the run to reach FINISHED state.
     hint: "With autodeploy enabled and no warnings, the run confirms automatically. Your S3 bucket is now deployed!"
     validationHint: "Wait for a tracked run to complete successfully."
     validation: |

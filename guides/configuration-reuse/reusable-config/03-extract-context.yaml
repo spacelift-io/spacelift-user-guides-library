@@ -38,7 +38,7 @@ steps:
       3. Set Name: **TF_VAR_environment**, Value: **production**.
       4. Click **Save**.
     hint: "Now this variable lives in the context, not the stack. Any stack that attaches this context will get this variable."
-    validationHint: "The context should have the TF_VAR_environment variable."
+    validationHint: "The context should have the `TF_VAR_environment` variable."
     validation: |
       package spacelift
 
@@ -55,14 +55,14 @@ steps:
   - order: 3
     title: "Add the Hook to Context"
     instruction: |
-      1. Still in your context **${context_name}**, go to the **Hooks** tab.
-      2. In **Before init**, add:
+      1. Still in your context **${context_name}**, go to the `Hooks` tab.
+      2. In the `Before init` section, add:
       ```language-bash
       echo "Initializing for environment: $TF_VAR_environment"
       ```
       3. Click **Save**.
     hint: "Hooks in contexts work just like hooks on stacks. When attached, they merge with stack hooks (context hooks run first)."
-    validationHint: "The context should have a before_init hook."
+    validationHint: "The context should have a `before_init` hook."
     validation: |
       package spacelift
 
@@ -80,11 +80,11 @@ steps:
     title: "Remove Inline Config from Stack"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to **Environment** tab and delete the **TF_VAR_environment** variable.
-      3. Go to the **Hooks** tab and remove the before-init script.
+      2. Go to the `Environment` tab and delete the `TF_VAR_environment` variable.
+      3. Go to the `Hooks` tab and remove the before-init script.
       4. Save your changes.
     hint: "We're moving the config, not duplicating it. The stack should be clean of inline configuration."
-    validationHint: "Your stack should no longer have the inline TF_VAR_environment variable or the before-init hook."
+    validationHint: "Your stack should no longer have the inline `TF_VAR_environment` variable or the before-init hook."
     validation: |
       package spacelift
 
@@ -102,7 +102,7 @@ steps:
     title: "Attach Context to Stack"
     instruction: |
       1. Go to your stack **${main_stack_name}**.
-      2. Go to the **Contexts** tab.
+      2. Go to the `Contexts` tab.
       3. Click **Attach context**.
       4. Select **${context_name}** from the dropdown.
       5. Click **Attach**.

@@ -151,6 +151,73 @@ completion:
 - `successMessage` (string): Message shown when guide is completed
 - `recommendedGuideIds` ([]string): IDs of guides to suggest next
 
+## Content Style Conventions
+
+Guide instructions, hints, and other user-facing strings support Markdown. To keep the experience consistent across the product, follow these formatting rules.
+
+### Actions — **bold**
+
+Use bold for any UI element the user is acting on — clicking, toggling, enabling, disabling, checking, typing into, or selecting from. That includes buttons, links, toggles, checkboxes, and values being entered into a field (including code identifiers like `TF_VAR_env` or `subnet_id` — when the user is typing them in, the action wins over the code style).
+
+```yaml
+instruction: "Click **Create stack**, set Workflow tool to **OpenTofu**, then click **Continue**."
+instruction: "Enable **Autodeploy** and click **Save**."
+instruction: "Enable both **Read** and **Write** permissions."
+instruction: "In the `Output name` field, enter **subnet_id**."
+```
+
+The rule is **acting vs. referring**. If the user is *doing something to* a toggle, its label is bold. If the user is *checking that* a toggle is in a certain state, or the toggle is just being referenced in prose, its label is backticked (see the next section).
+
+User-named entities — references to a stack, policy, context, or space the user created earlier — are also bold, because they behave like proper nouns of UI entities:
+
+```yaml
+instruction: "Open your stack **${main_stack_name}** and click **Trigger**."
+```
+
+### Titles — `code style` (Inconsolata)
+
+Use backticks for anything that names a UI location, label, or literal code identifier — the "where you are" rather than "what you click":
+
+- Page/screen names, tabs, menu paths and breadcrumbs, sections within a page
+- Field labels (when used as locators, e.g. "the `Role ARN` field")
+- Setting/toggle names when **referenced or verified, not acted on** (e.g. "make sure `Autodeploy` is disabled" or "the `Autodeploy` setting controls…")
+- File names (`main.tf`)
+- Code identifiers when referenced in descriptive prose — variable names, resource types, output names, function names, etc.
+- Label literals (`env:production`, `autoattach:*`) when referenced in descriptive prose
+
+```yaml
+instruction: "Navigate to `Ship Infra > Stacks` and open the `Stacks` page."
+instruction: "Go to `Settings > Behavior` and verify `Autodeploy` is enabled."
+instruction: "Edit `main.tf` to add the `aws_s3_bucket` resource."
+hint: "The `data_store_bucket` output should show the bucket name."
+```
+
+Note: when a UI element is being acted on, or a code identifier/label literal is the value being entered into a field, it's **bold**, not `code` — see the actions rule above.
+
+Reserve bold for the actual action within that location (e.g. "In the `Policies` tab, click **Attach policy**.").
+
+### Statuses — ALL CAPS, no formatting
+
+Run states, phases, and similar status values are written in ALL CAPS without bold or backticks. They're already visually distinct and match how Spacelift renders them in the UI.
+
+```yaml
+instruction: "Watch the run progress through INITIALIZING → PLANNING → UNCONFIRMED → APPLYING → FINISHED."
+hint: "If the run enters the FAILED state, check the logs for details."
+```
+
+### Quick reference
+
+| Element | Style | Example |
+| --- | --- | --- |
+| Buttons, links, toggles, checkboxes, values being entered (including code identifiers entered as field values) | **Bold** | Click **Trigger**; Enable **Autodeploy**; enter **subnet_id** |
+| User-named entities (`${stack_name}` etc.) | **Bold** | Open your stack **${main_stack_name}** |
+| Page names, tabs, menu paths, sections, field labels | `Code` | Open `Settings > Behavior`; in the `Policies` tab |
+| Setting/toggle names when referenced, not acted on | `Code` | Make sure `Autodeploy` is enabled |
+| File names | `Code` | Edit `main.tf` |
+| Code identifiers referenced in prose | `Code` | The `aws_s3_bucket` resource; the `TF_VAR_` prefix |
+| Label literals referenced in prose | `Code` | Stacks with the `env:production` label |
+| Run states, phases, statuses | ALL CAPS, no formatting | Wait for FINISHED |
+
 ## How to Add New Guides
 
 ### 1. Create or Navigate to a Group

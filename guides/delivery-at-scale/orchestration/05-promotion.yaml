@@ -15,8 +15,8 @@ steps:
   - order: 1
     title: "Create a Shared Environment Folder"
     instruction: |
-      1. In your repository, create a folder called **environments**.
-      2. Add a **main.tf** file:
+      1. In your repository, create a folder called `environments`.
+      2. Add a `main.tf` file:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -41,18 +41,18 @@ steps:
       }
       ```
       3. Commit and push.
-    hint: "Same code, different configurations. The env variable controls which environment we're deploying to."
+    hint: "Same code, different configurations. The `env` variable controls which environment we're deploying to."
 
   - order: 2
     title: "Create the Staging Stack"
     instruction: |
       1. In Spacelift, create a new stack named **${staging_stack_name}**.
-      2. Point it to your repository with **Project root**: **environments**.
+      2. Point it to your repository with `Project root`: **environments**.
       3. Add an environment variable: **TF_VAR_env** = **staging**.
       4. Enable **Autodeploy**.
       5. Attach the AWS integration.
     hint: "Staging deploys automatically. Every push goes straight to staging."
-    validationHint: "The staging stack should be created with Project root set to 'environments', TF_VAR_env set, autodeploy enabled, and the AWS integration attached."
+    validationHint: "The staging stack should be created with `Project root` set to `environments`, `TF_VAR_env` set, autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -73,12 +73,12 @@ steps:
     title: "Create the Production Stack"
     instruction: |
       1. Create another stack named **${production_stack_name}**.
-      2. Point it to the same repository with **Project root**: **environments**.
+      2. Point it to the same repository with `Project root`: **environments**.
       3. Add an environment variable: **TF_VAR_env** = **production**.
-      4. **Disable** Autodeploy (leave it unchecked).
+      4. Disable **Autodeploy** (leave it unchecked).
       5. Attach the AWS integration.
     hint: "Production requires manual approval. Autodeploy is OFF."
-    validationHint: "The production stack should be created with Project root set to 'environments', TF_VAR_env set, autodeploy disabled, and the AWS integration attached."
+    validationHint: "The production stack should be created with `Project root` set to `environments`, `TF_VAR_env` set, autodeploy disabled, and the AWS integration attached."
     validation: |
       package spacelift
 
@@ -99,8 +99,8 @@ steps:
     title: "Create the Promotion Dependency"
     instruction: |
       1. Open the **${production_stack_name}** stack.
-      2. Go to the **Dependencies** tab.
-      3. In the **Depends on** section, click **Add dependencies** and select **${staging_stack_name}**.
+      2. Go to the `Dependencies` tab.
+      3. In the `Depends on` section, click **Add dependencies** and select **${staging_stack_name}**.
       4. Save the dependency.
     hint: "Staging has to pass before production can even try. This is your promotion gate."
     validationHint: "Production should depend on staging."
@@ -127,9 +127,9 @@ steps:
     title: "Trigger the Promotion Flow"
     instruction: |
       1. Go to the **${staging_stack_name}** stack and click **Trigger**.
-      2. Watch staging run automatically through to **FINISHED**.
+      2. Watch staging run automatically through to FINISHED.
       3. After staging succeeds, check the **${production_stack_name}** stack.
-      4. You should see a run in **UNCONFIRMED** state, waiting for manual approval.
+      4. You should see a run in UNCONFIRMED state, waiting for manual approval.
     hint: "Staging passed. Production is ready but waiting for you to approve."
     validationHint: "Staging should have completed successfully and production should be waiting for approval."
     validation: |
@@ -175,7 +175,7 @@ steps:
   - order: 6
     title: "Approve Production"
     instruction: |
-      1. Open the unconfirmed run on **${production_stack_name}**.
+      1. Open the UNCONFIRMED run on **${production_stack_name}**.
       2. Review the plan.
       3. Click **Confirm** to approve the deployment.
       4. Watch production deploy successfully.

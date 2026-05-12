@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Navigate to [Organize > Spaces](/spaces).
       2. Click **Create space**.
-      3. Name: **${space_name}**, Parent: **root**.
+      3. Set Name: **${space_name}**, Parent: **root**.
       4. Enable **Inherit entities** from parent.
       5. Click **Create space**.
     hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
@@ -35,7 +35,7 @@ steps:
     title: "Create a Production Space"
     instruction: |
       1. Click **Create space** again.
-      2. Name: **${child_space_name}**, Parent: **${space_name}**.
+      2. Set Name: **${child_space_name}**, Parent: **${space_name}**.
       3. Enable **Inherit entities** from parent.
       4. Click **Create space**.
     hint: "Now you have a hierarchy: root > ${space_name} > ${child_space_name}. Configuration can cascade through these levels."
@@ -59,8 +59,8 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks).
       2. Open your stack **${main_stack_name}**.
-      3. Go to **Settings** > **Stack Details**.
-      4. Change **Space** from **root** to **${child_space_name}**.
+      3. Go to `Settings > Stack details`.
+      4. Change the `Space` field from **root** to **${child_space_name}**.
       5. Save the change.
     hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."
     validationHint: "Your stack should be in the child space."
@@ -86,11 +86,11 @@ steps:
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Click **Create context**.
-      3. Name: **${company_context_name}**, Space: **${space_name}**, Label **autoattach:*** (asterisk means all).
+      3. Set Name: **${company_context_name}**, Space: **${space_name}**, Label: `autoattach:*` (asterisk means all).
       4. Create the context.
       5. Add an environment variable with name **COMPANY** and value **orbit-labs**.
-    hint: "The autoattach:* label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
-    validationHint: "The company context should exist with the autoattach:* label and the COMPANY environment variable."
+    hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
+    validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |
       package spacelift
 
@@ -109,9 +109,9 @@ steps:
     title: "Verify Inherited Configuration"
     instruction: |
       1. Go to your stack **${main_stack_name}** (in the production space).
-      2. Check the **Contexts** tab - you should see **${company_context_name}** attached.
+      2. Check the `Contexts` tab - you should see **${company_context_name}** attached.
       3. Trigger a run.
-      4. In the run logs/outputs, verify the COMPANY variable is available.
+      4. In the run logs/outputs, verify the `COMPANY` variable is available.
     hint: "Define it once at the team level, inherit it everywhere below. The space tree becomes your configuration tree."
     validationHint: "The company context should be attached to your stack via inheritance."
     validation: |

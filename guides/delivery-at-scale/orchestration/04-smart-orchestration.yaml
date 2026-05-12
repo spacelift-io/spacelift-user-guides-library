@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Go to the **${database_stack_name}** stack.
       2. Click **Trigger** to start a run.
-      3. Since nothing changed in the code, the plan should show **No changes**.
+      3. Since nothing changed in the code, the plan should show `No changes`.
       4. The run will complete quickly with no resources modified.
     hint: "Not every push changes everything. When there are no changes, Spacelift is smart about it."
     validationHint: "The database stack should have completed the no-changes run."
@@ -49,13 +49,13 @@ steps:
     instruction: |
       1. After the database run completes with no changes, check the **${main_stack_name}** stack.
       2. Notice that no new run was triggered.
-      3. Check the **Runs** tab - the app stack was **skipped** because the dependency's referenced output did not change.
+      3. Check the `Runs` tab - the app stack was SKIPPED because the dependency's referenced output did not change.
     hint: "Smart orchestration. When the output wired to the downstream stack hasn't changed, Spacelift skips it entirely."
 
   - order: 3
     title: "Make a Real Change"
     instruction: |
-      1. Update your **database/main.tf** to add a tag:
+      1. Update your `database/main.tf` to add a tag:
       ```language-hcl
       provider "aws" {
         region = "us-east-1"
@@ -83,7 +83,7 @@ steps:
     title: "Observe Pending and Proceed"
     instruction: |
       1. The **${database_stack_name}** stack will start running automatically (autodeploy).
-      2. While it's running, check **${main_stack_name}** - it should be in **PENDING** state.
+      2. While it's running, check **${main_stack_name}** - it should be in PENDING state.
       3. The **${main_stack_name}** stack is waiting for the dependency to complete.
       4. After **${database_stack_name}** finishes, observe **${main_stack_name}** proceeds to run.
     hint: "Don't run out of order. The app waits until database is done."
@@ -92,8 +92,8 @@ steps:
     title: "Verify Both Complete Successfully"
     instruction: |
       1. Wait for both runs to complete.
-      2. The database run should be **FINISHED**.
-      3. The app run should be **FINISHED**.
+      2. The database run should be FINISHED.
+      3. The app run should be FINISHED.
     hint: "The orchestration handled everything: detected changes, ran in order, and completed the chain."
     validationHint: "Both the database and app stacks should have completed runs."
     validation: |
