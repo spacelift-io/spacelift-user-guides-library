@@ -88,7 +88,7 @@ steps:
       2. Click **Create context**.
       3. Set Name: **${company_context_name}**, Space: **${space_name}**, Label: `autoattach:*` (asterisk means all).
       4. Create the context.
-      5. Add an environment variable with name **COMPANY** and value **orbit-labs**.
+      5. Add an environment variable with name **COMPANY** and value **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
     hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
     validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |
