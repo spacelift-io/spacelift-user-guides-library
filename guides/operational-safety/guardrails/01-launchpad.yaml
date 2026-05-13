@@ -155,7 +155,7 @@ steps:
     instruction: |
       1. Click **Trigger** on your stack **${main_stack_name}**.
       2. Watch the run progress through INITIALIZING and PLANNING.
-      3. The run should FAIL with a policy denial - your S3 bucket is missing the `cost-center` tag.
+      3. The run should FAIL with a policy denial: *"your S3 bucket is missing the cost-center tag."*
       4. Check the `Policy evaluation` section to see the violation message.
     hint: "The guardrail caught it! Your bucket doesn't have a `cost-center` tag, so the policy blocks the deployment."
     validationHint: "The run should fail with a policy denial about the missing `cost-center` tag."
