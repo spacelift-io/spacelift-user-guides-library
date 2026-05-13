@@ -35,7 +35,7 @@ steps:
   - order: 2
     title: "Verify Autodeploy is Disabled"
     instruction: |
-      1. Navigate to your stack (**${main_stack_name}**) and go to `Settings > Behavior`.
+      1. Navigate to your stack (**${main_stack_name}**), open the three-dot menu, and go to `Settings > Behavior`.
       2. Check the `Autodeploy` setting - it should be disabled. This is the default for new stacks.
       3. Leave it disabled for now. This means changes to your tracked branch will require manual confirmation.
     hint: "With autodeploy disabled, every change you push creates a run that waits for your approval. This is safer when you're learning or working with production infrastructure. You get to review the plan before anything is actually created or modified."
@@ -59,7 +59,7 @@ steps:
       2. Return to Spacelift and navigate to your stack's `Runs` tab.
       3. You should see a new TRACKED run automatically triggered by your VCS push.
       4. Watch as it progresses through INITIALIZING → PLANNING phases. Review the plan carefully but do not confirm it yet.
-    hint: "Spacelift watches your repository for changes. When you push to the tracked branch, it automatically starts a run. Since autodeploy is off, this run will stop at UNCONFIRMED, waiting for you to review and approve."
+    hint: "Spacelift watches your repository for changes. When you push to the tracked branch, it automatically starts a run. Since autodeploy is off, this run will stop at UNCONFIRMED, waiting for you to review and confirm."
     validationHint: "Wait for the run to reach unconfirmed state before moving on."
     validation: |
       package spacelift
@@ -116,7 +116,7 @@ steps:
   - order: 6
     title: "Enable Autodeploy"
     instruction: |
-      1. Navigate to `Settings > Behavior` in your stack.
+      1. In your stack, open the three-dot menu and go to `Settings > Behavior`.
       2. Find the **Autodeploy** toggle and turn it on.
       3. Click **Save** to apply the change. This changes the workflow: from now on, changes to your tracked branch will automatically apply after planning (if the plan succeeds).
     hint: "Autodeploy is great for development environments and when you trust your code review process. It speeds up deployments significantly. However, many teams keep autodeploy OFF for production stacks to maintain that extra approval gate."
@@ -149,7 +149,7 @@ steps:
       2. Commit and push this change.
       3. Return to your stack's `Runs` tab and watch the new run: INITIALIZING → PLANNING → APPLYING → FINISHED.
       4. Notice it skipped the UNCONFIRMED state completely and deployed automatically!
-    hint: "This is autodeploy in action! The run went straight from planning to applying because: (1) autodeploy is enabled, (2) the plan succeeded, and (3) no policy rules flagged it for review. Review your run history - you now have runs that required confirmation and runs that deployed automatically. This illustrates the two deployment modes: manual approval (safer, slower) vs. autodeploy (faster, requires trust). Orbit Labs is now ready for rapid iteration!"
+    hint: "This is autodeploy in action! The run went straight from planning to applying because: (1) autodeploy is enabled, (2) the plan succeeded, and (3) no policy rules flagged it for review. Review your run history - you now have runs that required confirmation and runs that deployed automatically. This illustrates the two deployment modes: manual confirmation (safer, slower) vs. autodeploy (faster, requires trust). Orbit Labs is now ready for rapid iteration!"
 
 completion:
   successMessage: "Well done! You've deployed your first real AWS infrastructure (an S3 bucket) and learned about both manual approval workflows and autodeploy. You now understand how Spacelift handles infrastructure changes and the difference between tracked runs and automatic deployments."

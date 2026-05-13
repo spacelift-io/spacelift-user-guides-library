@@ -59,7 +59,7 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks).
       2. Open your stack **${main_stack_name}**.
-      3. Go to `Settings > Stack details`.
+      3. Open the three-dot menu and go to `Settings > Stack details`.
       4. Change the `Space` field from **root** to **${child_space_name}**.
       5. Save the change.
     hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."

@@ -60,7 +60,7 @@ steps:
       2. Click the **Trigger** button in the top right corner.
       3. Optionally add a note like **First mission launch!** and click **Trigger**.
       4. Watch as Spacelift initializes your workspace and begins the planning phase.
-    hint: "A run goes through several phases: INITIALIZING → PLANNING → UNCONFIRMED (waiting for your approval) → APPLYING → FINISHED. Don't worry, you'll have a chance to review everything before any changes are made!"
+    hint: "A run goes through several phases: INITIALIZING → PLANNING → UNCONFIRMED (waiting for your confirmation) → APPLYING → FINISHED. Don't worry, you'll have a chance to review everything before any changes are made!"
     validationHint: "Before moving on, make sure you've triggered a run on your stack."
     validation: |
       package spacelift

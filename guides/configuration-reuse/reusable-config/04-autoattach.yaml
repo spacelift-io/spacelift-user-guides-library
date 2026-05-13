@@ -16,7 +16,7 @@ steps:
     title: "Verify Stack Label"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to `Settings > Stack details`.
+      2. Open the three-dot menu and go to `Settings > Stack details`.
       3. Confirm you have the label `env:production` (we added this in Launchpad).
       4. If not, add it now and save.
     hint: "Labels are key-value pairs that describe your stack. They become contracts: 'If you're production, you get production config.'"
