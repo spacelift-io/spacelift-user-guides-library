@@ -98,7 +98,7 @@ steps:
     title: "Update the Main Stack to Use App Folder"
     instruction: |
       1. Open your stack **${main_stack_name}** in Spacelift.
-      2. Go to `Settings > Source code`.
+      2. Open the three-dot menu and go to `Settings > Source code`.
       3. Set `Project root` to **app**.
       4. Save the change.
     hint: "Now your main stack points to the `app` folder, and the database stack points to the `database` folder."

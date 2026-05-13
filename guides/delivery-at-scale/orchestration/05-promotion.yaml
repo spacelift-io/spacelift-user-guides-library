@@ -48,7 +48,7 @@ steps:
     instruction: |
       1. In Spacelift, create a new stack named **${staging_stack_name}**.
       2. Point it to your repository with `Project root`: **environments**.
-      3. Add an environment variable: **TF_VAR_env** = **staging**.
+      3. Add an environment variable: **TF_VAR_env** = **staging**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
       4. Enable **Autodeploy**.
       5. Attach the AWS integration.
     hint: "Staging deploys automatically. Every push goes straight to staging."
@@ -74,7 +74,7 @@ steps:
     instruction: |
       1. Create another stack named **${production_stack_name}**.
       2. Point it to the same repository with `Project root`: **environments**.
-      3. Add an environment variable: **TF_VAR_env** = **production**.
+      3. Add an environment variable: **TF_VAR_env** = **production**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
       4. Disable **Autodeploy** (leave it unchecked).
       5. Attach the AWS integration.
     hint: "Production requires manual approval. Autodeploy is OFF."
@@ -129,7 +129,7 @@ steps:
       1. Go to the **${staging_stack_name}** stack and click **Trigger**.
       2. Watch staging run automatically through to FINISHED.
       3. After staging succeeds, check the **${production_stack_name}** stack.
-      4. You should see a run in UNCONFIRMED state, waiting for manual approval.
+      4. You should see a run in UNCONFIRMED state, waiting for manual confirmation.
     hint: "Staging passed. Production is ready but waiting for you to approve."
     validationHint: "Staging should have completed successfully and production should be waiting for approval."
     validation: |
@@ -173,14 +173,14 @@ steps:
       }
 
   - order: 6
-    title: "Approve Production"
+    title: "Confirm Production"
     instruction: |
       1. Open the UNCONFIRMED run on **${production_stack_name}**.
       2. Review the plan.
-      3. Click **Confirm** to approve the deployment.
+      3. Click **Confirm** to apply the deployment.
       4. Watch production deploy successfully.
     hint: "The dependency isn't just about order - it's about safety. You control when production goes."
-    validationHint: "Production should have a completed run after you approved the deployment."
+    validationHint: "Production should have a completed run after you confirmed the deployment."
     validation: |
       package spacelift
 

@@ -59,7 +59,7 @@ steps:
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks).
       2. Open your stack **${main_stack_name}**.
-      3. Go to `Settings > Stack details`.
+      3. Open the three-dot menu and go to `Settings > Stack details`.
       4. Change the `Space` field from **root** to **${child_space_name}**.
       5. Save the change.
     hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."
@@ -88,7 +88,7 @@ steps:
       2. Click **Create context**.
       3. Set Name: **${company_context_name}**, Space: **${space_name}**, Label: `autoattach:*` (asterisk means all).
       4. Create the context.
-      5. Add an environment variable with name **COMPANY** and value **orbit-labs**.
+      5. Add an environment variable with name **COMPANY** and value **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
     hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
     validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |

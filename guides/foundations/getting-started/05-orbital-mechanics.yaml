@@ -196,7 +196,7 @@ steps:
         owner   = "Saturnhead"
       }
       ```
-      Commit and push this change. The networking stack run will sit UNCONFIRMED until you approve it — click **Confirm** on the run to apply.
+      Commit and push this change. The networking stack run will sit UNCONFIRMED until you confirm it — click **Confirm** on the run to apply.
 
       Once it finishes, Spacelift automatically triggers a run on your app stack (**${main_stack_name}**), carrying the latest `subnet_id` output. This is the dependency you wired up in step 4 finally doing what it was built for: a change in the parent flowing through to the child without anyone copying values around.
     hint: "This is the cascade payoff: parent applies → child runs → outputs flow through. With autodeploy off, you'll need to confirm the cascaded run on the app stack as well."

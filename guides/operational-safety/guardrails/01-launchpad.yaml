@@ -74,8 +74,8 @@ steps:
     title: "Attach the AWS Integration"
     instruction: |
       1. Open your stack **${main_stack_name}**.
-      2. Go to the `Settings` tab, then `Integrations`.
-      3. Under `Cloud`, click **Attach** next to your AWS integration.
+      2. Open the three-dot menu and go to `Settings > Integrations`.
+      3. In the `Cloud integrations` tab, click **Attach** next to your AWS integration.
       4. Configure it to read and write.
     hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
     validationHint: "The AWS integration should be attached to your stack."

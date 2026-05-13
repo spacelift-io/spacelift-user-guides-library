@@ -196,6 +196,32 @@ Note: when a UI element is being acted on, or a code identifier/label literal is
 
 Reserve bold for the actual action within that location (e.g. "In the `Policies` tab, click **Attach policy**.").
 
+### Menu paths and breadcrumbs
+
+When the user navigates down a UI hierarchy (menus, sub-menus, settings paths), write the path as a single breadcrumb inside one backtick span using `>` as the separator. Do **not** break it up with words like "then" or with multiple backtick spans.
+
+```yaml
+# Good
+instruction: "Open the three-dot menu and go to `Settings > Behavior`."
+instruction: "Navigate to `Ship Infra > Stacks` and click **Create stack**."
+instruction: "Go to `Settings > Integrations > Cloud integrations`."
+
+# Bad
+instruction: "Go to the `Settings` tab, then `Integrations`."
+instruction: "Go to `Settings`, then `Behavior`."
+```
+
+If the entry point isn't obvious (e.g. behind a kebab menu or context menu), state it before the breadcrumb: "Open the three-dot menu and go to `Settings > Behavior`."
+
+For acting on a section that's already visible within the current page (not a deeper menu hop), use "In the `X` section/tab" instead of a breadcrumb:
+
+```yaml
+instruction: "In the `Depends on` section, click **Add dependencies**."
+instruction: "In the `Policies` tab, click **Attach policy**."
+```
+
+For top-level Spacelift pages, the breadcrumb format is also acceptable inside a Markdown link: `[Ship Infra > Stacks](/stacks)`.
+
 ### Statuses — ALL CAPS, no formatting
 
 Run states, phases, and similar status values are written in ALL CAPS without bold or backticks. They're already visually distinct and match how Spacelift renders them in the UI.
@@ -212,6 +238,7 @@ hint: "If the run enters the FAILED state, check the logs for details."
 | Buttons, links, toggles, checkboxes, values being entered (including code identifiers entered as field values) | **Bold** | Click **Trigger**; Enable **Autodeploy**; enter **subnet_id** |
 | User-named entities (`${stack_name}` etc.) | **Bold** | Open your stack **${main_stack_name}** |
 | Page names, tabs, menu paths, sections, field labels | `Code` | Open `Settings > Behavior`; in the `Policies` tab |
+| Menu paths / breadcrumbs (full hierarchy in one span, `>` as separator — never split with "then") | `Code` | `Settings > Integrations > Cloud integrations` |
 | Setting/toggle names when referenced, not acted on | `Code` | Make sure `Autodeploy` is enabled |
 | File names | `Code` | Edit `main.tf` |
 | Code identifiers referenced in prose | `Code` | The `aws_s3_bucket` resource; the `TF_VAR_` prefix |
