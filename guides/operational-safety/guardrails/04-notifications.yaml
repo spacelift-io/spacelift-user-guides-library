@@ -110,8 +110,8 @@ steps:
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
       2. The run will pause in QUEUED state for policy evaluation. Click **Approve** to allow the planning phase to proceed.
-      3. The run should stop at UNCONFIRMED state, waiting for confirmation — and the notification policy will fire.
-    hint: "The approval policy is still active from the previous guide. Any run with real changes will hit UNCONFIRMED."
+      3. After planning, the run stops at UNCONFIRMED — your notification policy fires here. (The approval policy from the previous guide also fires a second time at this state for the apply review; you'll handle that in the next step.)
+    hint: "Autodeploy is still off from the previous guide, so the approval policy gates the run at both QUEUED and UNCONFIRMED. The notification fires when the run lands in UNCONFIRMED."
     validationHint: "The run should be in UNCONFIRMED state, waiting for confirmation."
     validation: |
       package spacelift
@@ -147,9 +147,10 @@ steps:
     title: "Complete the Run"
     instruction: |
       1. Open your stack **${main_stack_name}** and open the UNCONFIRMED run.
-      2. Click **Confirm** to let the run proceed.
-      3. Wait for the run to reach FINISHED state.
-    hint: "The notification told you the run needs attention. Open the stack and confirm to let it finish."
+      2. Click **Approve** to satisfy the apply review from the approval policy.
+      3. Click **Confirm** to start the apply (autodeploy is still disabled from the previous guide).
+      4. Wait for the run to reach FINISHED state.
+    hint: "The notification told you the run needs attention. Approve the apply review, then confirm to let the apply start."
     validationHint: "Wait for the run to complete successfully after confirmation."
     validation: |
       package spacelift

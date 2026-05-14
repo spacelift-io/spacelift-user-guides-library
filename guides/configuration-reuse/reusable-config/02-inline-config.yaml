@@ -9,7 +9,7 @@ metadata:
   difficulty: "easy"
   minutesToComplete: 10
   prerequisites:
-    - "Completed the Launchpad guide with a working stack"
+    - "Completed the Launchpad - Quick Start mission with a working stack"
 
 steps:
   - order: 1
