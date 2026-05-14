@@ -231,6 +231,24 @@ instruction: "Watch the run progress through INITIALIZING → PLANNING → UNCON
 hint: "If the run enters the FAILED state, check the logs for details."
 ```
 
+### System-returned text — *italic* in double quotes, after a colon
+
+When you quote a string the system produces — a policy denial message, an error notification, a log line the user should look for — wrap it in double quotes and italicize the whole quote. Introduce it with a colon, not a dash, so the quote reads as the thing the system says.
+
+Code identifiers that appear inside the quoted system message (tag names, resource names, etc.) stay as plain text inside the italics — the italic styling already marks the whole span as system output, so don't re-format pieces of it with backticks or bold.
+
+```yaml
+# Good
+instruction: "The run should FAIL with a policy denial: *\"your S3 bucket is missing the cost-center tag.\"*"
+instruction: "You should see a deny message: *\"S3 bucket ... is missing required 'cost-center' tag.\"*"
+
+# Bad
+instruction: "The run should FAIL with a policy denial - your S3 bucket is missing the `cost-center` tag."
+instruction: "You should see a deny message: `S3 bucket ... is missing required 'cost-center' tag`."
+```
+
+This is for *quoted* system text. When you're describing the message in your own words ("a policy denial about the missing `cost-center` tag"), keep the existing rules — backticks for the code identifier, no italics.
+
 ### Quick reference
 
 | Element | Style | Example |
@@ -244,6 +262,7 @@ hint: "If the run enters the FAILED state, check the logs for details."
 | Code identifiers referenced in prose | `Code` | The `aws_s3_bucket` resource; the `TF_VAR_` prefix |
 | Label literals referenced in prose | `Code` | Stacks with the `env:production` label |
 | Run states, phases, statuses | ALL CAPS, no formatting | Wait for FINISHED |
+| System-returned text (policy messages, errors, log lines) | *Italic* in double quotes, after a colon | … policy denial: *"your S3 bucket is missing the cost-center tag."* |
 
 ## How to Add New Guides
 

@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Open the failed run on your stack **${main_stack_name}**.
       2. Look at the `Policy evaluation` section.
-      3. You should see a deny message: `S3 bucket ... is missing required 'cost-center' tag`.
+      3. You should see a deny message: *"S3 bucket ... is missing required 'cost-center' tag."*
       4. This is the plan policy in action - it inspected the Terraform plan and found a violation.
     hint: "Plan policies evaluate what Terraform is about to do, not what it has already done. They're your pre-flight checklist."
 
