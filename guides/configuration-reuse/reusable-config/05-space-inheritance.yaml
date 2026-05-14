@@ -9,7 +9,7 @@ metadata:
   difficulty: "medium"
   minutesToComplete: 20
   prerequisites:
-    - "Completed the Autoattachment guide with contexts using label-based attachment"
+    - "Completed the Auto-attachment guide with contexts using label-based attachment"
 
 steps:
   - order: 1
@@ -38,7 +38,7 @@ steps:
       2. Set Name: **${child_space_name}**, Parent: **${space_name}**.
       3. Enable **Inherit entities** from parent.
       4. Click **Create space**.
-    hint: "Now you have a hierarchy: root > ${space_name} > ${child_space_name}. Configuration can cascade through these levels."
+    hint: "Now you have a three-level hierarchy: root, then your team space, then your production space inside it. Configuration can cascade from any level down to its children."
     validationHint: "The child space should be created under your team space."
     validation: |
       package spacelift

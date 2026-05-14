@@ -4,8 +4,8 @@ prerequisiteGuideSlugs:
   - "config-reuse-space-inheritance"
 metadata:
   title: "One Mechanism, Many Components"
-  description: "Discover that autoattachment and space inheritance work the same way for contexts, policies, and cloud integrations"
-  labels: ["policies", "integrations", "autoattachment", "unified-model"]
+  description: "Discover that auto-attachment and space inheritance work the same way for contexts, policies, and cloud integrations"
+  labels: ["policies", "integrations", "auto-attachment", "unified-model"]
   difficulty: "medium"
   minutesToComplete: 20
   prerequisites:
@@ -32,7 +32,7 @@ steps:
       }
       ```
       5. Click **Create policy**.
-    hint: "Wait - does autoattachment work for policies too? Yes! The same mechanism applies to all attachable resources."
+    hint: "Wait - does auto-attachment work for policies too? Yes! The same mechanism applies to all attachable resources."
     validationHint: "Your plan policy should be created."
     validation: |
       package spacelift
@@ -44,12 +44,12 @@ steps:
       }
 
   - order: 2
-    title: "Autoattach Policy to Space"
+    title: "Auto-attach Policy to Space"
     instruction: |
       1. Open your policy **${policy_name}**.
       2. Click **Edit** and add the label `autoattach:*` (asterisk means all).
       3. Save the changes.
-    hint: "Just like contexts, policies can autoattach. Any stack in your team space or below will get this policy."
+    hint: "Just like contexts, policies can auto-attach. Any stack in your team space or below will get this policy."
 
   - order: 3
     title: "Make a Code Change"
@@ -77,7 +77,7 @@ steps:
       2. The policy should evaluate during the planning phase.
       3. Your bucket lacks a `team` tag, so the run will fail with a DENY.
       4. Check the `Policy evaluation` section in the run details.
-    hint: "The policy automatically applies because your stack inherited it through space hierarchy + autoattachment."
+    hint: "The policy automatically applies because your stack inherited it through space hierarchy + auto-attachment."
     validationHint: "The run should fail with a policy denial about the missing `team` tag."
     validation: |
       package spacelift
@@ -147,16 +147,17 @@ steps:
       }
 
   - order: 6
-    title: "Autoattach AWS Integration"
+    title: "Auto-attach AWS Integration"
     instruction: |
       1. Navigate to [Integrate services > Cloud integrations](/cloud-integrations).
       2. Open your AWS integration.
-      3. Go to the `Attached stacks` tab.
-      4. Add the label `autoattach:*` (asterisk means all).
-      5. Set the space scope to **${space_name}**.
-    hint: "AWS integrations also support autoattachment! New stacks in the team space will automatically get AWS credentials."
-    validationHint: "Verify the `autoattach:*` label appears under the `Attached stacks` tab of your AWS integration, then proceed."
+      3. Open the three-dot menu and click **Edit**.
+      4. Turn on the **Enable auto-attach** toggle — without it, the `autoattach:` label is ignored for cloud integrations.
+      5. Add the label `autoattach:*` (asterisk means all).
+      6. Set the space scope to **${space_name}**.
+    hint: "AWS integrations also support auto-attachment, but you have to opt in via the toggle first. New stacks in the team space will then automatically get AWS credentials."
+    validationHint: "Verify the auto-attach toggle is on and that the `Auto-attached` list under the `Used by` section shows the stacks from your team space, then proceed."
 
 completion:
-  successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and autoattachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
+  successMessage: "Contexts, policies, integrations - same mechanism. The space hierarchy is your organizational model, and auto-attachment is how you express 'this applies to everyone below.' You've mastered configuration reuse in Spacelift!"
   recommendedGuideIds: []

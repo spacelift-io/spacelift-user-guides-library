@@ -9,7 +9,7 @@ metadata:
   difficulty: "medium"
   minutesToComplete: 10
   prerequisites:
-    - "Completed the Launchpad guide with a failing run blocked by the plan policy"
+    - "Completed the Launchpad - Quick Start mission with a failing run blocked by the plan policy"
 
 steps:
   - order: 1

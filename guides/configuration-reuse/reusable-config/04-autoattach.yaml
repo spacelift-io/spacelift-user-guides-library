@@ -3,9 +3,9 @@ ordering: 4
 prerequisiteGuideSlugs:
   - "config-reuse-extract-context"
 metadata:
-  title: "Labels and Autoattachment"
+  title: "Labels and Auto-attachment"
   description: "Stop manually attaching contexts - use labels to automatically attach configuration to any stack that matches"
-  labels: ["labels", "autoattachment", "automation", "contexts"]
+  labels: ["labels", "auto-attachment", "automation", "contexts"]
   difficulty: "medium"
   minutesToComplete: 15
   prerequisites:
@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Open your stack **${main_stack_name}**.
       2. Open the three-dot menu and go to `Settings > Stack details`.
-      3. Confirm you have the label `env:production` (we added this in Launchpad).
+      3. Confirm you have the label `env:production` (we added this in the Launchpad - Quick Start mission).
       4. If not, add it now and save.
     hint: "Labels are key-value pairs that describe your stack. They become contracts: 'If you're production, you get production config.'"
     validationHint: "Your stack should have the `env:production` label."
@@ -34,14 +34,14 @@ steps:
       }
 
   - order: 2
-    title: "Configure Autoattachment on Context"
+    title: "Configure Auto-attachment on Context"
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Open your context **${context_name}**.
       3. Click **Edit** to open the context settings.
       4. Add the label `autoattach:env:production`.
       5. Save the changes.
-    hint: "Autoattachment rules say: 'any stack with this label gets this context'. No manual wiring required."
+    hint: "Auto-attachment rules say: 'any stack with this label gets this context'. No manual wiring required."
     validationHint: "The context should have an autoattach label for `env:production`."
     validation: |
       package spacelift
@@ -63,8 +63,8 @@ steps:
       2. Go to the `Contexts` tab.
       3. Find the manual attachment of **${context_name}**.
       4. Click **Detach** to remove the manual attachment.
-      5. Notice the context is still attached - but now via autoattachment!
-    hint: "The context stays attached because your stack has the matching label. Autoattachment took over."
+      5. Notice the context is still attached - but now via auto-attachment!
+    hint: "The context stays attached because your stack has the matching label. Auto-attachment took over."
 
   - order: 4
     title: "Create a Second Stack"
@@ -90,7 +90,7 @@ steps:
     instruction: |
       1. Open your new stack **${second_stack_name}**.
       2. Go to the `Contexts` tab.
-      3. You should see **${context_name}** already attached via autoattachment.
+      3. You should see **${context_name}** already attached via auto-attachment.
       4. Trigger a run and verify the hook output appears.
     hint: "Magic! The new stack automatically inherited the context because it has the matching label. No manual setup needed."
     validationHint: "The context should be automatically attached to your second stack."

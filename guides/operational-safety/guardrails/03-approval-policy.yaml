@@ -135,9 +135,10 @@ steps:
     instruction: |
       1. A run will trigger automatically on **${main_stack_name}**.
       2. The run will pause in QUEUED state for policy evaluation. Click **Approve** to allow the planning phase to proceed.
-      3. The run should stop at UNCONFIRMED state, waiting for your approval.
-    hint: "The approval policy requires sign-off before the run can proceed."
-    validationHint: "The run should be in UNCONFIRMED state, waiting for approval."
+      3. After planning, the run stops at UNCONFIRMED (because autodeploy is off) — the approval policy fires a second time here for the apply review.
+      4. Click **Approve** again to satisfy the apply review. The run stays in UNCONFIRMED because you still need to confirm the apply.
+    hint: "With autodeploy off, the approval policy gates the run twice: at QUEUED before planning, and again at UNCONFIRMED for the apply review. With autodeploy on, the run skips UNCONFIRMED entirely, so the second gate never fires."
+    validationHint: "The run should be in UNCONFIRMED state, waiting for confirmation."
     validation: |
       package spacelift
 
@@ -164,11 +165,11 @@ steps:
   - order: 6
     title: "Confirm and Complete"
     instruction: |
-      1. After planning completes, review the plan to see what will change.
-      2. Click **Confirm** to apply the changes.
+      1. Review the plan to see what will change.
+      2. Click **Confirm** to start the apply — this extra step is needed because autodeploy is disabled.
       3. Wait for the run to reach FINISHED state.
-    hint: "Two gates: first the approval policy (before planning), then the manual confirm (after planning, because autodeploy is off). In a real scenario, a teammate would approve your change, and you'd confirm the apply after reviewing the plan."
-    validationHint: "The run should complete successfully after approval and confirmation."
+    hint: "Three actions in total to get a run applied while autodeploy is off: **Approve** at QUEUED, **Approve** again at UNCONFIRMED (the apply review), and **Confirm** to start the apply. In a real scenario, a teammate would approve at each gate, and you'd confirm the apply once you're happy with the plan."
+    validationHint: "The run should complete successfully after both approvals and the confirmation."
     validation: |
       package spacelift
 
@@ -199,7 +200,7 @@ steps:
       2. Open the three-dot menu and go to `Settings > Behavior`.
       3. Enable **Autodeploy** (check it).
       4. Save the change.
-    hint: "You've seen how manual confirmation works. Re-enabling autodeploy means future runs will auto-apply after approval — no second confirm needed."
+    hint: "You've seen how the manual flow works. With autodeploy back on, runs skip UNCONFIRMED entirely — Spacelift goes straight from PLANNING to APPLYING after the initial approval, so no second approval and no manual Confirm are needed."
     validationHint: "Autodeploy should be enabled on your stack."
     validation: |
       package spacelift
@@ -214,5 +215,5 @@ steps:
       }
 
 completion:
-  successMessage: "Four eyes principle in action! Approval policies require human sign-off before changes even plan. Combined with manual confirmation, you get two gates protecting your infrastructure. Next, let's set up notifications so the team knows when approvals are needed."
+  successMessage: "Four eyes principle in action! Approval policies require human sign-off before changes plan, and — when autodeploy is off — again before they apply. Combined with the manual Confirm step in that mode, you get layered gates protecting your infrastructure. Next, let's set up notifications so the team knows when approvals are needed."
   recommendedGuideIds: ["safety-notifications"]
