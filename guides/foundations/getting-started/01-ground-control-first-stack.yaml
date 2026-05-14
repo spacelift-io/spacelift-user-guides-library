@@ -40,7 +40,7 @@ steps:
       5. Click **Skip to summary**.
       6. Review the summary and click **Confirm**. You will be automatically redirected to your new stack.
     hint: "The stack creation wizard guides you through three main sections: Basic info, VCS connection, and Backend configuration. Take your time to fill in each section - you can always edit these settings later. Spacelift managing your state is much safer than storing it locally!"
-    validationHint: "You can proceed to the next step once your stack is created and visible in Spacelift."
+    validationHint: "You can proceed to the next step once your stack is created and visible in Spacelift. Make sure the name matches the one shown in the instructions."
     validation: |
       package spacelift
 

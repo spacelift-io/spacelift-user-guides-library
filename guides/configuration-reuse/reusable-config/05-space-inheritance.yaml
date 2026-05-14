@@ -89,6 +89,12 @@ steps:
       3. Set Name: **${company_context_name}**, Space: **${space_name}**, Label: `autoattach:*` (asterisk means all).
       4. Create the context.
       5. Add an environment variable with name **COMPANY** and value **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
+      6. Go to the `Hooks` tab.
+      7. In the `Before init` section, add:
+      ```language-bash
+      echo "Company: $COMPANY"
+      ```
+      8. Click **Save**.
     hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
     validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |
