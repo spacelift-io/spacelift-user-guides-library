@@ -47,11 +47,12 @@ steps:
     title: "Create the Staging Stack"
     instruction: |
       1. In Spacelift, create a new stack named **${staging_stack_name}**.
-      2. Point it to your repository with `Project root`: **environments**.
-      3. Add an environment variable: **TF_VAR_env** = **staging**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
-      4. Enable **Autodeploy**.
-      5. Attach the AWS integration.
-    hint: "Staging deploys automatically. Every push goes straight to staging."
+      2. In the wizard, point it to your repository with `Project root`: **environments**.
+      3. Enable **Autodeploy**.
+      4. In the `Attach cloud` step of the wizard, attach your AWS integration with read and write enabled.
+      5. Complete the wizard to create the stack.
+      6. Open the new stack and go to the `Environment` tab. Click **Add variable**, set Name: **TF_VAR_env**, Value: **staging**, and save. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
+    hint: "Staging deploys automatically. Every push goes straight to staging. The integration goes in inside the wizard; env vars are added afterwards on the created stack."
     validationHint: "The staging stack should be created with `Project root` set to `environments`, `TF_VAR_env` set, autodeploy enabled, and the AWS integration attached."
     validation: |
       package spacelift
@@ -73,11 +74,12 @@ steps:
     title: "Create the Production Stack"
     instruction: |
       1. Create another stack named **${production_stack_name}**.
-      2. Point it to the same repository with `Project root`: **environments**.
-      3. Add an environment variable: **TF_VAR_env** = **production**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
-      4. Disable **Autodeploy** (leave it unchecked).
-      5. Attach the AWS integration.
-    hint: "Production requires manual approval. Autodeploy is OFF."
+      2. In the wizard, point it to the same repository with `Project root`: **environments**.
+      3. Leave **Autodeploy** unchecked.
+      4. In the `Attach cloud` step of the wizard, attach your AWS integration with read and write enabled.
+      5. Complete the wizard to create the stack.
+      6. Open the new stack and go to the `Environment` tab. Click **Add variable**, set Name: **TF_VAR_env**, Value: **production**, and save. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
+    hint: "Production requires manual approval. Autodeploy is OFF, so a successful staging run won't auto-trigger production."
     validationHint: "The production stack should be created with `Project root` set to `environments`, `TF_VAR_env` set, autodeploy disabled, and the AWS integration attached."
     validation: |
       package spacelift
