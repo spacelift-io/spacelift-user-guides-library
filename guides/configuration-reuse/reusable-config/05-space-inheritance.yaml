@@ -93,7 +93,7 @@ steps:
       echo "Company: $COMPANY"
       ```
       6. Complete the wizard to create the context.
-    hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically. Label, env vars, and hooks all go in inside the wizard — no separate edit pass needed."
+    hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
     validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |
       package spacelift
