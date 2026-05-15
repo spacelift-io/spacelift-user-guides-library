@@ -86,16 +86,14 @@ steps:
     instruction: |
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Click **Create context**.
-      3. Set Name: **${company_context_name}**, Space: **${space_name}**, Label: `autoattach:*` (asterisk means all).
-      4. Create the context.
-      5. Add an environment variable with name **COMPANY** and value **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
-      6. Go to the `Hooks` tab.
-      7. In the `Before init` section, add:
+      3. In the wizard, set Name: **${company_context_name}**, Space: **${space_name}**, and add the label `autoattach:*` (asterisk means all).
+      4. Still in the wizard, add an environment variable with Name: **COMPANY**, Value: **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
+      5. In the `Add hooks` step of the wizard, add to the `Before init` section:
       ```language-bash
       echo "Company: $COMPANY"
       ```
-      8. Click **Save**.
-    hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically."
+      6. Complete the wizard to create the context.
+    hint: "The `autoattach:*` label means 'attach to all stacks in this space and below'. Company-wide settings flow down automatically. Label, env vars, and hooks all go in inside the wizard — no separate edit pass needed."
     validationHint: "The company context should exist with the `autoattach:*` label and the `COMPANY` environment variable."
     validation: |
       package spacelift
