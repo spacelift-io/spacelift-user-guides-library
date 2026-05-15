@@ -150,6 +150,26 @@ steps:
       3. Return to your stack's `Runs` tab and watch the new run: INITIALIZING → PLANNING → APPLYING → FINISHED.
       4. Notice it skipped the UNCONFIRMED state completely and deployed automatically!
     hint: "This is autodeploy in action! The run went straight from planning to applying because: (1) autodeploy is enabled, (2) the plan succeeded, and (3) no policy rules flagged it for review. Review your run history - you now have runs that required confirmation and runs that deployed automatically. This illustrates the two deployment modes: manual confirmation (safer, slower) vs. autodeploy (faster, requires trust). Orbit Labs is now ready for rapid iteration!"
+    validationHint: "Wait for the autodeploy run to complete successfully."
+    validation: |
+      package spacelift
+
+      main_stack := stack if {
+        some stack in input.stacks
+        stack.name == input.expectations.main_stack_name
+      }
+
+      finished_tracked_runs contains run if {
+        some run in input.runs
+        run.stack_id == main_stack.id
+        run.type == "TRACKED"
+        run.status == "FINISHED"
+      }
+
+      valid if {
+        main_stack.autodeploy == true
+        count(finished_tracked_runs) >= 2
+      }
 
 completion:
   successMessage: "Well done! You've deployed your first real AWS infrastructure (an S3 bucket) and learned about both manual approval workflows and autodeploy. You now understand how Spacelift handles infrastructure changes and the difference between tracked runs and automatic deployments."
