@@ -167,6 +167,7 @@ steps:
       }
 
       valid if {
+        main_stack.autodeploy == true
         count(finished_tracked_runs) >= 2
       }
 
