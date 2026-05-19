@@ -154,7 +154,6 @@ steps:
       3. Open the three-dot menu and click **Edit**.
       4. Turn on the **Enable auto-attach** toggle — without it, the `autoattach:` label is ignored for cloud integrations.
       5. Add the label `autoattach:*` (asterisk means all).
-      6. Set the space scope to **${space_name}**.
     hint: "AWS integrations also support auto-attachment, but you have to opt in via the toggle first. New stacks in the team space will then automatically get AWS credentials."
     validationHint: "Verify the auto-attach toggle is on and that the `Auto-attached` list under the `Used by` section shows the stacks from your team space, then proceed."
 
