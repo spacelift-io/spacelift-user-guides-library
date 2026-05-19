@@ -88,7 +88,7 @@ steps:
   - order: 4
     title: "Observe Policy Enforcement"
     instruction: |
-      1. Go to your stack's `Runs` tab and open the newly triggered run.
+      1. Go to your stack's `Tracked runs` tab and open the newly triggered run.
       2. Watch it progress through INITIALIZING → PLANNING.
       3. After planning completes, the run should transition to FAILED state (not UNCONFIRMED).
       4. Click into the run details and look for the `Policy` section - you should see your policy evaluation with status DENY and the error message about the missing `project` tag.
@@ -138,7 +138,7 @@ steps:
     title: "Verify Policy Passes and Deployment Succeeds"
     instruction: |
       1. Watch the new run triggered by your fix.
-      2. This time, after planning completes, check the `Policy` section - it should show your policy evaluation with status PASS (green checkmark).
+      2. This time, after planning completes, check the `Policy` section - it should show your policy evaluation with status ALLOW (green checkmark).
       3. Since autodeploy is enabled and the policy passed, the run should continue automatically to APPLYING and then FINISHED.
       4. Your compliant infrastructure change is deployed!
     hint: "Success! The policy passed, proving your infrastructure now meets the required standards. The run deployed automatically because: (1) policy check passed, (2) plan succeeded, (3) autodeploy is enabled. This is 'Govern Velocity' - fast deployments with automated guardrails. You've now established rules for Orbit Labs!"
