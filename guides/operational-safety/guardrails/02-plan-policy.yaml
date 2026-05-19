@@ -57,8 +57,8 @@ steps:
     title: "Verify Policy Pass"
     instruction: |
       1. Wait for the run to complete.
-      2. Check the `Policy evaluation` section.
-      3. The plan policy should show PASS (no deny messages).
+      2. Check the `Policy` section.
+      3. The plan policy should show ALLOW (green checkmark).
       4. The run should reach FINISHED state.
     hint: "Plan policies enforce rules at deploy time. No untagged buckets can slip through."
     validationHint: "Your stack should have a successful run with the policy passing."

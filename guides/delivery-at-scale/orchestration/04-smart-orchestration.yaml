@@ -49,7 +49,7 @@ steps:
     instruction: |
       1. After the database run completes with no changes, check the **${main_stack_name}** stack.
       2. Notice that no new run was triggered.
-      3. Check the `Runs` tab - the app stack was SKIPPED because the dependency's referenced output did not change.
+      3. Check the `Tracked runs` tab - the app stack was SKIPPED because the dependency's referenced output did not change.
     hint: "Smart orchestration. When the output wired to the downstream stack hasn't changed, Spacelift skips it entirely."
 
   - order: 3
