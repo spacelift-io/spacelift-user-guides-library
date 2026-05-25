@@ -247,6 +247,41 @@ func TestValidationRules(t *testing.T) {
 			errMsg:    "steps must be sequentially ordered",
 		},
 		{
+			name: "valid requiredTier",
+			guide: userguides.Guide{
+				Slug:         "test-guide",
+				Ordering:     1,
+				RequiredTier: userguides.BillingTierStarter,
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: false,
+		},
+		{
+			name: "invalid requiredTier",
+			guide: userguides.Guide{
+				Slug:         "test-guide",
+				Ordering:     1,
+				RequiredTier: "PREMIUM",
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "invalid requiredTier",
+		},
+		{
 			name: "invalid URL scheme",
 			guide: userguides.Guide{
 				Slug:     "test-guide",
@@ -405,6 +440,38 @@ func TestSchemaValidation_Groups(t *testing.T) {
 		t.Run(path, func(t *testing.T) {
 			validateYAMLFile(t, schema, path)
 		})
+	}
+}
+
+func TestRequiredTierGating(t *testing.T) {
+	lib, err := userguides.Guides()
+	if err != nil {
+		t.Fatalf("Guides() returned error: %v", err)
+	}
+
+	expectedTiers := map[string]userguides.BillingTier{
+		"safety-notifications": userguides.BillingTierStarter,
+		"safety-webhooks":      userguides.BillingTierStarter,
+	}
+
+	found := map[string]bool{}
+	for _, group := range lib.Groups {
+		for _, chapter := range group.Chapters {
+			for _, guide := range chapter.Guides {
+				if expected, ok := expectedTiers[guide.Slug]; ok {
+					found[guide.Slug] = true
+					if guide.RequiredTier != expected {
+						t.Errorf("guide %s: expected requiredTier %q, got %q", guide.Slug, expected, guide.RequiredTier)
+					}
+				}
+			}
+		}
+	}
+
+	for slug := range expectedTiers {
+		if !found[slug] {
+			t.Errorf("expected guide %s to exist", slug)
+		}
 	}
 }
 

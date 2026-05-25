@@ -22,6 +22,17 @@
       "description": "Release state of the guide",
       "enum": ["testing", "published"]
     },
+    "requiredTier": {
+      "type": "string",
+      "description": "Minimum Spacelift billing tier required to complete this guide. Omit when the guide is available on all tiers (including Free).",
+      "enum": [
+        "STARTER",
+        "STARTER_PLUS",
+        "BUSINESS",
+        "ENTERPRISE",
+        "CLOUD"
+      ]
+    },
     "prerequisiteGuideSlugs": {
       "type": "array",
       "description": "Slugs of guides that should be completed before this one",

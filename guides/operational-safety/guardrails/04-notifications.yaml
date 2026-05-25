@@ -1,5 +1,6 @@
 slug: safety-notifications
 ordering: 4
+requiredTier: STARTER
 prerequisiteGuideSlugs:
   - "safety-approval-policy"
 metadata:

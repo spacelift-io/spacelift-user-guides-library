@@ -38,6 +38,8 @@ variables:            # optional - template variables for guide steps
 ```yaml
 slug: string          # required - the guide's identifier (NOT derived from filename)
 ordering: int         # required
+requiredTier: string  # optional - minimum billing tier (STARTER | STARTER_PLUS | BUSINESS | ENTERPRISE | CLOUD). Omit when available on all tiers (including Free).
+prerequisiteGuideSlugs: []string  # optional - slugs of guides that must be completed first; each must reference an existing guide
 metadata:
   title: string       # required
   description: string
@@ -71,10 +73,10 @@ completion:
 ## Validation Rules
 
 - Required fields must be present
-- Valid enums: skillLevel, difficulty
+- Valid enums: skillLevel, difficulty, requiredTier (when set)
 - Steps must be sequentially ordered starting at 1 (no gaps, no duplicates)
 - Doc URLs must use http/https
-- `recommendedGuideIds` must reference existing guide slugs
+- `recommendedGuideIds` and `prerequisiteGuideSlugs` must reference existing guide slugs
 - No duplicate slugs within groups, chapters, or guides
 - Labels must be non-empty strings
 - `minutesToComplete` must be >= 0

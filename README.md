@@ -97,6 +97,7 @@ Defines an individual guide with metadata, steps, and completion information.
 
 ```yaml
 ordering: 1
+requiredTier: STARTER  # optional - minimum Spacelift billing tier
 metadata:
   title: "Create Your First Stack"
   description: "Learn how to create a stack in Spacelift"
@@ -130,6 +131,11 @@ completion:
 **Required Fields:**
 
 - `ordering` (int): Display order within the chapter (lower numbers appear first)
+
+**Optional Top-Level Fields:**
+
+- `requiredTier` (string): Minimum Spacelift billing tier required to complete the guide. One of `STARTER`, `STARTER_PLUS`, `BUSINESS`, `ENTERPRISE`, or `CLOUD`. Omit when the guide is available on all tiers (including Free).
+- `prerequisiteGuideSlugs` ([]string): Slugs of guides that must be completed first
 
 **metadata:**
 - `title` (string): Display title of the guide
@@ -358,6 +364,7 @@ func Guides() (*Library, error) {
 **Type Validation:**
 - **SkillLevel**: Must be one of `BEGINNER`, `ENABLER`, `COMMANDER`, `GUARDIAN`
 - **Difficulty**: Must be one of `easy`, `medium`, `hard` (if specified)
+- **RequiredTier**: If specified, must be one of `STARTER`, `STARTER_PLUS`, `BUSINESS`, `ENTERPRISE`, `CLOUD`
 - **MinutesToComplete**: Must be >= 0
 - **Labels**: Must be non-empty strings (no whitespace-only labels)
 - **URLs**: Must use `http` or `https` scheme and be well-formed

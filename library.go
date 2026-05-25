@@ -40,10 +40,34 @@ type Chapter struct {
 type Guide struct {
 	Slug                   string
 	Ordering               int
+	RequiredTier           BillingTier
 	PrerequisiteGuideSlugs []string
 	Metadata               GuideMetadata
 	Steps                  []GuideStep
 	Completion             GuideCompletion
+}
+
+// BillingTier is the minimum Spacelift billing tier required to complete a
+// guide. An empty value means the guide has no tier requirement and is
+// available to all accounts (including Free). The backend is responsible for
+// mapping these logical tier names onto the versioned billing tier enum it
+// stores internally.
+type BillingTier string
+
+const (
+	BillingTierStarter     BillingTier = "STARTER"
+	BillingTierStarterPlus BillingTier = "STARTER_PLUS"
+	BillingTierBusiness    BillingTier = "BUSINESS"
+	BillingTierEnterprise  BillingTier = "ENTERPRISE"
+	BillingTierCloud       BillingTier = "CLOUD"
+)
+
+var validBillingTiers = map[BillingTier]bool{
+	BillingTierStarter:     true,
+	BillingTierStarterPlus: true,
+	BillingTierBusiness:    true,
+	BillingTierEnterprise:  true,
+	BillingTierCloud:       true,
 }
 
 type GuideMetadata struct {
@@ -302,6 +326,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	var guideMeta struct {
 		Slug                   string          `yaml:"slug"`
 		Ordering               int             `yaml:"ordering"`
+		RequiredTier           BillingTier     `yaml:"requiredTier"`
 		PrerequisiteGuideSlugs []string        `yaml:"prerequisiteGuideSlugs"`
 		Metadata               GuideMetadata   `yaml:"metadata"`
 		Steps                  []GuideStep     `yaml:"steps"`
@@ -319,6 +344,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	guide := Guide{
 		Slug:                   guideMeta.Slug,
 		Ordering:               guideMeta.Ordering,
+		RequiredTier:           guideMeta.RequiredTier,
 		PrerequisiteGuideSlugs: guideMeta.PrerequisiteGuideSlugs,
 		Metadata:               guideMeta.Metadata,
 		Steps:                  guideMeta.Steps,
@@ -390,6 +416,10 @@ func (g Guide) Validate() error {
 		if !validDifficulties[g.Metadata.Difficulty] {
 			return fmt.Errorf("guide %s: invalid difficulty %q (must be easy, medium, or hard)", g.Slug, g.Metadata.Difficulty)
 		}
+	}
+
+	if g.RequiredTier != "" && !validBillingTiers[g.RequiredTier] {
+		return fmt.Errorf("guide %s: invalid requiredTier %q (must be one of STARTER, STARTER_PLUS, BUSINESS, ENTERPRISE, CLOUD)", g.Slug, g.RequiredTier)
 	}
 
 	for i, label := range g.Metadata.Labels {

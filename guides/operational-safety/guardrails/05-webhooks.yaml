@@ -1,5 +1,6 @@
 slug: safety-webhooks
 ordering: 5
+requiredTier: STARTER
 prerequisiteGuideSlugs:
   - "safety-notifications"
 metadata:
