@@ -1,7 +1,7 @@
 slug: safety-notifications
 ordering: 4
 requiredEntitlements:
-  - NOTIFICATION_POLICY
+  - NOTIFICATION_POLICIES
 prerequisiteGuideSlugs:
   - "safety-approval-policy"
 metadata:

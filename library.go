@@ -48,8 +48,10 @@ type Guide struct {
 }
 
 // Entitlement is a Spacelift product feature a guide requires the user's
-// account to have. The backend maps these to its own entitlement / billing
-// model. When `RequiredEntitlements` is empty the guide has no feature
+// account to have. Values mirror the backend `Entitlement` GraphQL enum
+// (1:1 string match) — the backend then maps each entitlement to its own
+// billing / feature-flag model and decides whether a given account has it.
+// When `RequiredEntitlements` is empty the guide has no feature
 // requirements and is available on every plan (including Free).
 //
 // The set of recognised entitlements below is intentionally small — only the
@@ -57,17 +59,18 @@ type Guide struct {
 // enum (the constant, the validEntitlements map, and the matching enum in
 // schema/guide_schema.json) as new guides are added that depend on
 // additional gated features, e.g. private workers, blueprints, drift
-// detection, push policies, etc.
+// detection, push policies, etc. Every value added here must exist in the
+// backend `Entitlement` enum with the exact same string.
 type Entitlement string
 
 const (
-	EntitlementWebhook            Entitlement = "WEBHOOK"
-	EntitlementNotificationPolicy Entitlement = "NOTIFICATION_POLICY"
+	EntitlementNotificationPolicies   Entitlement = "NOTIFICATION_POLICIES"
+	EntitlementRunStateChangeWebhooks Entitlement = "RUN_STATE_CHANGE_WEBHOOKS"
 )
 
 var validEntitlements = map[Entitlement]bool{
-	EntitlementWebhook:            true,
-	EntitlementNotificationPolicy: true,
+	EntitlementNotificationPolicies:   true,
+	EntitlementRunStateChangeWebhooks: true,
 }
 
 type GuideMetadata struct {
@@ -424,7 +427,7 @@ func (g Guide) Validate() error {
 			return fmt.Errorf("guide %s: requiredEntitlements[%d] is empty", g.Slug, i)
 		}
 		if !validEntitlements[ent] {
-			return fmt.Errorf("guide %s: invalid requiredEntitlements[%d] %q (must be one of WEBHOOK, NOTIFICATION_POLICY)", g.Slug, i, ent)
+			return fmt.Errorf("guide %s: invalid requiredEntitlements[%d] %q (must be one of NOTIFICATION_POLICIES, RUN_STATE_CHANGE_WEBHOOKS)", g.Slug, i, ent)
 		}
 		if seenEntitlements[ent] {
 			return fmt.Errorf("guide %s: duplicate requiredEntitlements value %q", g.Slug, ent)

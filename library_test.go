@@ -252,8 +252,8 @@ func TestValidationRules(t *testing.T) {
 				Slug:     "test-guide",
 				Ordering: 1,
 				RequiredEntitlements: []userguides.Entitlement{
-					userguides.EntitlementNotificationPolicy,
-					userguides.EntitlementWebhook,
+					userguides.EntitlementNotificationPolicies,
+					userguides.EntitlementRunStateChangeWebhooks,
 				},
 				Metadata: userguides.GuideMetadata{
 					Title:             "Test Guide",
@@ -290,8 +290,8 @@ func TestValidationRules(t *testing.T) {
 				Slug:     "test-guide",
 				Ordering: 1,
 				RequiredEntitlements: []userguides.Entitlement{
-					userguides.EntitlementWebhook,
-					userguides.EntitlementWebhook,
+					userguides.EntitlementRunStateChangeWebhooks,
+					userguides.EntitlementRunStateChangeWebhooks,
 				},
 				Metadata: userguides.GuideMetadata{
 					Title:             "Test Guide",
@@ -474,8 +474,8 @@ func TestRequiredEntitlementsGating(t *testing.T) {
 	}
 
 	expected := map[string][]userguides.Entitlement{
-		"safety-notifications": {userguides.EntitlementNotificationPolicy},
-		"safety-webhooks":      {userguides.EntitlementNotificationPolicy, userguides.EntitlementWebhook},
+		"safety-notifications": {userguides.EntitlementNotificationPolicies},
+		"safety-webhooks":      {userguides.EntitlementNotificationPolicies, userguides.EntitlementRunStateChangeWebhooks},
 	}
 
 	asSet := func(ents []userguides.Entitlement) map[userguides.Entitlement]bool {
