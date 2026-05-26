@@ -88,9 +88,28 @@ steps:
         stack.name == input.expectations.main_stack_name
       }
 
+      # Manually attached integration
       valid if {
         some attachment in input.aws_attachments
         attachment.attached_to == main_stack.id
+      }
+
+      # Integration auto-attached to all stacks via autoattach:*
+      valid if {
+        some integration in input.aws_integrations
+        some label in integration.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target == "*"
+      }
+
+      # Integration auto-attached via matching stack label
+      valid if {
+        some integration in input.aws_integrations
+        some label in integration.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target in main_stack.labels
       }
 
   - order: 5
