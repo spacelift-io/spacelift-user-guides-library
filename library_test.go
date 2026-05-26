@@ -247,11 +247,14 @@ func TestValidationRules(t *testing.T) {
 			errMsg:    "steps must be sequentially ordered",
 		},
 		{
-			name: "valid requiredTier",
+			name: "valid requiredEntitlements",
 			guide: userguides.Guide{
-				Slug:         "test-guide",
-				Ordering:     1,
-				RequiredTier: userguides.BillingTierStarter,
+				Slug:     "test-guide",
+				Ordering: 1,
+				RequiredEntitlements: []userguides.Entitlement{
+					userguides.EntitlementNotificationPolicy,
+					userguides.EntitlementWebhook,
+				},
 				Metadata: userguides.GuideMetadata{
 					Title:             "Test Guide",
 					MinutesToComplete: 5,
@@ -264,11 +267,11 @@ func TestValidationRules(t *testing.T) {
 			expectErr: false,
 		},
 		{
-			name: "invalid requiredTier",
+			name: "invalid requiredEntitlements value",
 			guide: userguides.Guide{
-				Slug:         "test-guide",
-				Ordering:     1,
-				RequiredTier: "PREMIUM",
+				Slug:                 "test-guide",
+				Ordering:             1,
+				RequiredEntitlements: []userguides.Entitlement{"private_worker"},
 				Metadata: userguides.GuideMetadata{
 					Title:             "Test Guide",
 					MinutesToComplete: 5,
@@ -279,7 +282,28 @@ func TestValidationRules(t *testing.T) {
 				Completion: userguides.GuideCompletion{},
 			},
 			expectErr: true,
-			errMsg:    "invalid requiredTier",
+			errMsg:    "invalid requiredEntitlements",
+		},
+		{
+			name: "duplicate requiredEntitlements",
+			guide: userguides.Guide{
+				Slug:     "test-guide",
+				Ordering: 1,
+				RequiredEntitlements: []userguides.Entitlement{
+					userguides.EntitlementWebhook,
+					userguides.EntitlementWebhook,
+				},
+				Metadata: userguides.GuideMetadata{
+					Title:             "Test Guide",
+					MinutesToComplete: 5,
+				},
+				Steps: []userguides.GuideStep{
+					{Order: 1, Title: "Step 1", Instruction: "Do this"},
+				},
+				Completion: userguides.GuideCompletion{},
+			},
+			expectErr: true,
+			errMsg:    "duplicate requiredEntitlements",
 		},
 		{
 			name: "invalid URL scheme",
@@ -443,32 +467,52 @@ func TestSchemaValidation_Groups(t *testing.T) {
 	}
 }
 
-func TestRequiredTierGating(t *testing.T) {
+func TestRequiredEntitlementsGating(t *testing.T) {
 	lib, err := userguides.Guides()
 	if err != nil {
 		t.Fatalf("Guides() returned error: %v", err)
 	}
 
-	expectedTiers := map[string]userguides.BillingTier{
-		"safety-notifications": userguides.BillingTierStarter,
-		"safety-webhooks":      userguides.BillingTierStarter,
+	expected := map[string][]userguides.Entitlement{
+		"safety-notifications": {userguides.EntitlementNotificationPolicy},
+		"safety-webhooks":      {userguides.EntitlementNotificationPolicy, userguides.EntitlementWebhook},
+	}
+
+	asSet := func(ents []userguides.Entitlement) map[userguides.Entitlement]bool {
+		s := make(map[userguides.Entitlement]bool, len(ents))
+		for _, e := range ents {
+			s[e] = true
+		}
+		return s
 	}
 
 	found := map[string]bool{}
 	for _, group := range lib.Groups {
 		for _, chapter := range group.Chapters {
 			for _, guide := range chapter.Guides {
-				if expected, ok := expectedTiers[guide.Slug]; ok {
-					found[guide.Slug] = true
-					if guide.RequiredTier != expected {
-						t.Errorf("guide %s: expected requiredTier %q, got %q", guide.Slug, expected, guide.RequiredTier)
+				want, ok := expected[guide.Slug]
+				if !ok {
+					continue
+				}
+				found[guide.Slug] = true
+
+				gotSet := asSet(guide.RequiredEntitlements)
+				wantSet := asSet(want)
+
+				if len(gotSet) != len(wantSet) {
+					t.Errorf("guide %s: expected requiredEntitlements %v, got %v", guide.Slug, want, guide.RequiredEntitlements)
+					continue
+				}
+				for ent := range wantSet {
+					if !gotSet[ent] {
+						t.Errorf("guide %s: expected requiredEntitlements to contain %q, got %v", guide.Slug, ent, guide.RequiredEntitlements)
 					}
 				}
 			}
 		}
 	}
 
-	for slug := range expectedTiers {
+	for slug := range expected {
 		if !found[slug] {
 			t.Errorf("expected guide %s to exist", slug)
 		}

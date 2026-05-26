@@ -22,16 +22,17 @@
       "description": "Release state of the guide",
       "enum": ["testing", "published"]
     },
-    "requiredTier": {
-      "type": "string",
-      "description": "Minimum Spacelift billing tier required to complete this guide. Omit when the guide is available on all tiers (including Free).",
-      "enum": [
-        "STARTER",
-        "STARTER_PLUS",
-        "BUSINESS",
-        "ENTERPRISE",
-        "CLOUD"
-      ]
+    "requiredEntitlements": {
+      "type": "array",
+      "description": "Spacelift product entitlements the user's account must have to complete this guide. Omit or leave empty when the guide is available on every plan (including Free). The backend maps these to its own entitlement / billing model. The enum below only lists entitlements referenced by current guides — extend it (and the matching Entitlement constants in library.go) as new guides are added that depend on additional gated features.",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "WEBHOOK",
+          "NOTIFICATION_POLICY"
+        ]
+      }
     },
     "prerequisiteGuideSlugs": {
       "type": "array",

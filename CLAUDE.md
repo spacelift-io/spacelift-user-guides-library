@@ -38,7 +38,7 @@ variables:            # optional - template variables for guide steps
 ```yaml
 slug: string          # required - the guide's identifier (NOT derived from filename)
 ordering: int         # required
-requiredTier: string  # optional - minimum billing tier (STARTER | STARTER_PLUS | BUSINESS | ENTERPRISE | CLOUD). Omit when available on all tiers (including Free).
+requiredEntitlements: []string  # optional - Spacelift entitlements the account must have (WEBHOOK | NOTIFICATION_POLICY). Omit/empty when available on every plan. Extend the enum in library.go + schema/guide_schema.json when new guides need gated features.
 prerequisiteGuideSlugs: []string  # optional - slugs of guides that must be completed first; each must reference an existing guide
 metadata:
   title: string       # required
@@ -73,7 +73,8 @@ completion:
 ## Validation Rules
 
 - Required fields must be present
-- Valid enums: skillLevel, difficulty, requiredTier (when set)
+- Valid enums: skillLevel, difficulty, requiredEntitlements entries (when set)
+- `requiredEntitlements` values must be unique and non-empty
 - Steps must be sequentially ordered starting at 1 (no gaps, no duplicates)
 - Doc URLs must use http/https
 - `recommendedGuideIds` and `prerequisiteGuideSlugs` must reference existing guide slugs

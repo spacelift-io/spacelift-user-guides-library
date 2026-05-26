@@ -40,34 +40,34 @@ type Chapter struct {
 type Guide struct {
 	Slug                   string
 	Ordering               int
-	RequiredTier           BillingTier
+	RequiredEntitlements   []Entitlement
 	PrerequisiteGuideSlugs []string
 	Metadata               GuideMetadata
 	Steps                  []GuideStep
 	Completion             GuideCompletion
 }
 
-// BillingTier is the minimum Spacelift billing tier required to complete a
-// guide. An empty value means the guide has no tier requirement and is
-// available to all accounts (including Free). The backend is responsible for
-// mapping these logical tier names onto the versioned billing tier enum it
-// stores internally.
-type BillingTier string
+// Entitlement is a Spacelift product feature a guide requires the user's
+// account to have. The backend maps these to its own entitlement / billing
+// model. When `RequiredEntitlements` is empty the guide has no feature
+// requirements and is available on every plan (including Free).
+//
+// The set of recognised entitlements below is intentionally small — only the
+// features actually referenced by current guides are listed. Extend this
+// enum (the constant, the validEntitlements map, and the matching enum in
+// schema/guide_schema.json) as new guides are added that depend on
+// additional gated features, e.g. private workers, blueprints, drift
+// detection, push policies, etc.
+type Entitlement string
 
 const (
-	BillingTierStarter     BillingTier = "STARTER"
-	BillingTierStarterPlus BillingTier = "STARTER_PLUS"
-	BillingTierBusiness    BillingTier = "BUSINESS"
-	BillingTierEnterprise  BillingTier = "ENTERPRISE"
-	BillingTierCloud       BillingTier = "CLOUD"
+	EntitlementWebhook            Entitlement = "WEBHOOK"
+	EntitlementNotificationPolicy Entitlement = "NOTIFICATION_POLICY"
 )
 
-var validBillingTiers = map[BillingTier]bool{
-	BillingTierStarter:     true,
-	BillingTierStarterPlus: true,
-	BillingTierBusiness:    true,
-	BillingTierEnterprise:  true,
-	BillingTierCloud:       true,
+var validEntitlements = map[Entitlement]bool{
+	EntitlementWebhook:            true,
+	EntitlementNotificationPolicy: true,
 }
 
 type GuideMetadata struct {
@@ -326,7 +326,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	var guideMeta struct {
 		Slug                   string          `yaml:"slug"`
 		Ordering               int             `yaml:"ordering"`
-		RequiredTier           BillingTier     `yaml:"requiredTier"`
+		RequiredEntitlements   []Entitlement   `yaml:"requiredEntitlements"`
 		PrerequisiteGuideSlugs []string        `yaml:"prerequisiteGuideSlugs"`
 		Metadata               GuideMetadata   `yaml:"metadata"`
 		Steps                  []GuideStep     `yaml:"steps"`
@@ -344,7 +344,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	guide := Guide{
 		Slug:                   guideMeta.Slug,
 		Ordering:               guideMeta.Ordering,
-		RequiredTier:           guideMeta.RequiredTier,
+		RequiredEntitlements:   guideMeta.RequiredEntitlements,
 		PrerequisiteGuideSlugs: guideMeta.PrerequisiteGuideSlugs,
 		Metadata:               guideMeta.Metadata,
 		Steps:                  guideMeta.Steps,
@@ -418,8 +418,18 @@ func (g Guide) Validate() error {
 		}
 	}
 
-	if g.RequiredTier != "" && !validBillingTiers[g.RequiredTier] {
-		return fmt.Errorf("guide %s: invalid requiredTier %q (must be one of STARTER, STARTER_PLUS, BUSINESS, ENTERPRISE, CLOUD)", g.Slug, g.RequiredTier)
+	seenEntitlements := make(map[Entitlement]bool, len(g.RequiredEntitlements))
+	for i, ent := range g.RequiredEntitlements {
+		if ent == "" {
+			return fmt.Errorf("guide %s: requiredEntitlements[%d] is empty", g.Slug, i)
+		}
+		if !validEntitlements[ent] {
+			return fmt.Errorf("guide %s: invalid requiredEntitlements[%d] %q (must be one of WEBHOOK, NOTIFICATION_POLICY)", g.Slug, i, ent)
+		}
+		if seenEntitlements[ent] {
+			return fmt.Errorf("guide %s: duplicate requiredEntitlements value %q", g.Slug, ent)
+		}
+		seenEntitlements[ent] = true
 	}
 
 	for i, label := range g.Metadata.Labels {

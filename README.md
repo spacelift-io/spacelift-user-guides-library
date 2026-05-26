@@ -97,7 +97,8 @@ Defines an individual guide with metadata, steps, and completion information.
 
 ```yaml
 ordering: 1
-requiredTier: STARTER  # optional - minimum Spacelift billing tier
+requiredEntitlements:    # optional - Spacelift entitlements the account must have
+  - NOTIFICATION_POLICY
 metadata:
   title: "Create Your First Stack"
   description: "Learn how to create a stack in Spacelift"
@@ -134,7 +135,7 @@ completion:
 
 **Optional Top-Level Fields:**
 
-- `requiredTier` (string): Minimum Spacelift billing tier required to complete the guide. One of `STARTER`, `STARTER_PLUS`, `BUSINESS`, `ENTERPRISE`, or `CLOUD`. Omit when the guide is available on all tiers (including Free).
+- `requiredEntitlements` ([]string): Spacelift product entitlements the user's account must have to complete the guide. Each entry must be one of `WEBHOOK`, `NOTIFICATION_POLICY`. Omit (or leave empty) when the guide is available on every plan (including Free). The backend maps these to its own entitlement / billing model. The recognised set is intentionally small — when adding a guide that depends on a new gated feature (e.g. private workers, blueprints, drift detection, push policies), extend the `Entitlement` constants in `library.go`, the `validEntitlements` map, and the `enum` in `schema/guide_schema.json`.
 - `prerequisiteGuideSlugs` ([]string): Slugs of guides that must be completed first
 
 **metadata:**
@@ -364,7 +365,7 @@ func Guides() (*Library, error) {
 **Type Validation:**
 - **SkillLevel**: Must be one of `BEGINNER`, `ENABLER`, `COMMANDER`, `GUARDIAN`
 - **Difficulty**: Must be one of `easy`, `medium`, `hard` (if specified)
-- **RequiredTier**: If specified, must be one of `STARTER`, `STARTER_PLUS`, `BUSINESS`, `ENTERPRISE`, `CLOUD`
+- **RequiredEntitlements**: If specified, each entry must be a valid entitlement (`WEBHOOK`, `NOTIFICATION_POLICY`); duplicates and empty values are rejected
 - **MinutesToComplete**: Must be >= 0
 - **Labels**: Must be non-empty strings (no whitespace-only labels)
 - **URLs**: Must use `http` or `https` scheme and be well-formed

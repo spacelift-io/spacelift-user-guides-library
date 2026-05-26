@@ -1,6 +1,8 @@
 slug: safety-webhooks
 ordering: 5
-requiredTier: STARTER
+requiredEntitlements:
+  - NOTIFICATION_POLICY
+  - WEBHOOK
 prerequisiteGuideSlugs:
   - "safety-notifications"
 metadata:
