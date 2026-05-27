@@ -97,6 +97,8 @@ Defines an individual guide with metadata, steps, and completion information.
 
 ```yaml
 ordering: 1
+requiredEntitlements:    # optional - Spacelift entitlements the account must have
+  - NOTIFICATION_POLICIES
 metadata:
   title: "Create Your First Stack"
   description: "Learn how to create a stack in Spacelift"
@@ -130,6 +132,11 @@ completion:
 **Required Fields:**
 
 - `ordering` (int): Display order within the chapter (lower numbers appear first)
+
+**Optional Top-Level Fields:**
+
+- `requiredEntitlements` ([]string): Spacelift product entitlements the user's account must have to complete the guide. Each entry must be one of `NOTIFICATION_POLICIES`, `RUN_STATE_CHANGE_WEBHOOKS`. Values mirror the backend `Entitlement` GraphQL enum (1:1 string match) — the backend maps each entitlement to its own billing / feature-flag model. Omit (or leave empty) when the guide is available on every plan (including Free). The recognised set is intentionally small — when adding a guide that depends on a new gated feature (e.g. private workers, blueprints, drift detection, push policies), extend the `Entitlement` constants in `library.go`, the `validEntitlements` map, and the `enum` in `schema/guide_schema.json`, and make sure the new value exists verbatim in the backend `Entitlement` enum.
+- `prerequisiteGuideSlugs` ([]string): Slugs of guides that must be completed first
 
 **metadata:**
 - `title` (string): Display title of the guide
@@ -358,6 +365,7 @@ func Guides() (*Library, error) {
 **Type Validation:**
 - **SkillLevel**: Must be one of `BEGINNER`, `ENABLER`, `COMMANDER`, `GUARDIAN`
 - **Difficulty**: Must be one of `easy`, `medium`, `hard` (if specified)
+- **RequiredEntitlements**: If specified, each entry must be a valid entitlement (`NOTIFICATION_POLICIES`, `RUN_STATE_CHANGE_WEBHOOKS`); duplicates and empty values are rejected
 - **MinutesToComplete**: Must be >= 0
 - **Labels**: Must be non-empty strings (no whitespace-only labels)
 - **URLs**: Must use `http` or `https` scheme and be well-formed

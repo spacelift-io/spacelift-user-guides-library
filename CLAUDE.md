@@ -38,6 +38,8 @@ variables:            # optional - template variables for guide steps
 ```yaml
 slug: string          # required - the guide's identifier (NOT derived from filename)
 ordering: int         # required
+requiredEntitlements: []string  # optional - Spacelift entitlements the account must have (NOTIFICATION_POLICIES | RUN_STATE_CHANGE_WEBHOOKS). Values mirror the backend `Entitlement` GraphQL enum 1:1. Omit/empty when available on every plan. Extend the enum in library.go + schema/guide_schema.json (and confirm the value exists in the backend enum) when new guides need gated features.
+prerequisiteGuideSlugs: []string  # optional - slugs of guides that must be completed first; each must reference an existing guide
 metadata:
   title: string       # required
   description: string
@@ -71,10 +73,11 @@ completion:
 ## Validation Rules
 
 - Required fields must be present
-- Valid enums: skillLevel, difficulty
+- Valid enums: skillLevel, difficulty, requiredEntitlements entries (when set)
+- `requiredEntitlements` values must be unique and non-empty
 - Steps must be sequentially ordered starting at 1 (no gaps, no duplicates)
 - Doc URLs must use http/https
-- `recommendedGuideIds` must reference existing guide slugs
+- `recommendedGuideIds` and `prerequisiteGuideSlugs` must reference existing guide slugs
 - No duplicate slugs within groups, chapters, or guides
 - Labels must be non-empty strings
 - `minutesToComplete` must be >= 0
