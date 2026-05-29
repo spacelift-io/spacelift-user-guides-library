@@ -1,8 +1,5 @@
 slug: safety-webhooks
 ordering: 5
-requiredEntitlements:
-  - NOTIFICATION_POLICIES
-  - RUN_STATE_CHANGE_WEBHOOKS
 prerequisiteGuideSlugs:
   - "safety-notifications"
 metadata:

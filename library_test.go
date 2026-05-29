@@ -247,65 +247,6 @@ func TestValidationRules(t *testing.T) {
 			errMsg:    "steps must be sequentially ordered",
 		},
 		{
-			name: "valid requiredEntitlements",
-			guide: userguides.Guide{
-				Slug:     "test-guide",
-				Ordering: 1,
-				RequiredEntitlements: []userguides.Entitlement{
-					userguides.EntitlementNotificationPolicies,
-					userguides.EntitlementRunStateChangeWebhooks,
-				},
-				Metadata: userguides.GuideMetadata{
-					Title:             "Test Guide",
-					MinutesToComplete: 5,
-				},
-				Steps: []userguides.GuideStep{
-					{Order: 1, Title: "Step 1", Instruction: "Do this"},
-				},
-				Completion: userguides.GuideCompletion{},
-			},
-			expectErr: false,
-		},
-		{
-			name: "invalid requiredEntitlements value",
-			guide: userguides.Guide{
-				Slug:                 "test-guide",
-				Ordering:             1,
-				RequiredEntitlements: []userguides.Entitlement{"private_worker"},
-				Metadata: userguides.GuideMetadata{
-					Title:             "Test Guide",
-					MinutesToComplete: 5,
-				},
-				Steps: []userguides.GuideStep{
-					{Order: 1, Title: "Step 1", Instruction: "Do this"},
-				},
-				Completion: userguides.GuideCompletion{},
-			},
-			expectErr: true,
-			errMsg:    "invalid requiredEntitlements",
-		},
-		{
-			name: "duplicate requiredEntitlements",
-			guide: userguides.Guide{
-				Slug:     "test-guide",
-				Ordering: 1,
-				RequiredEntitlements: []userguides.Entitlement{
-					userguides.EntitlementRunStateChangeWebhooks,
-					userguides.EntitlementRunStateChangeWebhooks,
-				},
-				Metadata: userguides.GuideMetadata{
-					Title:             "Test Guide",
-					MinutesToComplete: 5,
-				},
-				Steps: []userguides.GuideStep{
-					{Order: 1, Title: "Step 1", Instruction: "Do this"},
-				},
-				Completion: userguides.GuideCompletion{},
-			},
-			expectErr: true,
-			errMsg:    "duplicate requiredEntitlements",
-		},
-		{
 			name: "invalid URL scheme",
 			guide: userguides.Guide{
 				Slug:     "test-guide",
@@ -334,6 +275,84 @@ func TestValidationRules(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := tt.guide.Validate()
+			if tt.expectErr {
+				if err == nil {
+					t.Errorf("Expected error containing %q but got no error", tt.errMsg)
+				} else if !strings.Contains(err.Error(), tt.errMsg) {
+					t.Errorf("Expected error containing %q but got: %v", tt.errMsg, err)
+				}
+			} else {
+				if err != nil {
+					t.Errorf("Expected no error but got: %v", err)
+				}
+			}
+		})
+	}
+}
+
+func TestGroupValidationRules(t *testing.T) {
+	tests := []struct {
+		name      string
+		group     userguides.Group
+		expectErr bool
+		errMsg    string
+	}{
+		{
+			name: "valid group without entitlements",
+			group: userguides.Group{
+				Slug:       "test-group",
+				Name:       "Test Group",
+				SkillLevel: "BEGINNER",
+				Ordering:   1,
+			},
+			expectErr: false,
+		},
+		{
+			name: "valid requiredEntitlements",
+			group: userguides.Group{
+				Slug:       "test-group",
+				Name:       "Test Group",
+				SkillLevel: "BEGINNER",
+				Ordering:   1,
+				RequiredEntitlements: []userguides.Entitlement{
+					userguides.EntitlementNotificationPolicies,
+					userguides.EntitlementRunStateChangeWebhooks,
+				},
+			},
+			expectErr: false,
+		},
+		{
+			name: "invalid requiredEntitlements value",
+			group: userguides.Group{
+				Slug:                 "test-group",
+				Name:                 "Test Group",
+				SkillLevel:           "BEGINNER",
+				Ordering:             1,
+				RequiredEntitlements: []userguides.Entitlement{"private_worker"},
+			},
+			expectErr: true,
+			errMsg:    "invalid requiredEntitlements",
+		},
+		{
+			name: "duplicate requiredEntitlements",
+			group: userguides.Group{
+				Slug:       "test-group",
+				Name:       "Test Group",
+				SkillLevel: "BEGINNER",
+				Ordering:   1,
+				RequiredEntitlements: []userguides.Entitlement{
+					userguides.EntitlementRunStateChangeWebhooks,
+					userguides.EntitlementRunStateChangeWebhooks,
+				},
+			},
+			expectErr: true,
+			errMsg:    "duplicate requiredEntitlements",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.group.Validate()
 			if tt.expectErr {
 				if err == nil {
 					t.Errorf("Expected error containing %q but got no error", tt.errMsg)
@@ -474,8 +493,7 @@ func TestRequiredEntitlementsGating(t *testing.T) {
 	}
 
 	expected := map[string][]userguides.Entitlement{
-		"safety-notifications": {userguides.EntitlementNotificationPolicies},
-		"safety-webhooks":      {userguides.EntitlementNotificationPolicies, userguides.EntitlementRunStateChangeWebhooks},
+		"operational-safety": {userguides.EntitlementNotificationPolicies, userguides.EntitlementRunStateChangeWebhooks},
 	}
 
 	asSet := func(ents []userguides.Entitlement) map[userguides.Entitlement]bool {
@@ -488,33 +506,29 @@ func TestRequiredEntitlementsGating(t *testing.T) {
 
 	found := map[string]bool{}
 	for _, group := range lib.Groups {
-		for _, chapter := range group.Chapters {
-			for _, guide := range chapter.Guides {
-				want, ok := expected[guide.Slug]
-				if !ok {
-					continue
-				}
-				found[guide.Slug] = true
+		want, ok := expected[group.Slug]
+		if !ok {
+			continue
+		}
+		found[group.Slug] = true
 
-				gotSet := asSet(guide.RequiredEntitlements)
-				wantSet := asSet(want)
+		gotSet := asSet(group.RequiredEntitlements)
+		wantSet := asSet(want)
 
-				if len(gotSet) != len(wantSet) {
-					t.Errorf("guide %s: expected requiredEntitlements %v, got %v", guide.Slug, want, guide.RequiredEntitlements)
-					continue
-				}
-				for ent := range wantSet {
-					if !gotSet[ent] {
-						t.Errorf("guide %s: expected requiredEntitlements to contain %q, got %v", guide.Slug, ent, guide.RequiredEntitlements)
-					}
-				}
+		if len(gotSet) != len(wantSet) {
+			t.Errorf("group %s: expected requiredEntitlements %v, got %v", group.Slug, want, group.RequiredEntitlements)
+			continue
+		}
+		for ent := range wantSet {
+			if !gotSet[ent] {
+				t.Errorf("group %s: expected requiredEntitlements to contain %q, got %v", group.Slug, ent, group.RequiredEntitlements)
 			}
 		}
 	}
 
 	for slug := range expected {
 		if !found[slug] {
-			t.Errorf("expected guide %s to exist", slug)
+			t.Errorf("expected group %s to exist", slug)
 		}
 	}
 }
