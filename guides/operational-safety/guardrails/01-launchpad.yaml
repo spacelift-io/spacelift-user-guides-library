@@ -8,7 +8,7 @@ metadata:
   minutesToComplete: 20
   prerequisites:
     - "A GitHub, GitLab, Bitbucket, or Azure DevOps account"
-    - "An existing AWS integration (see the 'Credentials, Not Secrets' guide in Foundations)"
+    - "An existing AWS integration (see the 'Credentials, Not Secrets' guide in First Steps)"
 
 steps:
   - order: 1
@@ -77,7 +77,7 @@ steps:
       2. Open the three-dot menu and go to `Settings > Integrations`.
       3. In the `Cloud integrations` tab, click **Attach** next to your AWS integration.
       4. Configure it to read and write.
-    hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in Foundations first."
+    hint: "If you don't have an AWS integration yet, create one from [Integrations](/integrations) by clicking **AWS**, or complete the 'Credentials, Not Secrets' guide in First Steps first."
     validationHint: "The AWS integration should be attached to your stack."
     validation: |
       package spacelift
