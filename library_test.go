@@ -93,8 +93,8 @@ func TestFoundationsGroup(t *testing.T) {
 		t.Fatal("Expected 'foundations' group to exist")
 	}
 
-	if foundations.Name != "Foundations" {
-		t.Errorf("Expected name 'Foundations', got %q", foundations.Name)
+	if foundations.Name != "First Steps" {
+		t.Errorf("Expected name 'First Steps', got %q", foundations.Name)
 	}
 
 	if foundations.SkillLevel != "BEGINNER" {
