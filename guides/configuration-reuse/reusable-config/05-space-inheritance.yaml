@@ -88,7 +88,7 @@ steps:
       2. Click **Create context**.
       3. In the wizard, set Name: **${company_context_name}**, Space: **${space_name}**, and add the label `autoattach:*` (asterisk means all).
       4. Still in the wizard, add an environment variable with Name: **COMPANY**, Value: **orbit-labs**. Leave **Mark as secret** off — otherwise the value shows as `*****` in run logs.
-      5. In the `Add hooks` step of the wizard, add to the `Before init` section:
+      5. In the `Add hooks` step of the wizard, leave **Customize workflow** on `Initialization` and add this to the `Before` card:
       ```language-bash
       echo "Company: $COMPANY"
       ```
