@@ -57,11 +57,12 @@ steps:
     title: "Add the Hook to Context"
     instruction: |
       1. Still in your context **${context_name}**, go to the `Hooks` tab.
-      2. In the `Before init` section, add:
+      2. Expand the `Initialization` section.
+      3. In the `Before` card, type this into **Add a command** and press Enter:
       ```language-bash
       echo "Initializing for environment: $TF_VAR_environment"
       ```
-      3. Click **Save**.
+      4. Click **Save changes**.
     hint: "Hooks in contexts work just like hooks on stacks. When attached, they merge with stack hooks (context hooks run first)."
     validationHint: "The context should have a `before_init` hook."
     validation: |
@@ -82,8 +83,8 @@ steps:
     instruction: |
       1. Open your stack **${main_stack_name}**.
       2. Go to the `Environment` tab and delete the `TF_VAR_environment` variable.
-      3. Go to the `Hooks` tab and remove the before-init script.
-      4. Save your changes.
+      3. Go to the `Hooks` tab, expand `Initialization`, and remove the command from the `Before` card.
+      4. Click **Save changes**.
     hint: "We're moving the config, not duplicating it. The stack should be clean of inline configuration."
     validationHint: "Your stack should no longer have the inline `TF_VAR_environment` variable or the before-init hook."
     validation: |
