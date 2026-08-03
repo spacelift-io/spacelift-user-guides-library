@@ -74,15 +74,47 @@ steps:
       3. Add label `env:production`.
       4. Use the same VCS repo and settings as your first stack.
       5. Complete the wizard.
-    hint: "This new stack has the `env:production` label - it should automatically get the context without any manual attachment."
-    validationHint: "Your second stack should be created with the `env:production` label."
+      6. Open the three-dot menu and go to `Settings > Integrations`.
+      7. In the `Cloud integrations` tab, click **Attach** next to your AWS integration.
+      8. Configure it to read and write.
+    hint: "The context will auto-attach from the `env:production` label. AWS still needs a manual attach for now — we'll automate that later."
+    validationHint: "Your second stack should have the `env:production` label and an AWS integration attached."
     validation: |
       package spacelift
 
-      valid if {
+      second_stack := stack if {
         some stack in input.stacks
         stack.name == input.expectations.second_stack_name
         "env:production" in stack.labels
+      }
+
+      # Manually attached integration
+      aws_attached if {
+        some attachment in input.aws_attachments
+        attachment.attached_to == second_stack.id
+      }
+
+      # Integration auto-attached to all stacks via autoattach:*
+      aws_attached if {
+        some integration in input.aws_integrations
+        some label in integration.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target == "*"
+      }
+
+      # Integration auto-attached via matching stack label
+      aws_attached if {
+        some integration in input.aws_integrations
+        some label in integration.labels
+        startswith(label, "autoattach:")
+        target := substring(label, count("autoattach:"), -1)
+        target in second_stack.labels
+      }
+
+      valid if {
+        second_stack
+        aws_attached
       }
 
   - order: 5
