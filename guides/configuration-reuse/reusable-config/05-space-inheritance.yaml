@@ -20,7 +20,7 @@ steps:
       3. Set Name: **${space_name}**, Parent: **${working_space_name}**.
       4. Enable **Inherit entities** from parent.
       5. Click **Create space**.
-    hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy. Create the team space under a parent you can write to — in many organizations that is not `root`."
+    hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
     validationHint: "Your team space should be created under your working space."
     validation: |
       package spacelift
