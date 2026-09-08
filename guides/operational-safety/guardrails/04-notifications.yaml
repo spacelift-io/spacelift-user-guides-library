@@ -17,7 +17,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Set Name: **${notification_policy_name}**, Type: **Notification**, Space: **root**.
+      3. Set Name: **${notification_policy_name}**, Type: **Notification**, Space: **${space_name}**.
       4. Add this OPA/Rego rule that notifies when approval is needed:
       ```language-rego
       package spacelift
@@ -35,15 +35,20 @@ steps:
       ```
       5. Click **Create policy**.
     hint: "You can't watch the dashboard 24/7. When something needs attention, you want a ping."
-    validationHint: "Your notification policy should be created in the root space."
+    validationHint: "Your notification policy should be created in your space."
     validation: |
       package spacelift
+
+      target_space := space if {
+        some space in input.spaces
+        space.name == input.expectations.space_name
+      }
 
       valid if {
         some policy in input.policies
         policy.name == input.expectations.notification_policy_name
         policy.type == "NOTIFICATION"
-        policy.space_slug == "root"
+        policy.space_slug == target_space.slug
       }
 
   - order: 2

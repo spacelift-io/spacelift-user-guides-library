@@ -19,7 +19,7 @@ steps:
       1. Navigate to [Enforce Guardrails > Policies](/policies) and click **Create policy**.
       2. Select **Plan policy** as the type.
       3. Name it **${policy_name}**.
-      4. Set `Space` to **root**.
+      4. Set `Space` to **${space_name}**.
       5. Add description: **All S3 buckets must have a project tag**.
       6. Click **Continue**.
       7. In the policy body editor, add this OPA/Rego rule:

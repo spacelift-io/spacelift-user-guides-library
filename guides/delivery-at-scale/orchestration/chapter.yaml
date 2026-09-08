@@ -2,6 +2,9 @@ name: "Stack Orchestration"
 description: "Learn to coordinate multi-stack systems with dependencies, output-to-input wiring, and promotion patterns."
 ordering: 1
 variables:
+  - name: "space_name"
+    description: "Existing space you have write access to. In many organizations this is not the root space."
+    resourceType: "space"
   - name: "main_stack_name"
     description: "Name of the primary stack (renamed to app)"
     resourceType: "stack"

@@ -55,12 +55,12 @@ steps:
     title: "Create Your Stack"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Name it **${main_stack_name}**, Space: **root**.
+      2. Name it **${main_stack_name}**, Space: **${space_name}**.
       3. Select your VCS integration and repository, Branch: **main**.
       4. Set Workflow tool: **OpenTofu**, choose the latest version.
       5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
-    hint: "This stack will become the 'app' stack later when we add dependencies."
+    hint: "This stack will become the 'app' stack later when we add dependencies. In many organizations only admins can create stacks in `root` — use a space you have write access to."
     validationHint: "Your stack should be created and visible in Spacelift. Make sure the name matches the one shown in the instructions."
     validation: |
       package spacelift

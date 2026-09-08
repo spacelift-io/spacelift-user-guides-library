@@ -17,18 +17,23 @@ steps:
     instruction: |
       1. Navigate to [Organize > Spaces](/spaces).
       2. Click **Create space**.
-      3. Set Name: **${space_name}**, Parent: **root**.
+      3. Set Name: **${space_name}**, Parent: **${working_space_name}**.
       4. Enable **Inherit entities** from parent.
       5. Click **Create space**.
-    hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy."
-    validationHint: "Your team space should be created."
+    hint: "Orbit Labs has teams. Teams have environments. Some config applies to everything underneath. Spaces let you model this hierarchy. Create the team space under a parent you can write to — in many organizations that is not `root`."
+    validationHint: "Your team space should be created under your working space."
     validation: |
       package spacelift
+
+      working_space := space if {
+        some space in input.spaces
+        space.name == input.expectations.working_space_name
+      }
 
       valid if {
         some space in input.spaces
         space.name == input.expectations.space_name
-        space.parent_slug == "root"
+        space.parent_slug == working_space.slug
       }
 
   - order: 2
@@ -38,7 +43,7 @@ steps:
       2. Set Name: **${child_space_name}**, Parent: **${space_name}**.
       3. Enable **Inherit entities** from parent.
       4. Click **Create space**.
-    hint: "Now you have a three-level hierarchy: root, then your team space, then your production space inside it. Configuration can cascade from any level down to its children."
+    hint: "Now you have a three-level hierarchy: your working space, then your team space, then your production space inside it. Configuration can cascade from any level down to its children."
     validationHint: "The child space should be created under your team space."
     validation: |
       package spacelift
@@ -60,7 +65,7 @@ steps:
       1. Go to [Ship Infra > Stacks](/stacks).
       2. Open your stack **${main_stack_name}**.
       3. Open the three-dot menu and go to `Settings > Stack details`.
-      4. Change the `Space` field from **root** to **${child_space_name}**.
+      4. Change the `Space` field from **${working_space_name}** to **${child_space_name}**.
       5. Save the change.
     hint: "Moving a stack to a child space doesn't break anything - it just changes where the stack lives in your organizational hierarchy."
     validationHint: "Your stack should be in the child space."

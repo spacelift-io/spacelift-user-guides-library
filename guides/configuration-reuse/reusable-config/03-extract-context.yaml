@@ -18,7 +18,7 @@ steps:
       1. Navigate to [Reuse config > Contexts](/contexts).
       2. Click **Create context**.
       3. Name it **${context_name}**.
-      4. Space: **root**.
+      4. Space: **${working_space_name}**.
       5. Click **Create context**.
     hint: "Copy-paste is not a strategy. Contexts are reusable bundles of configuration - environment variables, mounted files, and hooks that can be attached to any stack."
     validationHint: "Your context should be created and visible in Spacelift. Make sure the name matches the one shown in the instructions."
