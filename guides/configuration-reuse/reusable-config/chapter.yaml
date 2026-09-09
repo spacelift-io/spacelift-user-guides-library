@@ -3,7 +3,7 @@ description: "Learn to extract, share, and automate configuration across stacks 
 ordering: 1
 variables:
   - name: "working_space_name"
-    description: "Existing space you have write access to. In many organizations this is not the root space."
+    description: "The space you'll start from. Later guides nest new spaces underneath it."
     resourceType: "space"
   - name: "main_stack_name"
     description: "Name of the primary Spacelift stack"

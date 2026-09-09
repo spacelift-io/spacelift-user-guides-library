@@ -60,7 +60,7 @@ steps:
       4. Set Workflow tool: **OpenTofu**, choose the latest version.
       5. Enable **Autodeploy**.
       6. Complete the wizard and create the stack.
-    hint: "The label `env:production` will be important later for auto-attachment. Autodeploy means tracked runs confirm automatically. In many organizations only admins can create stacks in `root` — use a space you have write access to."
+    hint: "The label `env:production` will be important later for auto-attachment. Autodeploy means tracked runs confirm automatically."
     validationHint: "Your stack should be created with the `env:production` label set."
     validation: |
       package spacelift
