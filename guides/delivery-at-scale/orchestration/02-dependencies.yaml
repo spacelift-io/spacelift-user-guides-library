@@ -37,7 +37,7 @@ steps:
       }
       ```
       3. Commit and push.
-      4. In Spacelift, create a new stack named **${database_stack_name}**.
+      4. In Spacelift, create a new stack named **${database_stack_name}** in space **${space_name}**.
       5. Point it to your repository with `Project root`: **database**.
       6. Enable **Autodeploy** and attach the AWS integration.
     hint: "The database has to exist before the app can connect to it. We're modeling this dependency explicitly."

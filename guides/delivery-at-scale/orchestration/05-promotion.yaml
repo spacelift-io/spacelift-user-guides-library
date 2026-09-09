@@ -46,7 +46,7 @@ steps:
   - order: 2
     title: "Create the Staging Stack"
     instruction: |
-      1. In Spacelift, create a new stack named **${staging_stack_name}**.
+      1. In Spacelift, create a new stack named **${staging_stack_name}** in space **${space_name}**.
       2. In the wizard, point it to your repository with `Project root`: **environments**.
       3. Enable **Autodeploy**.
       4. In the `Attach cloud` step of the wizard, attach your AWS integration with read and write enabled.
@@ -73,7 +73,7 @@ steps:
   - order: 3
     title: "Create the Production Stack"
     instruction: |
-      1. Create another stack named **${production_stack_name}**.
+      1. Create another stack named **${production_stack_name}** in space **${space_name}**.
       2. In the wizard, point it to the same repository with `Project root`: **environments**.
       3. Leave **Autodeploy** unchecked.
       4. In the `Attach cloud` step of the wizard, attach your AWS integration with read and write enabled.

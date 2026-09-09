@@ -34,7 +34,7 @@ steps:
     title: "Create Your First Stack"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Fill in the stack creation wizard: Name: **${main_stack_name}**, Space: **root**, Description: **My first Spacelift stack**, Label: **demo**. Click **Continue**.
+      2. Fill in the stack creation wizard: Name: **${main_stack_name}**, Space: **${space_name}**, Description: **My first Spacelift stack**, Label: **demo**. Click **Continue**.
       3. Select your VCS integration, choose your repository, Branch: **main** or **master**. Click **Continue**.
       4. Set Workflow tool: **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Click **Skip to summary**.
