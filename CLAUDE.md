@@ -39,6 +39,7 @@ variables:            # optional - template variables for guide steps
 ```yaml
 slug: string          # required - the guide's identifier (NOT derived from filename)
 ordering: int         # required
+releaseState: published | testing  # optional, defaults to published. Testing guides are only shown to accounts with the backend's testing feature flag
 prerequisiteGuideSlugs: []string  # optional - slugs of guides that must be completed first; each must reference an existing guide
 metadata:
   title: string       # required
@@ -73,7 +74,7 @@ completion:
 ## Validation Rules
 
 - Required fields must be present
-- Valid enums: skillLevel, difficulty, requiredEntitlements entries (when set)
+- Valid enums: skillLevel, difficulty, releaseState, requiredEntitlements entries (when set)
 - `requiredEntitlements` (group-level) values must be unique and non-empty
 - Steps must be sequentially ordered starting at 1 (no gaps, no duplicates)
 - Doc URLs must use http/https

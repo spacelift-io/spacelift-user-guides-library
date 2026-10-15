@@ -138,6 +138,7 @@ completion:
 
 **Optional Top-Level Fields:**
 
+- `releaseState` (string): `published` (default) or `testing`. Testing guides are only shown to accounts with the backend's testing feature flag
 - `prerequisiteGuideSlugs` ([]string): Slugs of guides that must be completed first
 
 **metadata:**
@@ -330,6 +331,7 @@ The library will validate:
 - **Unique slugs**: No duplicate slugs within groups, chapters, or guides
 - **Skill level enum**: Must be BEGINNER, ENABLER, COMMANDER, or GUARDIAN
 - **Difficulty enum**: Must be easy, medium, or hard (if specified)
+- **Release state enum**: Must be published or testing (if specified)
 - **Step ordering**: Steps must be sequentially ordered (1, 2, 3...) with no gaps
 - **URL validation**: Documentation URLs must use http or https schemes
 - **Label validation**: Labels must be non-empty strings
