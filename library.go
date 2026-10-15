@@ -41,6 +41,7 @@ type Chapter struct {
 type Guide struct {
 	Slug                   string
 	Ordering               int
+	ReleaseState           ReleaseState
 	PrerequisiteGuideSlugs []string
 	Metadata               GuideMetadata
 	Steps                  []GuideStep
@@ -72,6 +73,16 @@ var validEntitlements = map[Entitlement]bool{
 	EntitlementNotificationPolicies:   true,
 	EntitlementRunStateChangeWebhooks: true,
 }
+
+// ReleaseState controls whether the backend shows a guide to everyone
+// (published) or only to accounts with the testing feature flag (testing).
+// Guides that omit it are parsed as published.
+type ReleaseState string
+
+const (
+	ReleaseStatePublished ReleaseState = "published"
+	ReleaseStateTesting   ReleaseState = "testing"
+)
 
 type GuideMetadata struct {
 	Title             string   `yaml:"title"`
@@ -331,6 +342,7 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 	var guideMeta struct {
 		Slug                   string          `yaml:"slug"`
 		Ordering               int             `yaml:"ordering"`
+		ReleaseState           ReleaseState    `yaml:"releaseState"`
 		PrerequisiteGuideSlugs []string        `yaml:"prerequisiteGuideSlugs"`
 		Metadata               GuideMetadata   `yaml:"metadata"`
 		Steps                  []GuideStep     `yaml:"steps"`
@@ -345,9 +357,14 @@ func parseGuide(f fs.FS, groupSlug, chapterSlug, guideFile string) (Guide, error
 		return Guide{}, fmt.Errorf("guide %s: slug cannot be empty", guideFile)
 	}
 
+	if guideMeta.ReleaseState == "" {
+		guideMeta.ReleaseState = ReleaseStatePublished
+	}
+
 	guide := Guide{
 		Slug:                   guideMeta.Slug,
 		Ordering:               guideMeta.Ordering,
+		ReleaseState:           guideMeta.ReleaseState,
 		PrerequisiteGuideSlugs: guideMeta.PrerequisiteGuideSlugs,
 		Metadata:               guideMeta.Metadata,
 		Steps:                  guideMeta.Steps,
@@ -423,6 +440,12 @@ func (g Guide) Validate() error {
 	}
 	if len(g.Steps) == 0 {
 		return fmt.Errorf("guide %s: must have at least one step", g.Slug)
+	}
+
+	switch g.ReleaseState {
+	case "", ReleaseStatePublished, ReleaseStateTesting:
+	default:
+		return fmt.Errorf("guide %s: invalid releaseState %q (must be published or testing)", g.Slug, g.ReleaseState)
 	}
 
 	if g.Metadata.Difficulty != "" {
