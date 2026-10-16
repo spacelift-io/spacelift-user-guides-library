@@ -38,7 +38,7 @@ steps:
     instruction: |
       1. Navigate to [Enforce Guardrails > Policies](/policies).
       2. Click **Create policy**.
-      3. Set Name: **${approval_policy_name}**, Type: **Approval**, Space: **root**.
+      3. Set Name: **${approval_policy_name}**, Type: **Approval**, Space: **${space_name}**.
       4. Add this OPA/Rego rule requiring one approval:
       ```language-rego
       package spacelift

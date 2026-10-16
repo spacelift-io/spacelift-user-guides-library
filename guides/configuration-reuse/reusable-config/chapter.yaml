@@ -2,6 +2,9 @@ name: "Reusable Configuration"
 description: "Learn to extract, share, and automate configuration across stacks using contexts, labels, and space inheritance."
 ordering: 1
 variables:
+  - name: "working_space_name"
+    description: "The space you'll start from. Later guides nest new spaces underneath it."
+    resourceType: "space"
   - name: "main_stack_name"
     description: "Name of the primary Spacelift stack"
     resourceType: "stack"

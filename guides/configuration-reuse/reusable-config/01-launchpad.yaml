@@ -55,7 +55,7 @@ steps:
     title: "Create Your Stack"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Name it **${main_stack_name}**, Space: **root**, add label `env:production`.
+      2. Name it **${main_stack_name}**, Space: **${working_space_name}**, add label `env:production`.
       3. Select your VCS integration and repository, Branch: **main**.
       4. Set Workflow tool: **OpenTofu**, choose the latest version.
       5. Enable **Autodeploy**.

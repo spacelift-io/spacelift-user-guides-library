@@ -2,6 +2,9 @@ name: "Policies and Notifications"
 description: "Add guardrails to your infrastructure: plan policies enforce rules, approval policies require sign-offs, and notifications keep the team informed."
 ordering: 1
 variables:
+  - name: "space_name"
+    description: "The space where you'll create stacks and other resources in this chapter."
+    resourceType: "space"
   - name: "main_stack_name"
     description: "Name of the primary Spacelift stack"
     resourceType: "stack"

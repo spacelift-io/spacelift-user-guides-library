@@ -61,7 +61,7 @@ steps:
     title: "Create Networking Stack in Spacelift"
     instruction: |
       1. Go to [Ship Infra > Stacks](/stacks) and click **Create stack**.
-      2. Set Name: **${dependency_stack_name}**, Space: **root**, Description: **Network infrastructure for Orbit Labs**, Labels: **network,infrastructure**. Click **Continue**.
+      2. Set Name: **${dependency_stack_name}**, Space: **${space_name}**, Description: **Network infrastructure for Orbit Labs**, Labels: **network,infrastructure**. Click **Continue**.
       3. Select your VCS integration and your networking repository, Branch: **main**. Click **Continue**.
       4. Select **OpenTofu**, choose the latest version from the list. Click **Create & Continue**.
       5. Attach your AWS integration with **Read** and **Write** access.
